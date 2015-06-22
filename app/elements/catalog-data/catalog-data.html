@@ -1,8 +1,10 @@
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
-
+<link rel="import" href="../../bower_components/firebase-element/firebase-collection.html">
+<link rel="import" href="../../bower_components/firebase-element/firebase-document.html">
 <dom-module id="catalog-data">
   <template>
-    <iron-ajax id="req" url="/catalog.json" method="get" handle-as="json" on-response="_handleResponse"></iron-ajax>
+    <!-- <iron-ajax id="req" url="/catalog.json" method="get" handle-as="json" on-response="_handleResponse"></iron-ajax> -->
+    <firebase-document location="https://charlesiesbeta.firebaseio.com" data="{{_app}}"></firebase-document>
   </template>
 </dom-module>
 
@@ -19,18 +21,48 @@
       return out;
     };
 
+    var _generateArray = function(myObj) {
+      var arr = [];
+      for (var i in myObj) {
+        if (myObj.hasOwnProperty(i)) {
+          arr.push(myObj[i]);
+        }
+      }
+      //console.log(arr.length);
+      return arr;
+
+    };
+
     var _setPackageData = function(data) {
+
       _data = data || {};
       if (data) {
-        _data.packageMap = _generateMap(data.packages);
-        _data.elementMap = _generateMap(data.elements);
-        _data.guideMap = _generateMap(data.guides);
+
+        _data.packageMap = data.packages; // _generateMap(data.packages);
+        _data.elementMap = data.elements; //_generateMap(data.elements);
+        _data.guideMap = data.guides; //_generateMap(data.guides);
         _data.behaviorMap = {};
-        _data.elements.forEach(function(el) {
-          el.behaviors.forEach(function(be) {
-            _data.behaviorMap[be] = el.name;
-          });
+        // _data.elements.forEach(function(el) {
+        //   el.behaviors.forEach(function(be) {
+        //     _data.behaviorMap[be] = el.name;
+        //   });
+        // });
+
+        _data.packages = _generateArray(data.packages);
+
+        _data.packages.push({
+          "color": "#E82C0C",
+          "description": "DLX Elements are used at dlxstudios",
+          "elements": ["dlx-data"],
+          "name": "dlx-elements",
+          "symbol": "Dlx",
+          "tagline": "dlxstudios elements",
+          "title": "DLX Elements",
+          "version": "0.2.3823"
         });
+
+        _data.elements = _generateArray(data.elements);
+        _data.guides = _generateArray(data.guides);
       }
       _els.forEach(function(el) {
         el.load(_data);
@@ -40,24 +72,21 @@
     Polymer({
       is: 'catalog-data',
       ready: function() {
-        //console.log('ready', this);
         this.load(_data);
-        //console.log(this.$.fbCatalog);
-
       },
       attached: function() {
-        //console.log('attached', _els);
-        if (_els.length === 0 && !_data.packages) { this.$.req.generateRequest(); }
+        //console.log(this);
+        if (_els.length === 0 && !_data.packages) {
+          //this.$.req.generateRequest();
+        }
         _els.push(this);
-        //console.log('attached', this);
       },
       detached: function() {
         _els.splice(_els.indexOf(this), 1);
       },
       properties: {
-        shop: {
-          type: Array,
-          readOnly: true,
+        _app: {
+          type: Object,
           notify: true
         },
         packages: {
@@ -101,8 +130,12 @@
           notify: true
         }
       },
+      observers: [
+        '_getData(_app)',
+      ],
+
       load: function(data) {
-        //console.log('load', data);
+        //console.log('load', data.packageMap);
         if (data.packages) {
           this._setPackages(data.packages);
           this._setPackageMap(data.packageMap);
@@ -114,8 +147,9 @@
           this._setTags(data.tags);
         }
       },
-      _handleResponse: function(_, req) {
-        _setPackageData(req.response);
+      _getData: function(data) {
+
+        _setPackageData(data);
       }
     });
   })();

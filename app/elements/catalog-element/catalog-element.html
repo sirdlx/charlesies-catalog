@@ -11,7 +11,7 @@
     properties: {
       name: {type: String, notify: true},
       _elements: Object,
-      
+
       data: {type: Object, notify: true, computed: 'getData(_elements,name)'}
     },
     getData: function(_elements,name) {

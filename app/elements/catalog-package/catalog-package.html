@@ -9,14 +9,24 @@
   Polymer({
     is: 'catalog-package',
     properties: {
-      name: {type: String, notify: true},
-      _packages: {type: Object, notify: true},
+      name: {
+        type: String,
+        notify: true
+      },
+      _packages: {
+        type: Object,
+        notify: true
+      },
 
-      data: {type: Object, notify: true, computed: 'getData(_packages,name)'}
+      data: {
+        type: Object,
+        notify: true,
+        computed: 'getData(_packages,name)'
+      }
     },
-    getData: function(_packages,name) {
-      //console.log('catalog-package . getData', this.name)
+    getData: function(_packages, name) {
       if (!_packages) return;
+      //console.log(_packages);
       return _packages[name];
     }
   });

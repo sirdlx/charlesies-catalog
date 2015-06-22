@@ -12,19 +12,15 @@
 <link rel="import" href="../app-sidebar/app-sidebar.html">
 
 <link rel="import" href="../pages/page-packages.html">
-<link rel="import" href="../pages/page-packages-edit.html">
 <link rel="import" href="../pages/page-browse.html">
 <link rel="import" href="../pages/page-element.html">
 <link rel="import" href="../pages/page-guide.html">
-<link rel="import" href="../pages/page-login.html">
-<link rel="import" href="../dlx-data/dlx-data.html">
 
 <dom-module id="app-shell">
   <style>
     #cartpanel::shadow > #scrim {
       z-index: 4;
     }
-
     #cartpanel::shadow > #drawer {
       z-index: 5;
     }
@@ -34,19 +30,14 @@
     }
   </style>
   <template>
-    <dlx-data id="dlxdata" app="{{appobject}}"></dlx-data>
     <paper-drawer-panel id="cartpanel" class="flex" force-narrow right-drawer disable-edge-swipe disable-swipe drawer-width="320px">
-      <app-router id="router" class="flex" mode="pushstate" main on-activate-route-end="trackPageview" packages="{{packages}}">
+      <app-router id="router" class="flex" mode="pushstate" main on-activate-route-end="trackPageview">
         <app-route path="/" element="page-packages" bindRouter></app-route>
-        <!-- <app-route path="/login" element="page-login" bindRouter></app-route> -->
         <app-route path="/browse" element="page-browse" bindRouter onUrlChange="updateModel"></app-route>
-        <!-- <app-route path="/p/add" element="page-browse" bindRouter> -->
         <app-route path="/elements/:element" element="page-element" bindRouter onUrlChange="updateModel"></app-route>
         <app-route path="/guides/*" element="page-guide" bindRouter></app-route>
         <app-route path="*">
-          <template>
-            <h1>Not Found</h1>
-          </template>
+          <template><h1>Not Found</h1></template>
         </app-route>
       </app-router>
       <app-cart id="cart" drawer></app-cart>
@@ -67,19 +58,6 @@
       'cart-remove': 'cartRemove',
       'toast': 'showToast'
     },
-    properties: {
-      title: {
-        type: String,
-        computed: 'computeTitle(appobject)'
-      },
-    },
-    ready: function() {
-      //console.log('appshell - ready');
-
-    },
-    attached: function() {
-      //console.log('appshell - attached');
-    },
     toggleSearch: function() {
       this.$.search.active = !this.$.search.active;
     },
@@ -92,16 +70,11 @@
       this.$.cartpanel.closeDrawer();
     },
     updateTitle: function(_, detail) {
-      //console.log('updateTitle', _, detail);
       if (detail.title && detail.title.length) {
-        //document.title = detail.title + " - " + this.appobject.title;
+        document.title = detail.title + " - Polymer Element Catalog";
       } else {
-        //document.title = this.appobject.title;
+        document.title = "Polymer Element Catalog";
       }
-    },
-    computeTitle: function(appobject) {
-      //console.log('TITLE 2', appobject);
-      document.title = this.appobject.title;
     },
     cartClose: function() {
       this.$.cartpanel.closeDrawer();

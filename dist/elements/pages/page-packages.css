@@ -35,7 +35,7 @@ cart-icon {
 }
 
 a.package {
-  width: 204px;
+  width: 220px;
   margin: 8px;
 }
 
@@ -57,7 +57,7 @@ a.package {
 }
 
 guide-card, #coming-soon {
-  width: calc(100% - 16px);
+  width: 456px;
   cursor: pointer;
   margin: 8px;
 }

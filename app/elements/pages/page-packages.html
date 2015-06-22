@@ -6,13 +6,11 @@
 <link rel="import" href="../package-tile/package-tile.html">
 <link rel="import" href="../guide-card/guide-card.html">
 <link rel="import" href="../cart-icon/cart-icon.html">
-<link rel="import" href="../dlx-data/dlx-data.html">
 
 <dom-module id="page-packages">
   <link rel="import" type="css" href="page-packages.css">
   <template>
-    <dlx-data id="dlxdata" app={{appobject}}></dlx-data>
-
+    <catalog-data packages="{{packages}}" guides="{{guides}}"></catalog-data>
     <paper-header-panel mode="seamed" class="fit">
       <paper-toolbar class="paper-header">
         <app-logo full class="flex"></app-logo>
@@ -20,35 +18,21 @@
         <cart-icon></cart-icon>
       </paper-toolbar>
 
-
       <div class="content fit">
         <div class="packages layout horizontal wrap">
-          <template is="dom-repeat" items="[[appobject.packages]]">
+          <template is="dom-repeat" items="[[packages]]">
             <a href$="[[_packageLink(item.name)]]" is="app-link" class="package flex-none">
-              <package-tile package=[[item]]></package-tile>
+              <package-tile name$="[[item.name]]"></package-tile>
             </a>
-
           </template>
-
         </div>
-
-
-
-        <!-- <div class="content fit">
-          <div class="packages layout horizontal wrap">
-            <template is="dom-repeat" items="[[packages]]">
-              <a href$="[[_packageLink(item.name)]]" is="app-link" class="package flex-none">
-                <package-tile name$="[[item.name]]"></package-tile>
-              </a>
-            </template>
-          </div> -->
 
         <div id="guides-container">
           <h3>Element Guides</h3>
           <div id="guide-list" class="horizontal layout wrap">
-            <template is="dom-repeat" items="[[appobject.guides]]">
-              <a href$="[[_link('guides',item.name)]]" is="app-link">
-                <guide-card guide="[[item.name]]"></guide-card>
+            <template is="dom-repeat" items="[[guides]]">
+              <a href$="[[_link('guides',item.__firebaseKey__)]]" is="app-link">
+                <guide-card guide="[[item.__firebaseKey__]]"></guide-card>
               </a>
             </template>
             <div id="coming-soon">More guides coming soon, stay tuned!</div>
@@ -69,9 +53,6 @@
         notify: true
       }
     },
-    ready :function (argument) {
-
-    },
     attached: function() {
       // reset page title since this is the default page
       this.fire('page-meta', {
@@ -89,8 +70,9 @@
     _link: function() {
       return "/" + Array.prototype.slice.call(arguments).join("/");
     },
-    _packageLink: function(name) {
-      return "/browse?package=" + name;
+    _packageLink: function(item) {
+      //console.log(item);
+      return "/browse?package=" + item;
     },
     guideSelect: function(e) {
       this.router.go('/guides/' + e.currentTarget.guide);

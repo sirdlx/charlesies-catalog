@@ -4,7 +4,6 @@
 <dom-module id="package-tile">
   <link rel="import" type="css" href="package-tile.css">
   <template>
-
     <catalog-package name="[[name]]" data="{{package}}"></catalog-package>
     <theme-color id="content" color="[[package.color]]" class="vertical layout" themed themed-border>
       <span class="version">[[package.version]]</span>
@@ -21,6 +20,7 @@
     is: 'package-tile',
     enableCustomStyleProperties: true,
     properties: {
+      name: {type: String, notify: true},
       package: {type: Object}
     },
     attached: function() {
@@ -30,8 +30,8 @@
         this.classList.add('active');
       }.bind(this), (index + 1) * 50);
     },
-    _extendedTitle: function(package) {
-      if (package.title.length > 20) return true;
+    _extendedTitle: function(p) {
+      if (p.title.length > 20) return true;
     }
   });
 </script>

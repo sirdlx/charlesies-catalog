@@ -1,12 +1,12 @@
 {
-  "name": "charlesies-catalog",
+  "name": "polymer-element-catalog",
   "version": "0.1.0",
   "authors": [
     "Google"
   ],
-  "description": "Store front made using Polymer",
+  "description": "A catalog showcasing Google's Web Components",
   "main": "dist/index.html",
-  "license": "MIT",
+  "license": "http://polymer.github.io/LICENSE.txt",
   "ignore": [
     "**/.*",
     "node_modules",

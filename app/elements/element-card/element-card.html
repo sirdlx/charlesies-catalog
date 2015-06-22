@@ -63,9 +63,8 @@ Polymer({
     e.stopPropagation();
     this.fire('update-params', {tag: e.currentTarget.name});
   },
-  _updatePackage: function(_element) {
+  _updatePackage: function() {
     this.package = this.querySelector('catalog-package').data;
-    //console.log(_element);
   },
   nav: function(e) {
     if (Polymer.dom(e).localTarget === this.$.actions) {
