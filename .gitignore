@@ -60,6 +60,6 @@ _testmain.go
 *.exe
 go_code/
 node_modules/
-app/bower_components/
-.tmp/
+bower_components/
+.tmp
 dist
