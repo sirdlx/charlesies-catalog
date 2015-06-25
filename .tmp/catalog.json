@@ -362,8 +362,8 @@
       "elements": [
         "google-analytics-query",
         "google-analytics-chart",
-        "google-analytics-view-selector",
         "google-analytics-date-selector",
+        "google-analytics-view-selector",
         "google-analytics-dashboard",
         "google-analytics-loader"
       ],
@@ -386,11 +386,11 @@
       "active": "google-client-loader",
       "elements": [
         "google-client-loader",
-        "google-legacy-loader",
         "google-maps-api",
+        "google-legacy-loader",
         "google-plusone-api",
-        "google-realtime-api",
         "google-youtube-api",
+        "google-realtime-api",
         "google-js-api"
       ],
       "behaviors": []
@@ -1337,25 +1337,25 @@
         "neon-animated-pages",
         "opaque-animation",
         "neon-animatable",
+        "fade-out-animation",
         "cascaded-animation",
         "fade-in-animation",
-        "fade-out-animation",
         "hero-animation",
         "ripple-animation",
-        "scale-down-animation",
         "scale-up-animation",
         "slide-from-left-animation",
-        "slide-from-right-animation",
+        "scale-down-animation",
         "slide-right-animation",
-        "slide-left-animation",
+        "slide-from-right-animation",
         "slide-up-animation",
-        "slide-down-animation",
-        "transform-animation"
+        "slide-left-animation",
+        "transform-animation",
+        "slide-down-animation"
       ],
       "behaviors": [
         "Polymer.NeonAnimationRunnerBehavior",
-        "Polymer.NeonAnimationBehavior",
         "Polymer.NeonAnimatableBehavior",
+        "Polymer.NeonAnimationBehavior",
         "Polymer.NeonSharedElementAnimatableBehavior",
         "Polymer.NeonSharedElementAnimationBehavior"
       ]
@@ -1589,8 +1589,8 @@
       "active": "paper-input",
       "elements": [
         "paper-input",
-        "paper-input-error",
         "paper-input-container",
+        "paper-input-error",
         "paper-input-char-counter",
         "paper-textarea"
       ],
@@ -1953,10 +1953,10 @@
       },
       "active": "platinum-sw-register",
       "elements": [
-        "platinum-sw-fetch",
         "platinum-sw-import-script",
         "platinum-sw-cache",
-        "platinum-sw-register"
+        "platinum-sw-register",
+        "platinum-sw-fetch"
       ],
       "behaviors": []
     }

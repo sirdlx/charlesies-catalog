@@ -61,5 +61,5 @@ _testmain.go
 go_code/
 node_modules/
 bower_components/
-.tmp
-dist
+.tmp/
+dist/

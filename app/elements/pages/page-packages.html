@@ -31,8 +31,8 @@
           <h3>Element Guides</h3>
           <div id="guide-list" class="horizontal layout wrap">
             <template is="dom-repeat" items="[[guides]]">
-              <a href$="[[_link('guides',item.__firebaseKey__)]]" is="app-link">
-                <guide-card guide="[[item.__firebaseKey__]]"></guide-card>
+              <a href$="[[_link('guides',item.name)]]" is="app-link">
+                <guide-card guide="[[item.name]]"></guide-card>
               </a>
             </template>
             <div id="coming-soon">More guides coming soon, stay tuned!</div>

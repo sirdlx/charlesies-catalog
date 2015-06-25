@@ -3,23 +3,47 @@
 <dom-module id="catalog-guide">
   <template>
     <catalog-data guide-map="{{_guides}}"></catalog-data>
-    <iron-ajax id="req" auto url="[[src]]" method="get" handle-as="text" last-response="{{content}}"></iron-ajax>
+    <!-- <iron-ajax id="req" auto url="[[src]]" method="get" handle-as="text" last-response="{{content}}"></iron-ajax> -->
   </template>
 </dom-module>
 <script>
   Polymer({
     is: 'catalog-guide',
     properties: {
-      name: {type: String, notify: true},
-      _guides: {type: Object, notify: true},
+      name: {
+        type: String,
+        notify: true
+      },
+      _guides: {
+        type: Object,
+        notify: true
+      },
+      data: {
+        type: Object,
+        notify: true,
+        computed: 'getData(_guides,name)'
+      },
+      src: {
+        type: String,
+        notify: true,
+        computed: 'getSrc(name)'
+      },
+      content: {
+        type: String,
+        notify: true,
+        computed: 'getContent(name)'
 
-      data: {type: Object, notify: true, computed: 'getData(_guides,name)'},
-      src: {type: String, notify: true, computed: 'getSrc(name)'},
-      content: {type: String, notify: true}
+      }
     },
-    getData: function(_guides,name) {
+    getData: function(_guides, name) {
+      console.log(_guides[name]);
       if (!_guides) return;
+      //return _guides[name].summary;
       return _guides[name];
+    },
+
+    getContent: function(name) {
+      console.log(name);
     },
     getSrc: function(name) {
       return "/data/guides/" + name + ".html";
