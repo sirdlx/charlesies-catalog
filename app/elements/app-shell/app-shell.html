@@ -14,13 +14,14 @@
 <link rel="import" href="../pages/page-packages.html">
 <link rel="import" href="../pages/page-browse.html">
 <link rel="import" href="../pages/page-element.html">
-<link rel="import" href="../pages/page-guide.html">
+<link rel="import" href="../pages/page-blog.html">
 
 <dom-module id="app-shell">
   <style>
     #cartpanel::shadow > #scrim {
       z-index: 4;
     }
+
     #cartpanel::shadow > #drawer {
       z-index: 5;
     }
@@ -30,14 +31,18 @@
     }
   </style>
   <template>
+    <catalog-data app="charlesiesbeta" fbd="{{settings}}" document="settings"></catalog-data>
+
     <paper-drawer-panel id="cartpanel" class="flex" force-narrow right-drawer disable-edge-swipe disable-swipe drawer-width="320px">
       <app-router id="router" class="flex" mode="pushstate" main on-activate-route-end="trackPageview">
         <app-route path="/" element="page-packages" bindRouter></app-route>
         <app-route path="/browse" element="page-browse" bindRouter onUrlChange="updateModel"></app-route>
         <app-route path="/elements/:element" element="page-element" bindRouter onUrlChange="updateModel"></app-route>
-        <app-route path="/guides/*" element="page-guide" bindRouter></app-route>
+        <app-route path="/blog/post/:postid" element="page-blog" bindRouter></app-route>
         <app-route path="*">
-          <template><h1>Not Found</h1></template>
+          <template>
+            <h1>Not Found</h1>
+          </template>
         </app-route>
       </app-router>
       <app-cart id="cart" drawer></app-cart>
@@ -58,6 +63,19 @@
       'cart-remove': 'cartRemove',
       'toast': 'showToast'
     },
+    observers: [
+      'setApp(settings)'
+    ],
+    ready: function () {
+      this.title = "Catalog"
+    },
+    setApp: function(settings) {
+      // console.log('setApp', settings);
+      this.title = settings.title;
+      this.fire('page-meta', {
+        title: null
+      });
+    },
     toggleSearch: function() {
       this.$.search.active = !this.$.search.active;
     },
@@ -71,10 +89,11 @@
     },
     updateTitle: function(_, detail) {
       if (detail.title && detail.title.length) {
-        document.title = detail.title + " - Polymer Element Catalog";
+        document.title = detail.title + " - " + this.title;
       } else {
-        document.title = "Polymer Element Catalog";
+        document.title = this.title;
       }
+
     },
     cartClose: function() {
       this.$.cartpanel.closeDrawer();

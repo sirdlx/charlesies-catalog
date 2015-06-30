@@ -5,11 +5,11 @@
 <dom-module id="guide-card">
   <link rel="import" type="css" href="guide-card.css">
   <template>
-    <catalog-guide name="[[guide]]" data="{{_guide}}"></catalog-guide>
+    <!-- <catalog-guide blogID="[[blogtitle]]" data="{{_guide}}"></catalog-guide> -->
 
     <div id="content" class="vertical layout">
-      <h3>[[_guide.title]]</h3>
-      <p>[[_guide.summary]]</p>
+      <h3>[[item.title]]</h3>
+      <p>[[item.author.displayName]]</p>
     </div>
   </template>
 </dom-module>
@@ -19,8 +19,7 @@ Polymer({
   is: 'guide-card',
   enableCustomStyleProperties: true,
   properties: {
-    guide: {type: String, notify: true},
-    _guide: Object
+    item: Object
   }
 });
 </script>

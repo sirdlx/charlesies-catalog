@@ -10,19 +10,19 @@
 <dom-module id="element-card">
   <link rel="import" type="css" href="element-card.css">
   <template>
-    <catalog-element name="[[element]]" data="{{_element}}"></catalog-element>
-    <catalog-package name="[[_element.package]]" data="{{package}}"></catalog-package>
+    <!-- <catalog-element name="[[element]]" data="{{_element}}"></catalog-element>
+    <catalog-package name="[[item.package]]" data="{{package}}"></catalog-package> -->
 
     <div id="content" class="vertical layout">
       <theme-color color="[[package.color]]">
-        <div id="el" on-tap="nav" target$="[[_element.name]]" view="docs">
+        <div id="el" on-tap="nav" target$="[[item.name]]" view="docs">
           <div id="el-graphic" themed>
-            <hero-image src="[[_element.hero]]"></hero-image>
+            <hero-image src="[[item.hero]]"></hero-image>
             <element-action-menu element="[[element]]" id="actions"></element-action-menu>
           </div>
-          <h3>[[_element.name]]</h3>
+          <h3>[[item.name]]</h3>
         </div>
-        <p id="el-desc">[[_element.description]]</p>
+        <p id="el-desc">[[item.description]]</p>
         <div id="el-package" class="horizontal layout center meta" on-tap="_packageClicked">
           <package-symbol package="[[package]]"></package-symbol>
           <span>[[package.title]]</span>
@@ -30,7 +30,7 @@
         <div id="el-tags" class="horizontal layout center meta">
           <iron-icon icon="maps:local-offer" class="flex-none"></iron-icon>
           <span class="horizontal layout wrap flex">
-            <template is="dom-repeat" items="[[_element.tags]]">
+            <template is="dom-repeat" items="[[item.tags]]">
               <tag-link name="[[item]]" on-tap="_tagClicked"></tag-link>
             </template>
           </span>

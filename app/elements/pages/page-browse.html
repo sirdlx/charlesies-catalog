@@ -21,8 +21,9 @@
 <dom-module id="page-browse">
   <link rel="import" type="css" href="page-browse.css">
   <template>
-    <catalog-data elements="{{elements}}" packages="{{packages}}"></catalog-data>
-    <catalog-package name="[[package]]" data="{{packageInfo}}"></catalog-package>
+    <firebase-collection location="https://charlesiesbeta.firebaseio.com/packages" data="{{packages}}"></firebase-collection>
+    <firebase-collection location="https://charlesiesbeta.firebaseio.com/elements" data="{{elements}}"></firebase-collection>
+    <!-- <catalog-package name="[[package]]" data="{{packageInfo}}"></catalog-package> -->
     <iron-media-query query="(max-width: 640px)" query-matches="{{_narrowViewport}}"></iron-media-query>
 
     <responsive-element>
@@ -100,8 +101,8 @@
 
           <div id="element-cards" class="horizontal layout wrap">
             <template is="dom-if" if="[[_stampCards(view,_forceCards)]]">
-              <template name="element-cards-repeat" is="dom-repeat" items="[[_filteredElements]]">
-                <element-card element="[[item.name]]"></element-card>
+              <template name="element-cards-repeat" is="dom-repeat" items="[[elements]]">
+                <element-card item="[[item]]"></element-card>
               </template>
             </template>
           </div>
@@ -154,7 +155,8 @@
 
       ready: function() {
         this._updateForceCards();
-        this.view = this._forceCards ? 'cards' : 'table';
+        // this.view = this._forceCards ? 'cards' : 'table';
+        this.view = 'cards';
       },
 
       attached: function() {
@@ -174,6 +176,7 @@
         if (this.tagList.length) {
           var match = false;
           for (var i = 0; i < this.tagList.length; i++) {
+            if(!element.tags) return false;
             if (element.tags.join(' ').indexOf(this.tagList[i]) >= 0) match = true;
           }
           if (!match) return false;

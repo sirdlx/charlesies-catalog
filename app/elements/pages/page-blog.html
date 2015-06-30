@@ -3,10 +3,9 @@
 <link rel="import" href="../../bower_components/paper-styles/paper-styles.html">
 <link rel="import" href="../../bower_components/paper-drawer-panel/paper-drawer-panel.html">
 
-<link rel="import" href="../catalog-guide/catalog-guide.html">
 <link rel="import" href="../catalog-data/catalog-data.html">
 
-<dom-module id="page-guide">
+<dom-module id="page-blog">
   <style>
     .content {
       display: block;
@@ -97,11 +96,9 @@
   </style>
   <template>
     <prism-highlighter></prism-highlighter>
-
-    <catalog-data guides="{{guides}}"></catalog-data>
-    <catalog-guide name="[[name]]" data="{{guide}}" content="{{content}}"></catalog-guide>
-
+    <catalog-data posts="{{posts}}" blogid="8038113399974572777"></catalog-data>
     <paper-drawer-panel drawer-width="272px" disable-edge-swipe>
+
       <app-sidebar drawer>
         <paper-toolbar>
           <app-logo class="flex"></app-logo>
@@ -109,56 +106,68 @@
         </paper-toolbar>
         <h4>Guides</h4>
         <nav id="guide-list" class="flex">
-          <template is="dom-repeat" items="[[guides]]">
-            <a class="item" is="app-link" href$="[[_guideUrl(item.name)]]">[[item.title]]</a>
+          <a class="item" is="app=link" href="/blog/post/add">Add +</a>
+          <template is="dom-repeat" items="[[posts.items]]">
+            <a class="item" is="app-link" href$="[[_postUrl(item.id)]]">[[item.title]]</a>
           </template>
         </nav>
       </app-sidebar>
+
+
       <paper-header-panel mode="waterfall" class="vertical layout fit" id="main" main>
         <paper-toolbar class="paper-header flex-none">
           <iron-icon icon="menu" paper-drawer-toggle></iron-icon>
-          <span class="flex">[[guide.title]]</span>
+          <span class="flex">[[post.title]]</span>
         </paper-toolbar>
 
         <div class="content fit">
           <div id="content"></div>
         </div>
       </paper-header-panel>
+
+
     </paper-drawer-panel>
   </template>
 </dom-module>
 
 <script>
   Polymer({
-    is: 'page-guide',
+    is: 'page-blog',
     properties: {
       router: Object,
-      guides: Array,
-      guide: Object,
-      name: {
-        type: String,
-        notify: true
-      },
-      content: String
+      posts: Array,
+      post: Object,
+      postid: String,
+      //content: String
     },
     enableCustomStyleProperties: true,
     observers: [
-      'contentChanged(content)',
-      'updateMeta(guide)'
+      'contentChanged(posts, postid)',
+      'updateMeta(post)'
     ],
     attached: function() {
-      // TODO: Change this when we switch to pushState URLs
-      this.name = window.location.pathname.substring(8);
+
     },
-    contentChanged: function() {
-      this.$.content.innerHTML = this.content;
+    contentChanged: function(posts, postid) {
+      if (postid && this.posts) {
+        for (var i = 0; i < posts.items.length; i++) {
+          if (posts.items[i].id == postid) {
+            //console.log(this.posts.items[i]);
+            this.post = posts.items[i];
+            this.$.content.innerHTML = posts.items[i].content;
+          };
+        }
+      }
+
+
+      // // this.$.content.innerHTML = this.content;
       this._decorateHeadings();
       this._highlight();
       this.scopeSubtree(this.$.content);
-      if (window.location.hash !== "") {
-        var el = Polymer.dom(this.$.content).querySelector(window.location.hash);
-        if (el) el.scrollIntoView();
-      }
+      // if (window.location.hash !== "") {
+      //   var el = Polymer.dom(this.$.content).querySelector(window.location.hash);
+      //   if (el) el.scrollIntoView();
+      // }
     },
     _decorateHeadings: function() {
       var h2s = this.$.content.querySelectorAll('h2');
@@ -176,18 +185,23 @@
       var els = this.$.content.querySelectorAll('pre code');
       for (var i = 0; i < els.length; i++) {
         var code = els[i].textContent;
-        var event = this.fire('syntax-highlight', {code: code});
+        var event = this.fire('syntax-highlight', {
+          code: code
+        });
         if (event.detail.code && !els[i].highlighted) {
           els[i].highlighted = true;
           els[i].innerHTML = event.detail.code;
         }
       }
     },
-    _guideUrl: function(name) {
-      return "/guides/" + name;
+    _postUrl: function(id) {
+      return "/blog/post/" + id;
     },
-    updateMeta: function() {
-      this.fire('page-meta', {title: this.guide.title});
+    updateMeta: function(post, postid) {
+      this.fire('page-meta', {
+        title: this.post.title
+      });
+      //console.log('updateMeta', post);
     },
     nav: function(e) {
       var name = e.currentTarget.getAttribute('name');

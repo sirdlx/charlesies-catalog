@@ -1,156 +1,160 @@
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../../bower_components/firebase-element/firebase-collection.html">
 <link rel="import" href="../../bower_components/firebase-element/firebase-document.html">
+<link rel="import" href="../../bower_components/google-apis/google-client-loader.html">
+
 <dom-module id="catalog-data">
   <template>
-    <!-- <iron-ajax id="req" url="/catalog.json" method="get" handle-as="json" on-response="_handleResponse"></iron-ajax> -->
-    <firebase-document location="https://charlesiesbeta.firebaseio.com" data="{{_app}}"></firebase-document>
+    <iron-ajax id="req" url="/blogger.json" method="get" handle-as="json" on-response="_handleResponse"></iron-ajax>
+
+    <google-client-loader id="gcl" name="blogger" version="v3"></google-client-loader>
+
+    <firebase-document location="{{_locFBD}}" data="{{fbd}}"></firebase-document>
+    <firebase-collection location="{{_locFBC}}" data="{{fbc}}"></firebase-collection>
+
+
   </template>
 </dom-module>
 
 <script>
   (function() {
     var _data = {};
-    var _els = [];
-
-    var _generateMap = function(list) {
-      var out = {};
-      for (var i = 0; i < list.length; i++) {
-        out[list[i].name] = list[i];
-      }
-      return out;
-    };
-
-    var _generateArray = function(myObj) {
-      var arr = [];
-      for (var i in myObj) {
-        if (myObj.hasOwnProperty(i)) {
-          arr.push(myObj[i]);
-        }
-      }
-      //console.log(arr.length);
-      return arr;
-
-    };
-
-    var _setPackageData = function(data) {
-
-      _data = data || {};
-      if (data) {
-
-        _data.packageMap = data.packages; // _generateMap(data.packages);
-        _data.elementMap = data.elements; //_generateMap(data.elements);
-        _data.guideMap = data.guides; //_generateMap(data.guides);
-        _data.behaviorMap = "";
-        // _data.elements.forEach(function(el) {
-        //   el.behaviors.forEach(function(be) {
-        //     _data.behaviorMap[be] = el.name;
-        //   });
-        // });
-
-        _data.packages = _generateArray(data.packages);
-
-        _data.packages.push({
-          "color": "#E82C0C",
-          "description": "DLX Elements are used at dlxstudios",
-          "elements": ["dlx-data"],
-          "name": "dlx-elements",
-          "symbol": "Dlx",
-          "tagline": "dlxstudios elements",
-          "title": "DLX Elements",
-          "version": "0.2.3823"
-        });
-
-        _data.elements = _generateArray(data.elements);
-        _data.guides = _generateArray(data.guides);
-      }
-      _els.forEach(function(el) {
-        el.load(_data);
-      });
-    };
 
     Polymer({
+
       is: 'catalog-data',
-      ready: function() {
-        this.load(_data);
-      },
-      attached: function() {
-        //console.log(this);
-        if (_els.length === 0 && !_data.packages) {
-          //this.$.req.generateRequest();
-        }
-        _els.push(this);
-      },
-      detached: function() {
-        _els.splice(_els.indexOf(this), 1);
-      },
+
       properties: {
-        _app: {
+
+        data: {
           type: Object,
-          notify: true
+          readOnly: true,
+          notify: true,
         },
-        packages: {
+
+        /* FBCollections */
+        _locFBC: {
+          type: String,
+        },
+        collection: String,
+        fbc: {
           type: Array,
-          readOnly: true,
           notify: true
         },
-        packageMap: {
+
+
+        /* FBDocument */
+        _locFBD: {
+          type: String,
+
+        },
+        fbd: {
           type: Object,
-          readOnly: true,
           notify: true
         },
-        elements: {
-          type: Array,
-          readOnly: true,
+        document: String,
+
+        /* Blogger */
+        blogid: {
+          type: String,
           notify: true
         },
-        elementMap: {
+        posts: {
           type: Object,
-          readOnly: true,
           notify: true
         },
-        guides: {
-          type: Array,
-          readOnly: true,
-          notify: true
-        },
-        guideMap: {
-          type: Object,
-          readOnly: true,
-          notify: true
-        },
-        tags: {
-          type: Object,
-          readOnly: true,
-          notify: true
-        },
-        behaviorMap: {
-          type: Object,
-          readOnly: true,
+        postid: {
+          type: String,
           notify: true
         }
+      },
+
+      listeners: {
+        // 'google-api-load': '_gcl'
       },
       observers: [
-        '_getData(_app)',
+        /* Blogger */
+        '_getPostList(blogid)',
+        '_getPostSingle(posts, postid)',
+        /* Firebase */
+        '_genFBDocumentLoc(app, document)',
+        '_genFBCollectionLoc(app, collection)'
+
       ],
 
-      load: function(data) {
-        //console.log('load', data.packageMap);
-        if (data.packages) {
-          this._setPackages(data.packages);
-          this._setPackageMap(data.packageMap);
-          this._setElements(data.elements);
-          this._setElementMap(data.elementMap);
-          this._setGuides(data.guides);
-          this._setGuideMap(data.guideMap);
-          this._setBehaviorMap(data.behaviorMap);
-          this._setTags(data.tags);
+      ready: function (argument) {
+        console.log(this._data);
+      },
+      /*  Firebase  */
+      _genLoc: function(app, ext) {
+        // console.log('_genLoc', app, ext);
+        return 'https://' + app + '.firebaseio.com/' + ext
+
+      },
+
+      _genFBDocumentLoc: function(app, document) {
+        //console.log('_genFBDocument', app, document);
+        // return this._genLoc(app, document)
+        this._locFBD = this._genLoc(app, document);
+      },
+
+      _genFBCollectionLoc: function(app, collection) {
+        // console.log('_genFBCollection', app, collection);
+        //return this._genLoc(app, collection)
+        this._locFBC = this._genLoc(app, collection);
+      },
+
+      /*  Blogger  */
+      _getPostList: function(blogid) {
+        //console.log('_getPostList', blogid);
+        if (blogid) {
+          this.$.req.generateRequest();
+          // var blogger = this.$.gcl;
+          // blogger.addEventListener('google-api-load', function(event) {
+          //   var request = blogger.api.post.list({
+          //     blogId: this.blogid,
+          //     key: 'AIzaSyAzyqzqu1sURmPH3VPzkOc9ywT7lCPPPF4'
+          //   });
+          //   request.execute(function(resp) {
+          //     console.log(resp);
+          //   });
+          // });
+
         }
       },
-      _getData: function(data) {
+      _getPostSingle: function(posts, postid) {
+        // console.log('_getPostSingle', posts, postid);
+        if (postid && this.posts) {
+          for (var i = 0; i < posts.items.length; i++) {
+            if (posts.items[i].id == postid) {
+              // console.log(this.posts.items[i].id);
+              // return posts.items[i];
+              // console.log(this.posts.items[i]);
+              // this.data = this.posts.items[i];
+            };
+          }
 
-        _setPackageData(data);
-      }
+          //this.$.req.generateRequest();
+          // var blogger = this.$.gcl;
+          // blogger.addEventListener('google-api-load', function(event) {
+          //   var request = blogger.api.posts.list({
+          //     blogId: this.blogid,
+          //     postId: this.postid,
+          //     key: 'AIzaSyAzyqzqu1sURmPH3VPzkOc9ywT7lCPPPF4'
+          //   });
+          //   request.execute(function(resp) {
+          //     console.log(resp);
+          //   });
+          // });
+
+        }
+      },
+      _handleResponse: function(_, req) {
+        //console.log(req.response.items);
+        this.posts = req.response;
+        this._data = {data: "yup"};
+      },
+
     });
   })();
 </script>

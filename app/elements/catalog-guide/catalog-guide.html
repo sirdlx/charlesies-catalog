@@ -2,7 +2,7 @@
 
 <dom-module id="catalog-guide">
   <template>
-    <catalog-data guide-map="{{_guides}}"></catalog-data>
+    <catalog-data blog="true" guides={{_guides}}></catalog-data>
     <!-- <iron-ajax id="req" auto url="[[src]]" method="get" handle-as="text" last-response="{{content}}"></iron-ajax> -->
   </template>
 </dom-module>
@@ -16,7 +16,8 @@
       },
       _guides: {
         type: Object,
-        notify: true
+        notify: true,
+        value:[]
       },
       data: {
         type: Object,
@@ -26,7 +27,7 @@
       src: {
         type: String,
         notify: true,
-        computed: 'getSrc(name)'
+        //computed: 'getSrc(name)'
       },
       content: {
         type: String,
@@ -36,16 +37,18 @@
       }
     },
     getData: function(_guides, name) {
-      console.log(_guides[name]);
+      //console.log(_guides[name]);
       if (!_guides) return;
       //return _guides[name].summary;
       return _guides[name];
     },
 
     getContent: function(name) {
-      console.log(name);
+      //console.log(name);
+
     },
     getSrc: function(name) {
+      console.log(name);
       return "/data/guides/" + name + ".html";
     }
   });
