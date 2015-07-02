@@ -10,14 +10,9 @@
 <dom-module id="page-packages">
   <link rel="import" type="css" href="page-packages.css">
   <template>
-
-    <catalog-data app="charlesiesbeta" fbc="{{packages}}" collection="packages"></catalog-data>
-
-
-
-    <catalog-data posts="{{posts}}" blogid="8038113399974572777"></catalog-data>
-
+    <catalog-data packages="{{packages}}" posts="{{posts}}" blogid="8038113399974572777"></catalog-data>
     <paper-header-panel mode="seamed" class="fit">
+
       <paper-toolbar class="paper-header">
         <app-logo full class="flex"></app-logo>
         <app-bar class="horizontal layout center end-justified" query="{{q}}"></app-bar>
@@ -28,24 +23,31 @@
         <div class="packages layout horizontal wrap">
           <template is="dom-repeat" items="[[packages]]">
             <a href$="[[_packageLink(item.name)]]" is="app-link" class="package flex-none">
-              <package-tile item$="[[item]]"></package-tile>
+              <package-tile package="[[item]]" name$="[[item.name]]"></package-tile>
             </a>
           </template>
         </div>
 
         <div id="guides-container">
-          <h3>Element Guides</h3>
+          <h3>Post</h3>
           <div id="guide-list" class="horizontal layout wrap">
-            <template is="dom-repeat" items="[[posts.items]]">
-              <a href$="[[_link('blog/post', item.id)]]" is="app-link">
-                <guide-card item="[[item]]"></guide-card>
+            <template is="dom-repeat" items="[[posts]]">
+              <a href$="[[_link('posts',item.id)]]" is="app-link">
+                <guide-card post="[[item.id]]"></guide-card>
               </a>
             </template>
+
             <div id="coming-soon">More guides coming soon, stay tuned!</div>
+
           </div>
         </div>
       </div>
+
+
+
     </paper-header-panel>
+
+
   </template>
 </dom-module>
 
@@ -57,9 +59,6 @@
       q: {
         type: String,
         notify: true
-      },
-      posts: {
-        type: Object
       }
     },
     attached: function() {
@@ -69,14 +68,8 @@
       });
     },
     observers: [
-      'search(q)',
-      //'newposts(posts)'
-      'newposts(packages)'
+      'search(q)'
     ],
-    newposts: function(e) {
-      // console.log('newposts', e.items[0].title);
-      console.log('newpost', e);
-    },
     search: function(q) {
       if (q || this.q) {
         this.router.go('/browse?q=' + (q || this.q));
@@ -85,9 +78,8 @@
     _link: function() {
       return "/" + Array.prototype.slice.call(arguments).join("/");
     },
-    _packageLink: function(item) {
-      //console.log(item);
-      return "/browse?package=" + item;
+    _packageLink: function(name) {
+      return "/browse?package=" + name;
     },
     guideSelect: function(e) {
       this.router.go('/guides/' + e.currentTarget.guide);

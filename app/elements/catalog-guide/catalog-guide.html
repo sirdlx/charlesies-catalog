@@ -2,8 +2,7 @@
 
 <dom-module id="catalog-guide">
   <template>
-    <catalog-data blog="true" guides={{_guides}}></catalog-data>
-    <!-- <iron-ajax id="req" auto url="[[src]]" method="get" handle-as="text" last-response="{{content}}"></iron-ajax> -->
+    <catalog-data posts-map="{{_posts}}"></catalog-data>
   </template>
 </dom-module>
 <script>
@@ -14,42 +13,45 @@
         type: String,
         notify: true
       },
-      _guides: {
-        type: Object,
-        notify: true,
-        value:[]
+      _posts: {
+        type: Array,
+        notify: true
       },
+
       data: {
         type: Object,
         notify: true,
-        computed: 'getData(_guides,name)'
-      },
-      src: {
-        type: String,
-        notify: true,
-        //computed: 'getSrc(name)'
+        computed: 'getData(_posts, name)'
       },
       content: {
         type: String,
-        notify: true,
-        computed: 'getContent(name)'
-
+        notify: true
       }
     },
-    getData: function(_guides, name) {
-      //console.log(_guides[name]);
-      if (!_guides) return;
-      //return _guides[name].summary;
-      return _guides[name];
+    observers: [
+      'checkpost(name)'
+    ],
+
+    checkpost: function(post) {
+      // console.log('checkpost', post);
+    },
+    ready: function() {
+
+    },
+    getData: function(_posts, name) {
+      if (!_posts) return;
+
+      for (var key in _posts) {
+        // console.log('getData', key);
+        if (key == name) {
+          return _posts[key];
+        }
+
+      }
+
+
+
     },
 
-    getContent: function(name) {
-      //console.log(name);
-
-    },
-    getSrc: function(name) {
-      console.log(name);
-      return "/data/guides/" + name + ".html";
-    }
   });
 </script>

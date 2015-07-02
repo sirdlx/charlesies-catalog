@@ -1,17 +1,20 @@
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
-<link rel="import" href="../../bower_components/firebase-element/firebase-collection.html">
 <link rel="import" href="../../bower_components/firebase-element/firebase-document.html">
+<link rel="import" href="../../bower_components/firebase-element/firebase-collection.html">
 <link rel="import" href="../../bower_components/google-apis/google-client-loader.html">
+
 
 <dom-module id="catalog-data">
   <template>
-    <iron-ajax id="req" url="/blogger.json" method="get" handle-as="json" on-response="_handleResponse"></iron-ajax>
+    <!-- <iron-ajax id="req" url="https://charlesiesbeta.firebaseio.com/.json" method="get" handle-as="json" on-response="_handleResponse"></iron-ajax> -->
+    <firebase-document location="https://charlesiesbeta.firebaseio.com/packages" data={{packages}}></firebase-document>
+    <firebase-document location="https://charlesiesbeta.firebaseio.com/elements" data={{elements}}></firebase-document>
+    <firebase-document location="https://charlesiesbeta.firebaseio.com/settings" data={{settings}}></firebase-document>
+
+    <firebase-document location="{{_locFBD}}" data="{{_item}}"></firebase-document>
 
     <google-client-loader id="gcl" name="blogger" version="v3"></google-client-loader>
-
-    <firebase-document location="{{_locFBD}}" data="{{fbd}}"></firebase-document>
-    <firebase-collection location="{{_locFBC}}" data="{{fbc}}"></firebase-collection>
-
+    <iron-ajax id="req" url="/blogger.json" method="get" handle-as="json" on-response="_handlePostsResponse"></iron-ajax>
 
   </template>
 </dom-module>
@@ -19,91 +22,192 @@
 <script>
   (function() {
     var _data = {};
+    var _els = [];
+
+    _genLoc = function(app, ext) {
+      // console.log('_genLoc', app, ext);
+      return 'https://' + app + '.firebaseio.com/' + ext;
+    }
+
+    var _generateMap = function(list) {
+
+      var out = {};
+      for (var i = 0; i < list.length; i++) {
+        out[list[i].name] = list[i];
+      }
+      return out;
+    };
+
+    var _generatePostsMap = function(list) {
+
+      var out = {};
+      for (var i = 0; i < list.length; i++) {
+        out[list[i].id] = list[i];
+      }
+      return out;
+    };
+
+    var _setPackageData = function(data) {
+      console.log('_setPackageData');
+
+      _data = data || {};
+      if (data) {
+        //this.packages = data.packages;
+
+        // _data.packages = data.packages;
+        _data.packageMap = _generateMap(data.packages);
+        _data.elementMap = _generateMap(data.elements);
+        // _data.guideMap = _generateMap(data.guides);
+        // _data.behaviorMap = {};
+        // _data.elements.forEach(function(el) {
+        //   el.behaviors.forEach(function(be) {
+        //     _data.behaviorMap[be] = el.name;
+        //   });
+        // });
+      }
+      _els.forEach(function(el) {
+        el.load(_data);
+      });
+    };
 
     Polymer({
-
       is: 'catalog-data',
-
+      ready: function() {
+        this.load(_data);
+      },
+      attached: function() {
+        if (_els.length === 0 && !_data.packages) {
+          //this.$.req.generateRequest();
+        }
+        _els.push(this);
+      },
+      detached: function() {
+        _els.splice(_els.indexOf(this), 1);
+      },
       properties: {
 
-        data: {
-          type: Object,
-          readOnly: true,
-          notify: true,
-        },
-
-        /* FBCollections */
-        _locFBC: {
+        /* FBDocument */
+        app: {
           type: String,
         },
-        collection: String,
-        fbc: {
-          type: Array,
-          notify: true
-        },
-
-
-        /* FBDocument */
         _locFBD: {
           type: String,
-
+          computed: '_locfbd(app, itembyid)'
         },
-        fbd: {
+        item: {
           type: Object,
           notify: true
         },
-        document: String,
+        itembyid: String,
+
+        packages: {
+          type: Array,
+          // readOnly: true,
+          notify: true,
+
+        },
+        packageMap: {
+          type: Object,
+          readOnly: true,
+          notify: true
+        },
+        elements: {
+          type: Array,
+          // readOnly: true,
+          notify: true
+        },
+        elementMap: {
+          type: Object,
+          readOnly: true,
+          notify: true
+        },
+
+        tags: {
+          type: Object,
+          readOnly: true,
+          notify: true
+        },
+        behaviorMap: {
+          type: Object,
+          readOnly: true,
+          notify: true
+        },
 
         /* Blogger */
         blogid: {
           type: String,
           notify: true
         },
-        posts: {
-          type: Object,
-          notify: true
-        },
         postid: {
           type: String,
           notify: true
+        },
+        posts: {
+          type: Array,
+          // readOnly: true,
+          notify: true
+        },
+        postsMap: {
+          type: Object,
+          readOnly: true,
+          notify: true
         }
+
+
       },
 
-      listeners: {
-        // 'google-api-load': '_gcl'
-      },
       observers: [
         /* Blogger */
         '_getPostList(blogid)',
         '_getPostSingle(posts, postid)',
-        /* Firebase */
-        '_genFBDocumentLoc(app, document)',
-        '_genFBCollectionLoc(app, collection)'
 
+        'checkdata(elements, packages)'
       ],
 
-      ready: function (argument) {
-        console.log(this._data);
+
+      load: function(data) {
+        // console.log(data.posts);
+        if (data.packages) {
+          // this._setPackages(data.packages);
+          this._setPackageMap(data.packageMap);
+          //this._setElements(data.elements);
+          this._setElementMap(data.elementMap);
+          this.posts = data.posts;
+          this._setPostsMap(data.postsMap);
+          //this._setBehaviorMap(data.behaviorMap);
+          //this._setTags(data.tags);
+        }
       },
-      /*  Firebase  */
-      _genLoc: function(app, ext) {
-        // console.log('_genLoc', app, ext);
-        return 'https://' + app + '.firebaseio.com/' + ext;
+      _handlePostsResponse: function(_, req) {
+        // console.log(req.response);
+        // console.log(_generatePostsMap(req.response.items));
+        _data.posts = req.response.items;
+        _data.postsMap = _generatePostsMap(req.response.items);
+        _els.forEach(function(el) {
+          el.load(_data);
+        });
 
       },
+      _locfbd: function(app, itembyid) {
 
-      _genFBDocumentLoc: function(app, document) {
-        //console.log('_genFBDocument', app, document);
-        // return this._genLoc(app, document)
-        this._locFBD = this._genLoc(app, document);
+        if (!itembyid.length) {
+          return
+        }
+        // console.log('_locfbd', app, itembyid);
+        console.log('_locfbd', _genLoc(app, itembyid));
+        return _genLoc(app, itembyid);
       },
+      checkdata: function(elements, packages) {
+        // console.log('checkdata', elements, packages);
+        _data.packages = packages;
+        _data.elements = elements;
+        _data.packageMap = _generateMap(packages);
+        _data.elementMap = _generateMap(elements);
 
-      _genFBCollectionLoc: function(app, collection) {
-        // console.log('_genFBCollection', app, collection);
-        //return this._genLoc(app, collection)
-        this._locFBC = this._genLoc(app, collection);
+        _els.forEach(function(el) {
+          el.load(_data);
+        });
       },
-
       /*  Blogger  */
       _getPostList: function(blogid) {
         //console.log('_getPostList', blogid);
@@ -148,13 +252,7 @@
           // });
 
         }
-      },
-      _handleResponse: function(_, req) {
-        //console.log(req.response.items);
-        this.posts = req.response;
-        this._data = {data: "yup"};
-      },
-
+      }
     });
   })();
 </script>

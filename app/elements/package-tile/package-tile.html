@@ -4,13 +4,13 @@
 <dom-module id="package-tile">
   <link rel="import" type="css" href="package-tile.css">
   <template>
-    <!-- <catalog-package name="[[name]]" data="{{package}}"></catalog-package> -->
-    <theme-color id="content" color="[[item.color]]" class="vertical layout" themed themed-border>
-      <span class="version">[[item.version]]</span>
-      <h2 class="symbol">[[item.symbol]]</h2>
-      <h3 class="title" extended$="[[_extendedTitle(package)]]">[[item.title]]</h3>
+    <catalog-package name="[[name]]" data="{{package}}"></catalog-package>
+    <theme-color id="content" color="[[package.color]]" class="vertical layout" themed themed-border>
+      <span class="version">[[package.version]]</span>
+      <h2 class="symbol">[[package.symbol]]</h2>
+      <h3 class="title" extended$="[[_extendedTitle(package)]]">[[package.title]]</h3>
       <hr themed-reverse>
-      <p class="tagline">[[item.tagline]]</p>
+      <p class="tagline">[[package.tagline]]</p>
     </theme-color>
   </template>
 </dom-module>
@@ -20,7 +20,8 @@
     is: 'package-tile',
     enableCustomStyleProperties: true,
     properties: {
-      item: {type: Object}
+      name: {type: String, notify: true},
+      package: {type: Object}
     },
     attached: function() {
       var tiles = this.parentNode.querySelectorAll('package-tile');

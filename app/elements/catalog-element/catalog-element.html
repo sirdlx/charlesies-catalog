@@ -11,10 +11,13 @@
     properties: {
       name: {type: String, notify: true},
       _elements: Object,
-
       data: {type: Object, notify: true, computed: 'getData(_elements,name)'}
     },
+    ready: function(){
+
+    },
     getData: function(_elements,name) {
+      // console.log('getData', name);
       if (!_elements) return;
       return _elements[name];
     }
