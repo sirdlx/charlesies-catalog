@@ -1,0 +1,248 @@
+<link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/paper-header-panel/paper-header-panel.html">
+<link rel="import" href="../../bower_components/paper-drawer-panel/paper-drawer-panel.html">
+<link rel="import" href="../../bower_components/iron-component-page/iron-component-page.html">
+<link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+
+<link rel="import" href="../catalog-data/catalog-data.html">
+<link rel="import" href="../catalog-element/catalog-element.html">
+<link rel="import" href="../catalog-package/catalog-package.html">
+<link rel="import" href="../package-symbol/package-symbol.html">
+<link rel="import" href="../responsive-element/responsive-element.html">
+<link rel="import" href="../theme-color/theme-color.html">
+<link rel="import" href="../cart-icon/cart-icon.html">
+<link rel="import" href="../cart-item-icon/cart-item-icon.html">
+<link rel="import" href="../../bower_components/firebase-element/firebase-document.html">
+
+
+<dom-module id="page-element">
+  <link rel="import" type="css" href="page-element.css">
+  <template>
+    <!-- <catalog-data id="cdata" app="charlesiesbeta" getpackages="packages" packages="{{packages}}" elements="{{elements}}" blog="{{blog}}" blogid="8038113399974572777"></catalog-data> -->
+    <!-- <catalog-element name="[[item]]" data="{{metadata}}"></catalog-element> -->
+    <!-- <catalog-package name="[[metadata.package]]" data="{{collection}}"></catalog-package> -->
+    <firebase-document id="fbPackage" location="{{_locPackage}}" data="{{package}}"></firebase-document>
+    <firebase-collection location="{{_locElements}}" data="{{elements}}"></firebase-collection>
+
+    <theme-color color="[[package.color]]">
+      <paper-drawer-panel drawer-width="272px" disable-edge-swipe>
+        <app-sidebar drawer>
+          <paper-toolbar>
+            <app-logo class="flex"></app-logo>
+            <app-bar class="horizontal layout center end-justified" query="{{q}}"></app-bar>
+          </paper-toolbar>
+          <div class="content">
+            <a is="app-link" href="[[_packageLink(package.__firebaseKey__)]]" class="horizontal layout center" id="package-heading">
+              <iron-icon icon="chevron-left"></iron-icon>
+              <package-symbol package="[[package]]"></package-symbol>
+              <span class="name flex">[[package.title]]</span>
+            </a>
+            <div id="element-header">
+              <span class="version">[[package]]</span>
+              <h2 id="element-title">[[element.name]]</h2>
+              <div id="element-desc">
+                <p>[[element.description]]</p>
+              </div>
+            </div>
+
+            <nav id="nav" class="nav" attr-for-selected="name" selected="{{view}}">
+              <a is="app-link" class="item" href="[[_link(active,'docs')]]" active$="[[_isEqual(view,'docs')]]">
+                <iron-icon icon="description"></iron-icon>
+                <span>Docs</span>
+              </a>
+              <template is="dom-repeat" items="[[docDemos]]">
+                <a is="app-link" cla5ss="item" href="[[_demoLink(active,item.path)]]" active$="[[_demoActive(item.path,view)]]">
+                  <iron-icon icon="visibility"></iron-icon>
+                  <span>[[_demoName(item.desc)]]</span>
+                </a>
+              </template>
+            </nav>
+
+            <div class="nav" id="cart-add">
+              <paper-item on-tap="toggleCart">
+                <cart-item-icon id="cartIcon" element="[[element]]"></cart-item-icon>
+              </paper-item>
+            </div>
+
+            <section hidden$="[[_oneOrFewer(docElements)]]" class="shrinkable">
+              <h4>Bundled Elements</h4>
+
+              <nav id="elnav" class="nav">
+                <template is="dom-repeat" items="[[docElements]]">
+                  <a is="app-link" class="item" href$="[[_link(item.is,view)]]" active$="[[_isEqual(item.is,active)]]">[[item.is]]</a>
+                </template>
+              </nav>
+            </section>
+
+            <section class="shrinkable" hidden$="[[_oneOrFewer(docBehaviors)]]">
+              <h4>Bundled Behaviors</h4>
+
+              <nav id="elnav" class="nav" attr-for-selected="name" selected="{{active}}">
+                <template is="dom-repeat" items="[[docBehaviors]]">
+                  <a is="app-link" class="item" href$="[[_link(item.is,view)]]" active$="[[_isEqual(item.is,active)]]">[[item.is]]</a>
+                </template>
+              </nav>
+            </section>
+          </div>
+        </app-sidebar>
+        <section main class="fit">
+          <iron-component-page on-iron-doc-viewer-component-selected="navToBehavior" version="[[element.version]]" doc-src="[[docSrc(element)]]" base="[[baseURI(element)]]" _catalog view="{{view}}" doc-elements="{{docElements}}" doc-behaviors="{{docBehaviors}}"
+          doc-demos="{{docDemos}}" active="{{active}}"></iron-component-page>
+          <iron-icon icon="menu" paper-drawer-toggle></iron-icon>
+          <cart-icon></cart-icon>
+        </section>
+      </paper-drawer-panel>
+    </theme-color>
+  </template>
+</dom-module>
+
+<script>
+  Polymer({
+    is: 'page-element',
+    enableCustomStyleProperties: true,
+    properties: {
+      packageid: {
+        type: String,
+        notify: true
+      },
+      elementid: {
+        type: String,
+        notify: true
+      },
+      view: {
+        type: String,
+        notify: true,
+        value: 'docs'
+      },
+      active: {
+        type: String,
+        value: ''
+      },
+      docElements: Array,
+      docBehaviors: Array,
+      docDemos: Array,
+      docs: Object,
+      metadata: Object,
+      elements: Object,
+      package: Object,
+      router: Object,
+      q: String,
+      _locPackage: {
+        type: String,
+        computed: '_locfbpackage(packageid)'
+      },
+      _locElements: {
+        type: String,
+        computed: '_locfbelements(package)'
+      },
+      // _locPackagex: {
+      //   type: String,
+      //   computed: '_elementLocation(package, elements)'
+      // },
+    },
+    observers: [
+      'updateURL(active,view)',
+      'updateMeta(element,active)',
+      'analyze(importPath)',
+      'search(q)'
+    ],
+    _locfbelements: function(package) {
+      // console.log('_locfbelements', 'https://' + 'charlesiesbeta' + '.firebaseio.com/' + "elements" + "/", package);
+      return 'https://' + 'charlesiesbeta' + '.firebaseio.com/' + "elements" + "/";
+    },
+
+    _locfbpackage: function(packageid) {
+      console.log('_locfbpackage', 'https://' + 'charlesiesbeta' + '.firebaseio.com/' + "packages/" + packageid);
+      return 'https://' + 'charlesiesbeta' + '.firebaseio.com/' + "packages/" + packageid;
+    },
+
+    attached: function() {
+      this.updateMeta();
+    },
+    analyze: function() {
+      this.$.analyzer.analyze();
+    },
+    _link: function(active, view) {
+      // 'https://' + app + '.firebaseio.com/' + ext;
+      return this.getURL(active, view, true);
+    },
+    _demoLink: function(active, path) {
+      return this.getURL(active, 'demo:' + path, true);
+    },
+    _demoActive: function(path) {
+      return this.view === 'demo:' + path;
+    },
+    getURL: function(active, view, force) {
+      var url = "/elements/" + this.element;
+
+      var qs = [];
+      if (force || (view && view.length && view !== 'docs')) qs.push('view=' + view);
+      if (force || (active && active.length && active !== this.element)) qs.push('active=' + active);
+      if (qs.length) url += "?" + qs.join("&");
+
+      return url;
+    },
+    updateURL: function(active, view) {
+      // console.log(active, view);
+      var url = this.getURL(active, view);
+      if (this.router) this.router.go(url, {
+        replace: true
+      });
+    },
+    updateMeta: function(element, active) {
+      // console.log('updateMeta', element, active);
+      this.fire('page-meta', {
+        title: (this.active && this.active.length) ? this.active : this.element
+      });
+    },
+    _packageLink: function() {
+      return "/p/" + this.package.name;
+    },
+    navToElement: function(e) {
+      this.router.go("/elements/" + e.currentTarget.getAttribute('name'));
+    },
+    navToBehavior: function(e, detail) {
+      if (this.behaviorMap[detail]) {
+        this.router.go("/elements/" + this.behaviorMap[detail] + "?active=" + detail);
+      } else {
+        this.fire('toast', {
+          text: "No documentation available for " + detail
+        });
+      }
+    },
+    docSrc: function(element) {
+      // console.log('docSrc', element);
+      // return "/data/docs/" + element + ".json";
+    },
+    baseURI: function(element) {
+      return window.location.origin + "/bower_components/" + element + "/" + element + ".html";
+    },
+    search: function(q) {
+      if (q || this.q) {
+        this.router.go('/browse?q=' + (q || this.q));
+      }
+    },
+    cartAdd: function() {
+      this.fire('cart-add', this.element);
+    },
+    _oneOrFewer: function(arr) {
+      return !arr || arr.length <= 1;
+    },
+    toggleCart: function() {
+      this.$.cartIcon.toggle();
+    },
+    listFilter: function(el) {
+      return el.package === this.package.name;
+    },
+    _demoName: function(name) {
+      return name === 'demo' ? 'Demo' : name;
+    },
+    _isEqual: function(a, b) {
+      return a === b;
+    }
+  });
+</script>
