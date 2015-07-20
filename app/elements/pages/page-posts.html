@@ -96,10 +96,10 @@
   </style>
   <template>
     <prism-highlighter></prism-highlighter>
-    <catalog-data posts="{{posts}}" blogid="8038113399974572777"></catalog-data>
-    <catalog-guide name="[[postid]]" data="{{post}}"></catalog-guide>
+    <!-- <catalog-data posts="{{posts}}" blogid="8038113399974572777"></catalog-data> -->
+    <catalog-blog postid="{{postid}}" post="{{post}}"></catalog-blog>
 
-    <paper-drawer-panel drawer-width="272px" disable-edge-swipe>
+    <paper-drawer-panel drawer-width="272px">
 
       <app-sidebar drawer>
         <paper-toolbar>
@@ -146,8 +146,7 @@
     observers: [
       'contentChanged(post, postid)',
       'updateMeta(post)',
-
-      // 'checkpost(postid)'
+      // 'checkpost(post)'
     ],
     checkpost: function(post) {
       console.log('checkpost', post);
@@ -199,7 +198,7 @@
       return "/posts/" + id;
     },
     updateMeta: function(post) {
-      // console.log(post);
+      // console.log('updateMeta', post);
       this.fire('page-meta', {
         title: this.post.title
       });

@@ -34,14 +34,13 @@ cart-icon {
   }
 }
 
-.package {
-  width: 204px;
-  height: 250px;
+a.package {
+  min-width: 220px;
   margin: 8px;
 }
 
 @media (max-width: 489px) {
-  .package {
+  a.package {
     width: calc(100% - 16px);
   }
 }

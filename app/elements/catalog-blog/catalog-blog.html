@@ -1,15 +1,15 @@
 <link rel="import" href="../catalog-data/catalog-data.html">
 
-<dom-module id="catalog-guide">
+<dom-module id="catalog-blog">
   <template>
-    <catalog-data posts-map="{{_posts}}"></catalog-data>
+    <catalog-data post="{{post}}" postid="{{postid}}" blogid="8038113399974572777"></catalog-data>
   </template>
 </dom-module>
 <script>
   Polymer({
-    is: 'catalog-guide',
+    is: 'catalog-blog',
     properties: {
-      name: {
+      postid: {
         type: String,
         notify: true
       },
@@ -21,24 +21,28 @@
       data: {
         type: Object,
         notify: true,
-        computed: 'getData(_posts, name)'
+        computed: 'getData(posts)'
       },
-      content: {
-        type: String,
+      post: {
+        type: Object,
         notify: true
       }
     },
     observers: [
-      'checkpost(name)'
+      // 'checkpost(post)',
+      // 'checkpost(postid)'
     ],
 
     checkpost: function(post) {
-      // console.log('checkpost', post);
+      console.log('checkpost', post);
+      // return post;
+
     },
-    ready: function() {
+    attached: function() {
 
     },
     getData: function(_posts, name) {
+      console.log('getData', _posts, name);
       if (!_posts) return;
 
       for (var key in _posts) {
@@ -48,7 +52,6 @@
         }
 
       }
-
 
 
     },

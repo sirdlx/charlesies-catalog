@@ -1,17 +1,24 @@
 <link rel="import" href="../catalog-package/catalog-package.html">
 <link rel="import" href="../theme-color/theme-color.html">
-
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <dom-module id="package-tile">
   <link rel="import" type="css" href="package-tile.css">
   <template>
-    <catalog-package name="[[name]]" data="{{package}}"></catalog-package>
-    <theme-color id="content" color="[[package.color]]" class="vertical layout" themed themed-border>
+    <catalog-package id="package" key="{{key}}"></catalog-package>
+    <theme-color draggable="true" id="content" color="[[package.color]]" class="vertical layout" themed themed-border>
       <span class="version">[[package.version]]</span>
+      <!-- <span class="trash">
+        <paper-button on-click="_onTrashClick">trash</paper-button>
+      </span> -->
       <h2 class="symbol">[[package.symbol]]</h2>
       <h3 class="title" extended$="[[_extendedTitle(package)]]">[[package.title]]</h3>
       <hr themed-reverse>
       <p class="tagline">[[package.tagline]]</p>
+      <!-- <paper-input value="{{package.title}}"></paper-input> -->
+
     </theme-color>
+
   </template>
 </dom-module>
 
@@ -20,18 +27,30 @@
     is: 'package-tile',
     enableCustomStyleProperties: true,
     properties: {
-      name: {type: String, notify: true},
-      package: {type: Object}
+      key: {
+        type: String,
+        notify: true
+      },
+      package: {
+        type: Object
+      }
     },
     attached: function() {
       var tiles = this.parentNode.querySelectorAll('package-tile');
       var index = Array.prototype.indexOf.call(tiles, this);
       setTimeout(function() {
         this.classList.add('active');
-      }.bind(this), (index + 1) * 50);
+      }.bind(this), (index + 1) * 10);
     },
     _extendedTitle: function(p) {
+      if (!p.title) return;
       if (p.title.length > 20) return true;
+    },
+    _onTrashClick: function(e) {
+      // console.log(this.package);
+      this.$.package.remove(this.package);
+      // gene kress 3173453219
+      // 3179151702
     }
   });
 </script>

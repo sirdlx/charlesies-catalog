@@ -1,8 +1,6 @@
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../bower_components/iron-icons/maps-icons.html">
 <link rel="import" href="../../bower_components/paper-material/paper-material.html">
-<link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
-<link rel="import" href="../../bower_components/firebase-element/firebase-collection.html">
 
 <link rel="import" href="../catalog-data/catalog-data.html">
 <link rel="import" href="../package-tile/package-tile.html">
@@ -12,42 +10,39 @@
 <dom-module id="page-packages">
   <link rel="import" type="css" href="page-packages.css">
   <template>
-    <catalog-data id="cdata" app="charlesiesbeta" packages="{{packages}}" blog="{{blog}}" blogid="8038113399974572777"></catalog-data>
+    <catalog-data packages="{{packages}}" posts="{{posts}}" blogid="8038113399974572777"></catalog-data>
     <paper-header-panel mode="seamed" class="fit">
 
       <paper-toolbar class="paper-header">
         <app-logo full class="flex"></app-logo>
-        <paper-fab mini icon="add" on-click="newItemClick"></paper-fab>
         <app-bar class="horizontal layout center end-justified" query="{{q}}"></app-bar>
         <cart-icon></cart-icon>
       </paper-toolbar>
 
       <div class="content fit">
-
         <div class="packages layout horizontal wrap">
-          <template is="dom-repeat" items="{{packages}}">
-            <a href$="[[_packageLink(item.__firebaseKey__)]]" is="app-link" class="package flex-none">
+          <package-tile package="[[newPackage]]" name="new" on-click="newItemClick"></package-tile>
+
+          <template is="dom-repeat" items="[[packages]]">
+            <a href$="[[_packageLink(item.name)]]" is="app-link" class="package flex-none">
               <package-tile package="[[item]]" name$="[[item.name]]"></package-tile>
             </a>
-            <!-- <div class="package flex-none">
-              <package-tile package="{{item}}"></package-tile>
-            </div> -->
           </template>
         </div>
 
         <div id="guides-container">
           <h3>Post</h3>
           <div id="guide-list" class="horizontal layout wrap">
-            <template is="dom-repeat" items="[[blog.items]]">
+            <template is="dom-repeat" items="[[posts]]">
               <a href$="[[_link('posts',item.id)]]" is="app-link">
-                <guide-card post="[[item]]"></guide-card>
+                <guide-card post="[[item.id]]"></guide-card>
               </a>
             </template>
 
             <div id="coming-soon">More guides coming soon, stay tuned!</div>
+
           </div>
         </div>
-
       </div>
 
 
@@ -66,12 +61,27 @@
       q: {
         type: String,
         notify: true
+      },
+      newPackage: {
+        type: Object,
+        notify: true,
+        value: {
+          "name": "new",
+          "title": "New",
+          "color": "#81c784",
+          "symbol": "Nw",
+          "tagline": "",
+          "version": "",
+          "description": "",
+          "elements": [],
+          "guides": []
+        }
       }
     },
 
     newItemClick: function(e, f) {
-      // console.log('newItemClick', e, f);
-      this.$.cdata.newPackage();
+      console.log('newItemClick', e, f);
+
     },
     attached: function() {
       // reset page title since this is the default page
@@ -90,9 +100,8 @@
     _link: function() {
       return "/" + Array.prototype.slice.call(arguments).join("/");
     },
-    _packageLink: function(id) {
-      // return "/browse?packageId=" + name;
-      return "/p/" + id;
+    _packageLink: function(name) {
+      return "/browse?package=" + name;
     },
     guideSelect: function(e) {
       this.router.go('/guides/' + e.currentTarget.guide);

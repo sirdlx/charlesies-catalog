@@ -8,6 +8,7 @@
 :host(.active) {
   transform: translate(0, 0);
   opacity: 1;
+
 }
 
 #content {
@@ -85,7 +86,7 @@ hr {
   opacity: 0;
 }
 
-:host(.active) .version {
+:host(.active) .version2 {
   transform: translate(0, 0);
   opacity: 0.8;
 }
@@ -117,4 +118,21 @@ hr {
 :host(.active) .tagline {
   transform: translate(0, 0);
   opacity: 1;
+}
+:host(.active) .trash {
+  transform: translate(0, 0);
+  opacity: 1;
+}
+
+
+.trash {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  font-size: 13px;
+  transition: all 400ms 320ms;
+  transition-timing-function: var(--material-curve-320);
+  transform: translate(50px, 0);
+  opacity: 0;
+  z-index:99;
 }

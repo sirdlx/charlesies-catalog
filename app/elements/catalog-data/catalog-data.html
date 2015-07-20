@@ -7,30 +7,36 @@
 <dom-module id="catalog-data">
   <template>
     <!-- <iron-ajax id="req" url="https://charlesiesbeta.firebaseio.com/.json" method="get" handle-as="json" on-response="_handleResponse"></iron-ajax> -->
-    <firebase-document location="https://charlesiesbeta.firebaseio.com/packages" data={{packages}}></firebase-document>
-    <firebase-document location="https://charlesiesbeta.firebaseio.com/elements" data={{elements}}></firebase-document>
-    <firebase-document location="https://charlesiesbeta.firebaseio.com/settings" data={{settings}}></firebase-document>
-
-    <firebase-document location="{{_locFBD}}" data="{{_item}}"></firebase-document>
-
+    <firebase-collection id="FBCollection" location="https://charlesiesbeta.firebaseio.com/packages" data="{{packages}}"></firebase-collection>
+    <!-- <firebase-collection id="elements" location$="{{_locElements}}" data="{{elements}}"></firebase-collection> -->
+    <firebase-document location="https://charlesiesbeta.firebaseio.com/settings" data="{{settings}}"></firebase-document>
     <google-client-loader id="gcl" name="blogger" version="v3"></google-client-loader>
-    <iron-ajax id="req" url="/blogger.json" method="get" handle-as="json" on-response="_handlePostsResponse"></iron-ajax>
-
+    <!-- <iron-ajax id="req" url="/blogger.json" method="get" handle-as="json" on-response="_handlePostsResponse"></iron-ajax> -->
   </template>
 </dom-module>
 
+
+<script src="//connect.soundcloud.com/sdk-2.0.0.js"></script>
+
 <script>
   (function() {
+
+    SC.initialize({
+      client_id: "7ce7c8ce794f080121b96a32aeff64f4",
+      // redirect_uri: "http://example.com/callback",
+    });
+
+
     var _data = {};
     var _els = [];
 
     _genLoc = function(app, ext) {
       // console.log('_genLoc', app, ext);
       return 'https://' + app + '.firebaseio.com/' + ext;
-    }
+    };
 
     var _generateMap = function(list) {
-
+      if (!list) return;
       var out = {};
       for (var i = 0; i < list.length; i++) {
         out[list[i].name] = list[i];
@@ -74,6 +80,11 @@
       is: 'catalog-data',
       ready: function() {
         this.load(_data);
+        // SC.oEmbed("http://soundcloud.com/forss/flickermood", {
+        //   auto_play: true
+        // }, function(oembed) {
+        //   console.log("oEmbed response: ", oembed);
+        // });
       },
       attached: function() {
         if (_els.length === 0 && !_data.packages) {
@@ -90,13 +101,22 @@
         app: {
           type: String,
         },
-        _locFBD: {
-          type: String,
-          computed: '_locfbd(app, itembyid)'
+        getcoll: {
+          type: String
         },
-        item: {
+        _locColl: {
+          type: String,
+          computed: '_locfb(app, getcoll)'
+        },
+        _locFBElements: {
+          type: String,
+          computed: '_locfb(app, itembyid)'
+        },
+        data: {
           type: Object,
-          notify: true
+          notify: true,
+          // computed: '_dataReady(app, getcoll, coll)'
+
         },
         itembyid: String,
 
@@ -104,13 +124,31 @@
           type: Array,
           // readOnly: true,
           notify: true,
-
+          // observer: 'packageschange'
         },
         packageMap: {
           type: Object,
           readOnly: true,
           notify: true
         },
+
+        newPackageObject: {
+          type: Object,
+          notify: true,
+          value: {
+            "name": "new",
+            "title": "New",
+            "color": "#8ff784",
+            "symbol": "Nw",
+            "tagline": "Add tagline",
+            "version": "0.0.0",
+            "description": "describe your product",
+            "elements": [],
+            "guides": []
+          }
+        },
+
+
         elements: {
           type: Array,
           // readOnly: true,
@@ -142,41 +180,65 @@
           type: String,
           notify: true
         },
-        posts: {
-          type: Array,
+        blog: {
+          type: Object,
           // readOnly: true,
           notify: true
         },
-        postsMap: {
+        post: {
           type: Object,
-          readOnly: true,
+          // readOnly: true,
           notify: true
         }
-
 
       },
 
       observers: [
         /* Blogger */
         '_getPostList(blogid)',
-        '_getPostSingle(posts, postid)',
+        '_getPostSingle(blog,postid)',
 
-        'checkdata(elements, packages)'
+        // 'checkdata(elements, packages)',
       ],
+
+      _fbcv: function(e) {
+        console.log('_fbcv', this.$.FBCollection.data);
+        _data.coll = this.coll;
+        // console.log(this.coll);
+        // this.updateAll();
+      },
+
+      _dataReady: function(app, getcoll, coll) {
+        console.log('_dataReady', app, getcoll, coll);
+        // console.log(typeof un, dos, tres);
+        _data[coll] = this.$.FBCollection.data;
+        console.log(this.$.FBCollection.data);
+        this.updateAll();
+      },
 
 
       load: function(data) {
-        // console.log(data.posts);
-        if (data.packages) {
+        if (data) {
+          // console.log(_data);
+          // this.data = _data;
+          // console.log(this.data);
           // this._setPackages(data.packages);
-          this._setPackageMap(data.packageMap);
-          //this._setElements(data.elements);
-          this._setElementMap(data.elementMap);
-          this.posts = data.posts;
-          this._setPostsMap(data.postsMap);
+          // this._setPackageMap(data.packageMap);
+          // this._setElements(data.elements);
+          // this._setElementMap(data.elementMap);
+          // this.posts = data.posts;
+          // this._setPostsMap(data.postsMap);
           //this._setBehaviorMap(data.behaviorMap);
           //this._setTags(data.tags);
         }
+      },
+      updateAll: function() {
+        console.log('updateAll', _data);
+        that = this;
+        _els.forEach(function(el) {
+          el.data = _data;
+          console.log(el);
+        });
       },
       _handlePostsResponse: function(_, req) {
         // console.log(req.response);
@@ -188,70 +250,94 @@
         });
 
       },
-      _locfbd: function(app, itembyid) {
-
+      _locfb: function(app, itembyid) {
+        // console.log('_locfb', app, itembyid);
+        console.log('_locfb', _genLoc(app, itembyid));
         if (!itembyid.length) {
-          return
+          return;
         }
-        // console.log('_locfbd', app, itembyid);
-        console.log('_locfbd', _genLoc(app, itembyid));
         return _genLoc(app, itembyid);
       },
       checkdata: function(elements, packages) {
         // console.log('checkdata', elements, packages);
+        // console.log(typeof this.packages);
         _data.packages = packages;
         _data.elements = elements;
         _data.packageMap = _generateMap(packages);
         _data.elementMap = _generateMap(elements);
 
-        _els.forEach(function(el) {
-          el.load(_data);
-        });
+        this.updateAll();
       },
+
+      newPackage: function() {
+        // console.log('newPackage');
+        var coll = this.$.packages
+        coll.add(this.newPackageObject);
+      },
+
+
       /*  Blogger  */
       _getPostList: function(blogid) {
-        //console.log('_getPostList', blogid);
-        if (blogid) {
-          this.$.req.generateRequest();
-          // var blogger = this.$.gcl;
-          // blogger.addEventListener('google-api-load', function(event) {
-          //   var request = blogger.api.post.list({
-          //     blogId: this.blogid,
-          //     key: 'AIzaSyAzyqzqu1sURmPH3VPzkOc9ywT7lCPPPF4'
-          //   });
-          //   request.execute(function(resp) {
-          //     console.log(resp);
-          //   });
-          // });
+        // console.log('_getPostList', blogid, _data.blog);
+        // this.$.req.generateRequest();
 
+        if (_data.blog) {
+          this.blog = _data.blog;
+          return;
         }
+
+        var blogger = this.$.gcl;
+        var that = this;
+        blogger.addEventListener('google-api-load', function(event) {
+          var request = blogger.api.posts.list({
+            blogId: blogid,
+            key: 'AIzaSyAzyqzqu1sURmPH3VPzkOc9ywT7lCPPPF4'
+          });
+
+          request.execute(function(resp) {
+            // console.log(resp);
+            _data.blog = resp;
+            that.blog = _data.blog;
+            // that.updateAll();
+          });
+        });
+
+
       },
-      _getPostSingle: function(posts, postid) {
-        // console.log('_getPostSingle', posts, postid);
-        if (postid && this.posts) {
-          for (var i = 0; i < posts.items.length; i++) {
-            if (posts.items[i].id == postid) {
-              // console.log(this.posts.items[i].id);
-              // return posts.items[i];
-              // console.log(this.posts.items[i]);
-              // this.data = this.posts.items[i];
-            }
+      _getPostSingle: function(blog, postid) {
+        // console.log('_getPostSingle', blog, postid);
+
+        // var blogger = this.$.gcl;
+        // var that = this;
+        // blogger.addEventListener('google-api-load', function(event) {
+        //   console.log('_getPostSingle', blogger.api.posts);
+        //   var request = blogger.api.posts.get({
+        //     blogId: blogid,
+        //     postId: postid,
+        //     key: 'AIzaSyAzyqzqu1sURmPH3VPzkOc9ywT7lCPPPF4'
+        //   });
+        //   request.execute(function(resp) {
+        //     console.log(resp);
+        //   });
+        // });
+
+
+        for (var i = 0; i < blog.items.length; i++) {
+          if (blog.items[i].id == postid) {
+            //console.log(this.blog.items[i].id);
+            // return blog.items[i];
+            // console.log(this.blog.items[i]);
+            this.post = this.blog.items[i];
+            return;
           }
-
-          //this.$.req.generateRequest();
-          // var blogger = this.$.gcl;
-          // blogger.addEventListener('google-api-load', function(event) {
-          //   var request = blogger.api.posts.list({
-          //     blogId: this.blogid,
-          //     postId: this.postid,
-          //     key: 'AIzaSyAzyqzqu1sURmPH3VPzkOc9ywT7lCPPPF4'
-          //   });
-          //   request.execute(function(resp) {
-          //     console.log(resp);
-          //   });
-          // });
-
         }
+
+
+      },
+
+      remove: function(item) {
+        // console.log(this.$.packages);
+        this.$.packages.remove(item);
       }
     });
   })();

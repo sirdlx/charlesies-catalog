@@ -2,21 +2,35 @@
 
 <dom-module id="catalog-package">
   <template>
-    <catalog-data package-map="{{_packages}}"></catalog-data>
+    <catalog-data id="cdata" package-map="{{_packages}}"></catalog-data>
   </template>
 </dom-module>
 <script>
   Polymer({
     is: 'catalog-package',
     properties: {
-      name: {type: String, notify: true},
-      _packages: {type: Object, notify: true},
-      data: {type: Object, notify: true, computed: 'getData(_packages,name)'}
+      key: {
+        type: String,
+        notify: true
+      },
+      _packages: {
+        type: Object,
+        notify: true
+      },
+      data: {
+        type: Object,
+        notify: true,
+        computed: 'getData(key)'
+      }
     },
 
-    getData: function(_packages,name) {
-      if (!_packages) return;
-      return _packages[name];
+    getData: function(key) {
+      // if (!_packages) return;
+      // return _packages[name];
+      this.$.cdata.getItemByKey(key);
+    },
+    remove: function(item) {
+      this.$.cdata.remove(item);
     }
   });
 </script>

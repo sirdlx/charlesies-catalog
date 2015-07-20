@@ -21,7 +21,10 @@
 <dom-module id="page-browse">
   <link rel="import" type="css" href="page-browse.css">
   <template>
-    <catalog-data elements="{{elements}}" packages="{{packages}}"></catalog-data>
+    <!-- <catalog-data elements="{{elements}}"></catalog-data> -->
+    <!-- <firebase-collection id="packages" location="https://charlesiesbeta.firebaseio.com/packages" data={{packages}}></firebase-collection> -->
+    <!-- <catalog-data id="cdata" app="charlesiesbeta" getcoll="packages" coll="{{packages}}" blog="{{blog}}" blogid="8038113399974572777"></catalog-data> -->
+    <firebase-collection id="FBCollection" location="https://charlesiesbeta.firebaseio.com/{{packages}}/{{packageId}}" data="{{package}}"></firebase-collection>
     <catalog-package name="[[package]]" data="{{packageInfo}}"></catalog-package>
     <iron-media-query query="(max-width: 640px)" query-matches="{{_narrowViewport}}"></iron-media-query>
 
@@ -38,14 +41,17 @@
           </div>
           <div class="content">
             <div id="package-tag" hidden$="[[!tag]]">
-              <span>[[tag]]</span> <iron-icon icon="clear" on-tap="clearTag"></iron-icon>
+              <span>[[tag]]</span>
+              <iron-icon icon="clear" on-tap="clearTag"></iron-icon>
             </div>
             <div id="package-list">
               <h5>Products</h5>
               <nav>
                 <a class="package" is="app-link" href="/browse?package=" active$="[[_isEqual(package,'')]]" tabindex="1">
                   <div class="layout horizontal center">
-                    <div class="all-symbol" aria-hidden="true"><iron-icon icon="apps"></iron-icon></div>
+                    <div class="all-symbol" aria-hidden="true">
+                      <iron-icon icon="apps"></iron-icon>
+                    </div>
                     <span class="title flex">All Elements</span>
                   </div>
                 </a>
@@ -81,7 +87,9 @@
               </div>
             </div>-->
             <div hidden$="[[!tag]]" id="current-tag" class="horizontal layout center">
-              <b>Tag:</b> <span class="flex">[[tag]]</span> <iron-icon icon="clear" on-tap="clearTag"></iron-icon>
+              <b>Tag:</b>
+              <span class="flex">[[tag]]</span>
+              <iron-icon icon="clear" on-tap="clearTag"></iron-icon>
             </div>
           </div>
         </app-sidebar>
@@ -89,7 +97,10 @@
         <div id="container" class="fit" view$="[[_actualView(view,_narrowViewport)]]" main>
           <div class="elements-title horizontal layout center">
             <iron-icon icon="menu" paper-drawer-toggle></iron-icon>
-            <h2 class="flex"><span>[[pageTitle]]</span> <span class="count">[[_elementCount]]</span></h2>
+            <h2 class="flex">
+              <span>[[pageTitle]]</span>
+              <span class="count">[[_elementCount]]</span>
+            </h2>
             <iron-icon id="package-view-mode" icon="[[viewIcon]]" on-tap="toggleView" hidden$="[[_forceCards]]"></iron-icon>
             <cart-icon id="cart-toggle" icon="stars" on-tap="cartOpen"></cart-icon>
           </div>
@@ -123,26 +134,67 @@
       enableCustomStyleProperties: true,
       properties: {
         router: Object,
-        pageTitle: {type: String},
+        pageTitle: {
+          type: String
+        },
 
         // Query Parameters
-        q: {type: String, notify: true, value: ''},
-        tag: {type: String, notify: true, value: ''},
-        package: {type: String, notify: true, value: ''},
-        view: {type: String, notify: true},
+        q: {
+          type: String,
+          notify: true,
+          value: ''
+        },
+        tag: {
+          type: String,
+          notify: true,
+          value: ''
+        },
+        package: {
+          type: String,
+          notify: true,
+          value: ''
+        },
+        view: {
+          type: String,
+          notify: true
+        },
 
-        tagList: {type: Array, computed: 'arrayParam(tag)', value: function() { return []; }},
-        packageList: {type: Array, computed: 'arrayParam(package)', value: function() { return []; }},
+        tagList: {
+          type: Array,
+          computed: 'arrayParam(tag)',
+          value: function() {
+            return [];
+          }
+        },
+        packageList: {
+          type: Array,
+          computed: 'arrayParam(package)',
+          value: function() {
+            return [];
+          }
+        },
 
-        viewIcon: {type: String, computed: 'computeViewIcon(view)', value: 'view-module'},
+        viewIcon: {
+          type: String,
+          computed: 'computeViewIcon(view)',
+          value: 'view-module'
+        },
         packages: Array,
-        packageInfo: {type: Object, value: {}},
+        packageInfo: {
+          type: Object,
+          value: {}
+        },
         elements: Array,
 
         _filteredElements: Array,
         _elementCount: Number,
-        _narrowViewport: {type: Boolean, observer: '_updateForceCards'},
-        _forceCards: {type: Boolean},
+        _narrowViewport: {
+          type: Boolean,
+          observer: '_updateForceCards'
+        },
+        _forceCards: {
+          type: Boolean
+        },
       },
       observers: [
         'updateURL(q,package,tag,view,elements)',
@@ -194,7 +246,9 @@
         if (t.indexOf(newTag) < 0) t.push(newTag);
         this.tag = t.join(',');
       },
-      clearTag: function() { this.tag = null; },
+      clearTag: function() {
+        this.tag = null;
+      },
       updatePackage: function(e) {
         e.stopPropagation();
         e.preventDefault();
@@ -203,7 +257,9 @@
         if (p.indexOf(newPkg) < 0) p.push(newPkg);
         this.package = p.join(',');
       },
-      clearPackage: function() { this.package = null; },
+      clearPackage: function() {
+        this.package = null;
+      },
       togglePackages: function() {
         if (this.package) {
           this.prevPackage = this.package;
@@ -242,14 +298,18 @@
       updateSearch: function() {
         var params = this._parseQueryString();
         if (params && params.q) {
-          this.async(function() { this.$.query.focus(); });
+          this.async(function() {
+            this.$.query.focus();
+          });
         }
       },
-      updateURL: function(q,p,tag,view) {
+      updateURL: function(q, p, tag, view) {
         var qs = this._buildQueryString();
         if (qs !== _lastNavigated && this.router) {
           _lastNavigated = qs;
-         this.router.go("/browse" + (qs.length ? "?" + qs : ""), {replace: true});
+          this.router.go("/browse" + (qs.length ? "?" + qs : ""), {
+            replace: true
+          });
         }
 
         this.updateMeta();
@@ -271,7 +331,9 @@
           this.pageTitle = "All Elements";
         }
 
-        this.fire('page-meta', { title: this.pageTitle });
+        this.fire('page-meta', {
+          title: this.pageTitle
+        });
       },
       toggleView: function() {
         if (this.view === 'table') {
@@ -288,13 +350,15 @@
         }
       },
       arrayParam: function(param) {
-        if (!param || !param.length) { return []; }
+        if (!param || !param.length) {
+          return [];
+        }
         return param.toString().split(',');
       },
       cartOpen: function(e) {
         this.fire('cart-open');
       },
-      _stampCards: function(view,stamp) {
+      _stampCards: function(view, stamp) {
         return stamp || view === 'cards';
       },
       _stampTable: function(view, skip) {
@@ -303,23 +367,20 @@
       closeDrawer: function() {
         this.$.drawerPanel.closeDrawer();
       },
-      _detectIEVersion: function () {
+      _detectIEVersion: function() {
         // via http://stackoverflow.com/questions/17907445/how-to-detect-ie11
         var rv = -1;
         var ua, re;
-        if (navigator.appName === 'Microsoft Internet Explorer')
-        {
+        if (navigator.appName === 'Microsoft Internet Explorer') {
           ua = navigator.userAgent;
-          re  = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+          re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
           if (re.exec(ua) !== null)
-            rv = parseFloat( RegExp.$1 );
-        }
-        else if (navigator.appName === 'Netscape')
-        {
+            rv = parseFloat(RegExp.$1);
+        } else if (navigator.appName === 'Netscape') {
           ua = navigator.userAgent;
-          re  = new RegExp("Trident/.*rv:([0-9]{1,}[\.0-9]{0,})");
+          re = new RegExp("Trident/.*rv:([0-9]{1,}[\.0-9]{0,})");
           if (re.exec(ua) !== null)
-            rv = parseFloat( RegExp.$1 );
+            rv = parseFloat(RegExp.$1);
         }
         return rv;
       },
@@ -329,7 +390,7 @@
       _updateForceCards: function() {
         this._forceCards = this._narrowViewport || this._detectIEVersion() > 0;
       },
-      _isEqual: function(a,b) {
+      _isEqual: function(a, b) {
         return a === b;
       }
     });

@@ -35,8 +35,10 @@
       <app-router id="router" class="flex" mode="pushstate" main on-activate-route-end="trackPageview">
         <app-route path="/" element="page-packages" bindRouter></app-route>
         <app-route path="/browse" element="page-browse" bindRouter onUrlChange="updateModel"></app-route>
-        <app-route path="/elements/:element" element="page-element" bindRouter onUrlChange="updateModel"></app-route>
         <app-route path="/posts/:postid" element="page-posts" bindRouter></app-route>
+        <app-route path="/p/:packageid" element="page-element" bindRouter onUrlChange="updateModel"></app-route>
+        <app-route path="/p/:packageid/:elementid" element="page-element" bindRouter onUrlChange="updateModel"></app-route>
+
         <app-route path="*">
           <template>
             <h1>Not Found</h1>
