@@ -89,12 +89,15 @@
             </section>
           </div>
         </app-sidebar>
+
         <section main class="fit">
           <iron-component-page on-iron-doc-viewer-component-selected="navToBehavior" version="[[element.version]]" doc-src="[[docSrc(element)]]" base="[[baseURI(element)]]" _catalog view="{{view}}" doc-elements="{{docElements}}" doc-behaviors="{{docBehaviors}}"
           doc-demos="{{docDemos}}" active="{{active}}"></iron-component-page>
+
           <iron-icon icon="menu" paper-drawer-toggle></iron-icon>
           <cart-icon></cart-icon>
         </section>
+
       </paper-drawer-panel>
     </theme-color>
   </template>
@@ -127,7 +130,7 @@
       docDemos: Array,
       docs: Object,
       metadata: Object,
-      elements: Object,
+      elements: Array,
       package: Object,
       router: Object,
       q: String,
