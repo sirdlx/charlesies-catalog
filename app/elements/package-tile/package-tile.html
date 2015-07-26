@@ -16,7 +16,6 @@
       <hr themed-reverse>
       <p class="tagline">[[package.tagline]]</p>
       <!-- <paper-input value="{{package.title}}"></paper-input> -->
-
     </theme-color>
 
   </template>
@@ -36,11 +35,12 @@
       }
     },
     attached: function() {
-      var tiles = this.parentNode.querySelectorAll('package-tile');
+      var tiles = this.parentNode.parentNode.querySelectorAll('package-tile');
       var index = Array.prototype.indexOf.call(tiles, this);
+      // console.log(Array.prototype.indexOf.call(tiles, this));
       setTimeout(function() {
         this.classList.add('active');
-      }.bind(this), (index + 1) * 10);
+      }.bind(this), (index + 1) * 90);
     },
     _extendedTitle: function(p) {
       if (!p.title) return;

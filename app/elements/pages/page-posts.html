@@ -3,7 +3,7 @@
 <link rel="import" href="../../bower_components/paper-styles/paper-styles.html">
 <link rel="import" href="../../bower_components/paper-drawer-panel/paper-drawer-panel.html">
 
-<link rel="import" href="../catalog-data/catalog-data.html">
+<link rel="import" href="../catalog-blog/catalog-blog.html">
 
 <dom-module id="page-posts">
   <style>
@@ -202,7 +202,7 @@
       this.fire('page-meta', {
         title: this.post.title
       });
-      //console.log('updateMeta', post);
+      // console.log('updateMeta', post);
     },
     nav: function(e) {
       var name = e.currentTarget.getAttribute('name');

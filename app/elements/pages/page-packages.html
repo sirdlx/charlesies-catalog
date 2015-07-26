@@ -12,7 +12,8 @@
 <dom-module id="page-packages">
   <link rel="import" type="css" href="page-packages.css">
   <template>
-    <catalog-data id="cdata" app="charlesiesbeta" packages="{{packages}}" blog="{{blog}}" blogid="8038113399974572777"></catalog-data>
+    <catalog-data id="cdata" app="charlesiesbeta" blog="{{blog}}" blogid="8038113399974572777"></catalog-data>
+    <firebase-collection id="packages" location="https://charlesiesbeta.firebaseio.com/packages" data="{{packages}}"></firebase-collection>
     <paper-header-panel mode="seamed" class="fit">
 
       <paper-toolbar class="paper-header">
@@ -43,7 +44,6 @@
                 <guide-card post="[[item]]"></guide-card>
               </a>
             </template>
-
             <div id="coming-soon">More guides coming soon, stay tuned!</div>
           </div>
         </div>
@@ -71,7 +71,9 @@
 
     newItemClick: function(e, f) {
       // console.log('newItemClick', e, f);
-      this.$.cdata.newPackage();
+      // this.$.cdata.newPackage();
+      var coll = this.$.packages;
+      coll.add(this.$.cdata.newPackageObject);
     },
     attached: function() {
       // reset page title since this is the default page

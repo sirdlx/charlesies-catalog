@@ -1,6 +1,10 @@
 <link rel="import" href="../../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../catalog-package/catalog-package.html">
+<link rel="import" href="../theme-color/theme-color.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
 
-<link rel="import" href="../catalog-blog/catalog-blog.html">
+<!-- <link rel="import" href="../catalog-blog/catalog-blog.html"> -->
 
 <dom-module id="guide-card">
   <link rel="import" type="css" href="guide-card.css">
@@ -11,26 +15,29 @@
       <h3>[[post.title]]</h3>
       <p>[[post.published]]</p>
     </div>
+
   </template>
 </dom-module>
 
 <script>
-Polymer({
-  is: 'guide-card',
-  enableCustomStyleProperties: true,
-  properties: {
-    // post: {type: String, notify: true},
-    // _post: Object
-    post: {type: Object},
-  },
-  // observers:[
-  //   'checkpost(_post)'
-  // ],
+  Polymer({
+    is: 'guide-card',
+    enableCustomStyleProperties: true,
+    properties: {
+      // post: {type: String, notify: true},
+      // _post: Object
+      post: {
+        type: Object
+      },
+    },
+    // observers:[
+    //   'checkpost(post)'
+    // ],
 
-  checkpost: function (post) {
-  console.log('checkpost', post);
-  }
+    checkpost: function(post) {
+      console.log('checkpost', post.title);
+    }
 
 
-});
+  });
 </script>

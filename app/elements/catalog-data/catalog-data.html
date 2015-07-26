@@ -7,7 +7,7 @@
 <dom-module id="catalog-data">
   <template>
     <!-- <iron-ajax id="req" url="https://charlesiesbeta.firebaseio.com/.json" method="get" handle-as="json" on-response="_handleResponse"></iron-ajax> -->
-    <firebase-collection id="FBCollection" location="https://charlesiesbeta.firebaseio.com/packages" data="{{packages}}"></firebase-collection>
+    <firebase-collection id="packages" location="https://charlesiesbeta.firebaseio.com/packages" data="{{packages}}"></firebase-collection>
     <!-- <firebase-collection id="elements" location$="{{_locElements}}" data="{{elements}}"></firebase-collection> -->
     <firebase-document location="https://charlesiesbeta.firebaseio.com/settings" data="{{settings}}"></firebase-document>
     <google-client-loader id="gcl" name="blogger" version="v3"></google-client-loader>
@@ -270,7 +270,7 @@
       },
 
       newPackage: function() {
-        // console.log('newPackage');
+        // console.log('newPackage', this.$.packages);
         var coll = this.$.packages
         coll.add(this.newPackageObject);
       },
@@ -279,6 +279,7 @@
       /*  Blogger  */
       _getPostList: function(blogid) {
         // console.log('_getPostList', blogid, _data.blog);
+        // if(!_data.blog) console.log('fresh blogger request');
         // this.$.req.generateRequest();
 
         if (_data.blog) {
@@ -291,6 +292,8 @@
         blogger.addEventListener('google-api-load', function(event) {
           var request = blogger.api.posts.list({
             blogId: blogid,
+            fetchImages: true,
+            fetchBody: true,
             key: 'AIzaSyAzyqzqu1sURmPH3VPzkOc9ywT7lCPPPF4'
           });
 
