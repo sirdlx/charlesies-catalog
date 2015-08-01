@@ -26,10 +26,9 @@
 
   <template>
 
-
-
     <firebase-document id="package" location$="[[_packageLocation(packageid)]]" data="{{getPackage}}"></firebase-document>
-    <firebase-collection id="elements" location="https://charlesiesbeta.firebaseio.com/elements" data="{{elements}}"></firebase-collection>
+    <firebase-collection id="packages" location$="[[_packagesLocation()]]" data="{{packages}}"></firebase-collection>
+    <firebase-collection id="elements" location$="[[_elementsLocation(getPackage)]]" log order-by-child="packageByName" equal-to="[[getPackage.name]]" data="{{elements}}"></firebase-collection>
 
     <!-- <catalog-package fbid="[[packageid]]" data="{{packageInfo}}"></catalog-package> -->
     <iron-media-query query="(max-width: 640px)" query-matches="{{_narrowViewport}}"></iron-media-query>
@@ -91,15 +90,16 @@
           </app-sidebar>
 
 
-          <paper-scroll-header-panel main condenses>
+          <paper-scroll-header-panel main condenses keep-condensed-header>
 
             <paper-toolbar class="tall">
               <iron-icon icon="menu" paper-drawer-toggle></iron-icon>
               <h2 class="flex">
-                <span>[[pageTitle]]</span>
                 <span class="count">[[_elementCount]]</span>
               </h2>
               <span class="flex"></span>
+              <div class="bottom">
+                <div class="title">[[pageTitle]]</div>[[getPackage.description]]</div>
               <iron-icon id="package-view-mode" icon="[[viewIcon]]" on-tap="toggleView" hidden$="[[_forceCards]]"></iron-icon>
               <cart-icon id="cart-toggle" icon="stars" on-tap="cartOpen"></cart-icon>
 
@@ -115,83 +115,19 @@
 
               </div> -->
 
-              <div id="package-heading" hidden$="[[!packageid]]">
-                <div class="description">[[getPackage.description]]</div>
-              </div>
+              <!-- <div id="package-heading" hidden$="[[!packageid]]">
 
-
-              <div id="package-heading" hidden$="[[!packageid]]">
-                <div class="description">[[getPackage.description]]</div>
-              </div>
-              <div id="package-heading" hidden$="[[!packageid]]">
-                <div class="description">[[getPackage.description]]</div>
-              </div>
-              <div id="package-heading" hidden$="[[!packageid]]">
-                <div class="description">[[getPackage.description]]</div>
-              </div>
-              <div id="package-heading" hidden$="[[!packageid]]">
-                <div class="description">[[getPackage.description]]</div>
-              </div>
-              <div id="package-heading" hidden$="[[!packageid]]">
-                <div class="description">[[getPackage.description]]</div>
-              </div>
-              <div id="package-heading" hidden$="[[!packageid]]">
-                <div class="description">[[getPackage.description]]</div>
-              </div>
-              <div id="package-heading" hidden$="[[!packageid]]">
-                <div class="description">[[getPackage.description]]</div>
-              </div>
-              <div id="package-heading" hidden$="[[!packageid]]">
-                <div class="description">[[getPackage.description]]</div>
-              </div>
-              <div id="package-heading" hidden$="[[!packageid]]">
-                <div class="description">[[getPackage.description]]</div>
-              </div>
-              <div id="package-heading" hidden$="[[!packageid]]">
-                <div class="description">[[getPackage.description]]</div>
-              </div>
-              <div id="package-heading" hidden$="[[!packageid]]">
-                <div class="description">[[getPackage.description]]</div>
-              </div>
-              <div id="package-heading" hidden$="[[!packageid]]">
-                <div class="description">[[getPackage.description]]</div>
-              </div>
-              <div id="package-heading" hidden$="[[!packageid]]">
-                <div class="description">[[getPackage.description]]</div>
-              </div>
-              <div id="package-heading" hidden$="[[!packageid]]">
-                <div class="description">[[getPackage.description]]</div>
-              </div>
-              <div id="package-heading" hidden$="[[!packageid]]">
-                <div class="description">[[getPackage.description]]</div>
-              </div>
-              <div id="package-heading" hidden$="[[!packageid]]">
-                <div class="description">[[getPackage.description]]</div>
-              </div>
-              <div id="package-heading" hidden$="[[!packageid]]">
-                <div class="description">[[getPackage.description]]</div>
-              </div>
-              <div id="package-heading" hidden$="[[!packageid]]">
-                <div class="description">[[getPackage.description]]</div>
-              </div>
-              <div id="package-heading" hidden$="[[!packageid]]">
-                <div class="description">[[getPackage.description]]</div>
-              </div>
+              </div> -->
 
               <div id="element-cards" class="horizontal layout wrap">
                 <template is="dom-if" if="[[_stampCards(view,_forceCards)]]">
-                  <template name="element-cards-repeat" is="dom-repeat" items="[[_filteredElements]]">
-                    <element-card element="[[item.name]]"></element-card>
+                  <template name="element-cards-repeat" is="dom-repeat" items="[[elements]]">
+                    <element-card element="[[item]]" package="[[getPackage]]"></element-card>
                   </template>
                 </template>
               </div>
 
-              <template is="dom-if" if="[[_stampTable(view,_forceCards)]]">
-                <element-table elements="[[_filteredElements]]" on-tag-selected="updateTag"></element-table>
-              </template>
             </div>
-
-
 
           </paper-scroll-header-panel>
 
@@ -260,7 +196,7 @@
           type: Object,
           value: {}
         },
-        elements: Array,
+        elements: Object,
 
         _filteredElements: Array,
         _elementCount: Number,
@@ -381,6 +317,15 @@
         return "https://charlesiesbeta.firebaseio.com/packages/" + id;
       },
 
+      _packagesLocation: function() {
+        return "https://charlesiesbeta.firebaseio.com/packages";
+      },
+
+      _elementsLocation: function(getPackage) {
+        // console.log('_elementsLocation', getPackage.elements);
+        return "https://charlesiesbeta.firebaseio.com/elements/";
+      },
+
       updateSearch: function() {
         var params = this._parseQueryString();
         if (params && params.q) {
@@ -389,27 +334,7 @@
           });
         }
       },
-      updateURL: function(q, p, tag, view, packageid) {
-        var qs = this._buildQueryString();
-        // console.log("updateURL", q, p, tag, view, packageid);
-        console.log(_lastNavigated);
-        console.log(this.router);
-        // if (qs !== _lastNavigated && this.router) {
-        //   _lastNavigated = qs;
-        //   this.router.go("/p/" + packageid + (qs.length ? "?" + qs : ""), {
-        //     replace: true
-        //   });
-        // }
 
-        // this.updateMeta();
-        // console.log(this.elements);
-        if (this.elements) {
-          this._filteredElements = this.elements.filter(this.filter.bind(
-            this));
-          this._elementCount = this._filteredElements.length;
-        }
-
-      },
       updateMeta: function(getPackage) {
         // console.log('updateMeta', getPackage);
 
@@ -421,8 +346,14 @@
         // console.log(this.customStyle['--my-package-image']);
         this.updateStyles();
 
-        this.elementQuery = getPackage.elements;
-        console.log(this.elementQuery);
+        // this.elementQuery = getPackage.elements;
+        // console.log(this.elementQuery);
+
+        // var ref = this.$.elements.query.ref();
+        // console.log(this.packageid);
+        // ref.orderByChild("packageByName").equalTo(getPackage.name).on("child_added", function(snapshot) {
+        //   console.log(snapshot.key());
+        // });
 
         if (this.q && this.q.length) {
           var t = "'" + this.q + "' ";

@@ -13,7 +13,7 @@
   <link rel="import" type="css" href="page-packages.css">
   <template>
     <catalog-data id="cdata" app="charlesiesbeta" blog="{{blog}}" blogid="8038113399974572777"></catalog-data>
-    <firebase-collection id="packages" location="https://charlesiesbeta.firebaseio.com/packages" data="{{packages}}"></firebase-collection>
+    <firebase-collection id="packages" location="https://charlesiesbeta.firebaseio.com/packages" data="{{packages}}" order-by-child="name"></firebase-collection>
     <paper-header-panel mode="seamed" class="fit">
 
       <paper-toolbar class="paper-header">

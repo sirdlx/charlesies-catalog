@@ -4,7 +4,7 @@ a {
   text-decoration: none;
 }
 #container {
-  background: #fafafa;
+  /*background: #fafafa;*/
 }
 app-bar .menu-icon {
   margin-right: 110px;
@@ -221,10 +221,13 @@ app-sidebar paper-toolbar {
 }
 paper-scroll-header-panel {
   /*background-color: var(--my-package-color);*/
+  background-color: white;
+
   /* background for toolbar when it is at its full size */
   --paper-scroll-header-panel-full-header: {
     background-color: var(--my-package-color);
     background-image: var(--my-package-image);
+    background-size: cover;
     /*background-size: 250px 250px;*/
     /*-webkit-filter: blur(10px);*/
   }
@@ -242,7 +245,18 @@ paper-scroll-header-panel {
 }
 paper-toolbar.tall {
   background-color: transparent;
+  color: white;
 }
+
+paper-toolbar .bottom {
+
+      margin-left: 32px;
+      -webkit-transform-origin: left center;
+      transform-origin: left center;
+    }
+
+
+
 .blur {
   -webkit-filter: blur(10px);
   -moz-filter: blur(10px);

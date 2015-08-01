@@ -92,7 +92,7 @@ hr {
 }
 
 .title {
-  display: table-caption;
+  /*display: table-caption;*/
   margin: 0 0 15px;
   height: 64px;
   font-size: 20px;

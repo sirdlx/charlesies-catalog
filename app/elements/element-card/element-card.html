@@ -13,7 +13,6 @@
     <!-- <catalog-element name="[[element]]" data="{{element}}"></catalog-element> -->
     <!-- <catalog-package name="[[element.package]]" data="{{package}}"></catalog-package> -->
     <!-- <catalog-package id="package" key="{{key}}"></catalog-package> -->
-
     <div id="content" class="vertical layout">
       <theme-color color="[[package.color]]">
         <div id="el" on-tap="nav" target$="[[element.name]]" view="docs">
@@ -42,38 +41,45 @@
 </dom-module>
 
 <script>
-Polymer({
-  is: 'element-card',
-  enableCustomStyleProperties: true,
-  properties: {
-    // element: {type: String, notify: true},
-    element: Object,
-    package: Object
-  },
-  listeners: {
-    tap: 'nav'
-  },
-  observers: [
-    '_updatePackage(element)'
-  ],
+  Polymer({
+    is: 'element-card',
+    enableCustomStyleProperties: true,
+    properties: {
+      // element: {type: String, notify: true},
+      element: Object,
+      package: Object
+    },
+    listeners: {
+      tap: 'nav'
+    },
+    observers: [
+      '_updatePackage(element, package)'
+    ],
 
-  _packageClicked: function(e) {
-    e.stopPropagation();
-    this.fire('update-params', {package: this.package.name});
-  },
-  _tagClicked: function(e) {
-    e.stopPropagation();
-    this.fire('update-params', {tag: e.currentTarget.name});
-  },
-  _updatePackage: function() {
-    this.package = this.querySelector('catalog-package').data;
-  },
-  nav: function(e) {
-    if (Polymer.dom(e).localTarget === this.$.actions) {
-      return true;
-    } else {
-      this.fire('nav', {url: '/elements/' + this.element});
+    _packageClicked: function(e) {
+      e.stopPropagation();
+      this.fire('update-params', {
+        package: this.package.name
+      });
+    },
+    _tagClicked: function(e) {
+      e.stopPropagation();
+      this.fire('update-params', {
+        tag: e.currentTarget.name
+      });
+    },
+    _updatePackage: function(element, package) {
+      // console.log('_updatePackage',element, package);
+      // this.package = this.querySelector('catalog-package').data;
+    },
+    nav: function(e) {
+      if (Polymer.dom(e).localTarget === this.$.actions) {
+        return true;
+      } else {
+        this.fire('nav', {
+          url: '/e/' + this.element.__firebaseKey__
+        });
+      }
     }
-  }
-});
+  });
 </script>
