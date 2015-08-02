@@ -2,48 +2,8 @@ paper-header-panel {
   background: #fafafa;
 }
 
-.content {
-  display: block;
-  padding: 50px 0;
-}
-
-.packages, #guides-container {
-  max-width: 1100px;
-  margin: 0 auto;
-}
-
 cart-icon {
   margin-left: 8px;
-}
-
-@media (max-width: 1132px) {
-  .packages, #guides-container {
-    max-width: 880px;
-  }
-}
-
-@media (max-width: 912px) {
-  .packages, #guides-container {
-    max-width: 660px;
-  }
-}
-
-@media (max-width: 692px) {
-  .packages, #guides-container {
-    max-width: 440px;
-  }
-}
-
-.package {
-  width: 204px;
-  height: 250px;
-  margin: 8px;
-}
-
-@media (max-width: 489px) {
-  .package {
-    width: calc(100% - 16px);
-  }
 }
 
 .search.active {
@@ -54,18 +14,6 @@ cart-icon {
   paper-toolbar /deep/ #topBar {
     margin-top: 4px;
     padding: 0 16px;
-  }
-}
-
-guide-card, #coming-soon {
-  width: 456px;
-  cursor: pointer;
-  margin: 8px;
-}
-
-@media (max-width: 489px) {
-  guide-card, #coming-soon {
-    width: 100%;
   }
 }
 
@@ -80,4 +28,57 @@ guide-card, #coming-soon {
   font-size: 16px;
   color: rgba(0, 0, 0, var(--dark-primary-opacity));
   border: 1px dashed #e5e5e5;
+}
+
+
+/* Base classes for all media */
+
+.Grid {
+  width: 320px;
+  margin: 16px auto;
+  display: flex;
+  flex-wrap: wrap;
+  list-style: none;
+  padding: 0;
+}
+.Grid-cell {
+  margin: 8px;
+  width: 304px;
+  height: 304px;
+  display: block;
+}
+
+/* Medium screens */
+
+@media (min-width: 694px) {
+  .Grid {
+    width: 688px;
+  }
+  .Grid-cell {
+    width: 328px;
+    height: 328px;
+  }
+}
+
+@media (min-width: 912px) {
+  .Grid {
+    width: 912px;
+  }
+  .Grid-cell {
+    width: 212px;
+    height: 212px;
+  }
+
+  .Grid-cell.guide-card{
+      width: 440px;
+      height: auto;
+
+    }
+  .Grid-cell.large {
+    width: 440px;
+    height: 440px;
+  }
+}
+::host *, *::after, *::before {
+  box-sizing: border-box;
 }

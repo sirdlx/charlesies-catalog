@@ -1,36 +1,25 @@
 :host {
   display: block;
+  height: 100%;
+  width: 100%;
+  position: relative;
   transition: var(--material-curve-320);
-  transform: translate(0, 60px);
+  transform: translate(-100px, 0px);
   opacity: 0;
+  overflow: hidden;
 }
-
 :host(.active) {
   transform: translate(0, 0);
   opacity: 1;
-
 }
-
-#content {
+.contentx {
   display: block;
   position: relative;
   width: 100%;
-  background: #fafafa;
-  border-radius: 2px;
+  height: 100%;
   box-sizing: border-box;
-  overflow: hidden;
-  cursor: pointer;
-  transition: box-shadow 200ms;
-  transition-timing-function: var(--material-curve);
-  color: #606060;
-  border: none;
   padding: 16px;
 }
-
-:host(:hover) #content {
-  box-shadow: 0 5px 10px rgba(0,0,0,.15);
-}
-
 h2 {
   font-weight: 400;
   font-size: 48px;
@@ -40,24 +29,20 @@ h2 {
   transition: all 500ms 320ms;
   transition-timing-function: var(--material-curve-320);
 }
-
 :host(.active) h2 {
   transform: translate(0, 0);
   opacity: 1;
 }
-
 h3 {
   transform: translate(-50px, 0);
   opacity: 0;
   transition: all 600ms 320ms;
   transition-timing-function: var(--material-curve-320);
 }
-
 :host(.active) h3 {
   transform: translate(0, 0);
   opacity: 1;
 }
-
 hr {
   border: 0;
   background: #fff;
@@ -68,13 +53,11 @@ hr {
   transition: width 400ms 320ms;
   transition-timing-function: var(--material-curve-320);
 }
-
 :host(.active) hr {
   width: 100%;
   background: #606060;
   opacity: 1;
 }
-
 .version {
   position: absolute;
   top: 16px;
@@ -85,12 +68,10 @@ hr {
   transform: translate(50px, 0);
   opacity: 0;
 }
-
-:host(.active) .version2 {
+:host(.active) .version {
   transform: translate(0, 0);
   opacity: 0.8;
 }
-
 .title {
   /*display: table-caption;*/
   margin: 0 0 15px;
@@ -99,11 +80,9 @@ hr {
   font-weight: 500;
   line-height: 28px;
 }
-
 .title[extended] {
   display: block;
 }
-
 .tagline {
   transition: all 700ms 320ms;
   transition-timing-function: var(--material-curve-320);
@@ -114,7 +93,6 @@ hr {
   line-height: 20px;
   height: 40px;
 }
-
 :host(.active) .tagline {
   transform: translate(0, 0);
   opacity: 1;
@@ -123,8 +101,6 @@ hr {
   transform: translate(0, 0);
   opacity: 1;
 }
-
-
 .trash {
   position: absolute;
   top: 16px;
@@ -134,5 +110,11 @@ hr {
   transition-timing-function: var(--material-curve-320);
   transform: translate(50px, 0);
   opacity: 0;
-  z-index:99;
+  z-index: 99;
+}
+paper-material {
+  box-sizing: border-box;
+  height: 100%;
+  width: 100%;
+  padding: 8px;
 }

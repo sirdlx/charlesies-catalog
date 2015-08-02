@@ -26,11 +26,11 @@
 
   <template>
 
-    <firebase-document id="package" location$="[[_packageLocation(packageid)]]" data="{{getPackage}}"></firebase-document>
-    <firebase-collection id="packages" location$="[[_packagesLocation()]]" data="{{packages}}"></firebase-collection>
-    <firebase-collection id="elements" location$="[[_elementsLocation(getPackage)]]" log order-by-child="packageByName" equal-to="[[getPackage.name]]" data="{{elements}}"></firebase-collection>
+    <!-- <firebase-document id="package" location$="[[_packageLocation(packageid)]]" data="{{getPackage}}"></firebase-document> -->
+    <firebase-collection location="https://charlesiesbeta.firebaseio.com/packages" data="{{packagesMenu}}"></firebase-collection>
+    <!-- <firebase-collection id="elements" location$="[[_elementsLocation(getPackage)]]" logs order-by-child="packageByName" equal-to="[[getPackage.name]]" data="{{elements}}"></firebase-collection> -->
 
-    <!-- <catalog-package fbid="[[packageid]]" data="{{packageInfo}}"></catalog-package> -->
+    <catalog-package id="[[packageid]]" data="{{getPackage}}"></catalog-package>
     <iron-media-query query="(max-width: 640px)" query-matches="{{_narrowViewport}}"></iron-media-query>
 
     <responsive-element>
@@ -64,7 +64,7 @@
                       <span class="title flex">All Elements</span>
                     </div>
                   </a>
-                  <template is="dom-repeat" items="[[packages]]">
+                  <template is="dom-repeat" items="[[packagesMenu]]">
                     <a class="package" is="app-link" href$="[[_packageLink(item.__firebaseKey__)]]" active$="[[_isEqual(packageid,item.__firebaseKey__)]]" tabindex="1">
                       <div class="layout horizontal center">
                         <package-symbol aria-hidden="true" package="[[item]]"></package-symbol>
@@ -121,8 +121,8 @@
 
               <div id="element-cards" class="horizontal layout wrap">
                 <template is="dom-if" if="[[_stampCards(view,_forceCards)]]">
-                  <template name="element-cards-repeat" is="dom-repeat" items="[[elements]]">
-                    <element-card element="[[item]]" package="[[getPackage]]"></element-card>
+                  <template name="element-cards-repeat" is="dom-repeat" items="[[getPackage.elementsKeys]]">
+                    <element-card elementid="[[item]]" package="[[getPackage]]"></element-card>
                   </template>
                 </template>
               </div>
@@ -196,9 +196,12 @@
           type: Object,
           value: {}
         },
-        elements: Object,
+        // elements: Object,
 
-        _filteredElements: Array,
+        _elements: {
+          type: Array,
+          value: []
+        },
         _elementCount: Number,
         _narrowViewport: {
           type: Boolean,
@@ -210,6 +213,7 @@
       },
       observers: [
         // 'updateURL(q,package,tag,view,packageid)',
+        // '_elementscheck(_elements)',
         'updateMeta(getPackage)'
       ],
       listeners: {
@@ -326,6 +330,10 @@
         return "https://charlesiesbeta.firebaseio.com/elements/";
       },
 
+      _elementscheck: function(_elements) {
+        console.log('_elementscheck', _elements);
+      },
+
       updateSearch: function() {
         var params = this._parseQueryString();
         if (params && params.q) {
@@ -345,15 +353,6 @@
           ")";
         // console.log(this.customStyle['--my-package-image']);
         this.updateStyles();
-
-        // this.elementQuery = getPackage.elements;
-        // console.log(this.elementQuery);
-
-        // var ref = this.$.elements.query.ref();
-        // console.log(this.packageid);
-        // ref.orderByChild("packageByName").equalTo(getPackage.name).on("child_added", function(snapshot) {
-        //   console.log(snapshot.key());
-        // });
 
         if (this.q && this.q.length) {
           var t = "'" + this.q + "' ";

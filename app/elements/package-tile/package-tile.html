@@ -5,17 +5,21 @@
 <dom-module id="package-tile">
   <link rel="import" type="css" href="package-tile.css">
   <template>
-    <catalog-package id="package" key="{{key}}"></catalog-package>
-    <theme-color draggable="true" id="content" color="[[package.color]]" class="vertical layout" themed themed-border>
-      <span class="version">[[package.version]]</span>
-      <!-- <span class="trash">
+    <!-- <catalog-package id="package" key="{{key}}"></catalog-package> -->
+
+    <theme-color draggable="true" id="content" color="[[package.color]]" url="[[package.image]]" >
+      <paper-material elevation="1" animated="true" themed themed-image>
+        <h2 class="symbol" hidden$="{{package.image}}">[[package.symbol]]</h2>
+        <span class="version" hidden$="{{package.image}}">[[package.version]]</span>
+        <!-- <span class="trash">
         <paper-button on-click="_onTrashClick">trash</paper-button>
       </span> -->
-      <h2 class="symbol">[[package.symbol]]</h2>
-      <h3 class="title" extended$="[[_extendedTitle(package)]]">[[package.title]]</h3>
-      <hr themed-reverse>
-      <p class="tagline">[[package.tagline]]</p>
-      <!-- <paper-input value="{{package.title}}"></paper-input> -->
+
+        <h3 hidden$="{{package.image}}" class="title" extended$="[[_extendedTitle(package)]]">[[package.title]]</h3>
+        <!-- <hr themed-reverse hidden$="{{package.image}}"> -->
+        <!-- <p class="tagline" hidden$="{{package.image}}">[[package.tagline]]</p> -->
+        <!-- <paper-input value="{{package.title}}" hidden$="{{package.image}}"></paper-input> -->
+      </paper-material>
     </theme-color>
 
   </template>
@@ -43,14 +47,13 @@
       }.bind(this), (index + 1) * 90);
     },
     _extendedTitle: function(p) {
+      console.log('_extendedTitle', p.title.length > 20);
       if (!p.title) return;
       if (p.title.length > 20) return true;
     },
     _onTrashClick: function(e) {
       // console.log(this.package);
       this.$.package.remove(this.package);
-      // gene kress 3173453219
-      // 3179151702
     }
   });
 </script>

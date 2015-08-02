@@ -25,9 +25,12 @@
 
       <div class="content fit">
 
-        <div class="packages layout horizontal wrap">
+        <!-- <div class="packages layout horizontal wrap"> -->
+        <div class="Grid">
           <template is="dom-repeat" items="{{packages}}">
-            <a href$="[[_packageLink(item.__firebaseKey__)]]" is="app-link" class="package flex-none">
+            <!-- <a href$="[[_packageLink(item.__firebaseKey__)]]" is="app-link" class="package flex-none"> -->
+            <a href$="[[_packageLink(item.__firebaseKey__)]]" is="app-link" class="Grid-cell">
+
               <package-tile package="[[item]]" name$="[[item.name]]"></package-tile>
             </a>
             <!-- <div class="package flex-none">
@@ -36,15 +39,17 @@
           </template>
         </div>
 
-        <div id="guides-container">
+        <div id="guides-container" class="Grid">
           <h3>Post</h3>
           <div id="guide-list" class="horizontal layout wrap">
             <template is="dom-repeat" items="[[blog.items]]">
-              <a href$="[[_link('posts',item.id)]]" is="app-link">
+              <a href$="[[_link('posts',item.id)]]" is="app-link" class="Grid-cell guide-card">
                 <guide-card post="[[item]]"></guide-card>
               </a>
             </template>
-            <div id="coming-soon">More guides coming soon, stay tuned!</div>
+            <a class="Grid-cell guide-card">
+            <guide-card title="More Coming Soon..."></guide-card>
+          </a>
           </div>
         </div>
 

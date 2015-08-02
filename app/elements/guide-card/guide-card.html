@@ -11,6 +11,7 @@
   <template>
     <!-- <catalog-blog name="[[post]]" data="{{_post}}"></catalog-blog> -->
 
+
     <div id="content" class="vertical layout">
       <h3>[[post.title]]</h3>
       <p>[[post.published]]</p>
@@ -29,13 +30,20 @@
       post: {
         type: Object
       },
+      title: String
     },
-    // observers:[
-    //   'checkpost(post)'
-    // ],
+    observers:[
+      // 'checkpost(post)'
+      '_title(title)'
+    ],
 
     checkpost: function(post) {
       console.log('checkpost', post.title);
+    },
+    _title: function(title) {
+      // console.log('_title', title);
+      this.post = {title: title}
+
     }
 
 

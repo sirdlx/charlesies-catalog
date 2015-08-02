@@ -10,7 +10,7 @@
 <dom-module id="element-card">
   <link rel="import" type="css" href="element-card.css">
   <template>
-    <!-- <catalog-element name="[[element]]" data="{{element}}"></catalog-element> -->
+    <catalog-element id="[[elementid]]" data="{{element}}"></catalog-element>
     <!-- <catalog-package name="[[element.package]]" data="{{package}}"></catalog-package> -->
     <!-- <catalog-package id="package" key="{{key}}"></catalog-package> -->
     <div id="content" class="vertical layout">
@@ -45,7 +45,7 @@
     is: 'element-card',
     enableCustomStyleProperties: true,
     properties: {
-      // element: {type: String, notify: true},
+      elementid: {type: String, notify: true},
       element: Object,
       package: Object
     },
@@ -53,7 +53,8 @@
       tap: 'nav'
     },
     observers: [
-      '_updatePackage(element, package)'
+      // '_elementid(elementid, package)',
+      // '_updatePackage(element, package)'
     ],
 
     _packageClicked: function(e) {
@@ -68,6 +69,10 @@
         tag: e.currentTarget.name
       });
     },
+    _elementid: function(elementid, package) {
+      console.log('_elementid',elementid);
+
+    },
     _updatePackage: function(element, package) {
       // console.log('_updatePackage',element, package);
       // this.package = this.querySelector('catalog-package').data;
@@ -77,7 +82,7 @@
         return true;
       } else {
         this.fire('nav', {
-          url: '/e/' + this.element.__firebaseKey__
+          url: '/e/' + this.elementid
         });
       }
     }
