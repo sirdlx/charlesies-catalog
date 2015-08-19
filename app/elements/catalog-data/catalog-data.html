@@ -1,7 +1,7 @@
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
-<link rel="import" href="../../bower_components/firebase-element/firebase-document.html">
-<link rel="import" href="../../bower_components/firebase-element/firebase-collection.html">
-<link rel="import" href="../../bower_components/google-apis/google-client-loader.html">
+<!-- <link rel="import" href="../../bower_components/firebase-element/firebase-document.html">
+<link rel="import" href="../../bower_components/firebase-element/firebase-collection.html"> -->
+<!-- <link rel="import" href="../../bower_components/google-apis/google-client-loader.html"> -->
 
 
 <dom-module id="catalog-data">
@@ -16,15 +16,15 @@
 </dom-module>
 
 
-<script src="//connect.soundcloud.com/sdk-2.0.0.js"></script>
+<!-- <script src="//connect.soundcloud.com/sdk-2.0.0.js"></script> -->
 
 <script>
   (function() {
 
-    SC.initialize({
-      client_id: "7ce7c8ce794f080121b96a32aeff64f4",
-      // redirect_uri: "http://example.com/callback",
-    });
+    // SC.initialize({
+    //   client_id: "7ce7c8ce794f080121b96a32aeff64f4",
+    //   // redirect_uri: "http://example.com/callback",
+    // });
 
 
     var _data = {};
@@ -271,7 +271,7 @@
 
       newPackage: function() {
         // console.log('newPackage', this.$.packages);
-        var coll = this.$.packages
+        var coll = this.$.packages;
         coll.add(this.newPackageObject);
       },
 

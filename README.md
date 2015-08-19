@@ -1,27 +1,43 @@
 # Polymer Element Catalog
 
+
+## Changes
+
+### 8-19-2015
+  Fixed: build issue when firebase.js conflicts with "gulp-vulcanize” after elements.build.html has been compiled.
+
+  Moved: firebase.js and webcomponents.js combined in file “/js/lib.js”, serving from index.html.
+
+  Moved: firebase-element(s) in app-shell.
+
+  Disabled: google-blogger script to test network script loading and asset size.
+
+  WIP: theme-color, theme will apply to multiple nodes with attributes [themed], [themed-reverse], [themed-background], [themed-color], [theme-background-image]
+
+
+
 ## Getting Started
 
-To work on the Polymer Elements Catalog, clone the repository.
+To work on the Charlesie Catalog, clone the repository.
 
 To install dependencies:
 
     npm run deps
-    
+
 To start a local development server:
 
     npm run serve
-    
+
 To start a local development server with `fixtures` turned on:
 
     FIXTURES=true npm run serve
-    
+
 To prepare the repo for publication:
 
     npm run build
-    
+
 Note: Make sure that you're running chrome 42 or later!
-    
+
 ### Fixtures
 
 While parts of the system are still in flux, it will be necessary to have stubbed
@@ -29,7 +45,7 @@ data and other bits to be able to work against. Anything in the `fixtures`
 directory will be available when running a development server. By the time
 the catalog ships, the `fixtures` directory should be empty.
 
-## Managing Catalog Data
+## Mock Catalog Data
 
 Data for the catalog is compiled by intelligently composing together information
 from multiple sources:
@@ -45,6 +61,8 @@ by the catalog application. Outputs of the catalog compilation process include:
 1. A `/data/catalog.json` file heavily annotated with parsed metadata
 2. Pre-parsed element documentation in `/data/docs`
 3. The compiled HTML output of guide markdown files in `/data/guides`
+
+
 
 ### How `catalog.json` is Created
 
@@ -133,7 +151,7 @@ The element catalog uses the following information from `bower.json`:
 
 Elements behave much like packages: they are responsible for maintaining their
 own documentation in `bower.json`. In addition, the source `.html` files for
-elements should be documented in accordance with the [Polymer Elements style guide](http://polymerelements.github.io/style-guide/).
+elements should be documented in accordance with the [Charlesie style guide](http://polymerelements.github.io/style-guide/).
 
 #### bower.json
 

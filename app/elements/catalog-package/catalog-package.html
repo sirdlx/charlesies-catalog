@@ -1,5 +1,5 @@
 <link rel="import" href="../catalog-data/catalog-data.html">
-<link rel="import" href="../../bower_components/firebase-element/firebase-document.html">
+<!-- <link rel="import" href="../../bower_components/firebase-element/firebase-document.html"> -->
 
 <dom-module id="catalog-package">
   <template>
@@ -45,7 +45,7 @@
 
       ref.on("child_added", function(snapshot) {
         // console.log(snapshot.key());
-        _package.elementsKeys.push(snapshot.key())
+        _package.elementsKeys.push(snapshot.key());
       });
       // console.log(_package);
 

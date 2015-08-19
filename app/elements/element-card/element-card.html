@@ -14,7 +14,7 @@
     <!-- <catalog-package name="[[element.package]]" data="{{package}}"></catalog-package> -->
     <!-- <catalog-package id="package" key="{{key}}"></catalog-package> -->
     <div id="content" class="vertical layout">
-      <theme-color color="[[package.color]]">
+      <theme-color color="[[pack.color]]">
         <div id="el" on-tap="nav" target$="[[element.name]]" view="docs">
           <div id="el-graphic" themed>
             <hero-image src="[[element.hero]]"></hero-image>
@@ -23,9 +23,9 @@
           <h3>[[element.name]]</h3>
         </div>
         <p id="el-desc">[[element.description]]</p>
-        <div id="el-package" class="horizontal layout center meta" on-tap="_packageClicked">
-          <package-symbol package="[[package]]"></package-symbol>
-          <span>[[package.title]]</span>
+        <div id="el-package" class="horizontal layout center meta" on-tap="_packClicked">
+          <package-symbol package="[[pack]]"></package-symbol>
+          <span>[[pack.title]]</span>
         </div>
         <div id="el-tags" class="horizontal layout center meta">
           <iron-icon icon="maps:local-offer" class="flex-none"></iron-icon>
@@ -47,20 +47,20 @@
     properties: {
       elementid: {type: String, notify: true},
       element: Object,
-      package: Object
+      pack: Object
     },
     listeners: {
       tap: 'nav'
     },
     observers: [
-      // '_elementid(elementid, package)',
-      // '_updatePackage(element, package)'
+      // '_elementid(elementid, pack)',
+      // '_updatePack(element, pack)'
     ],
 
-    _packageClicked: function(e) {
+    _packClicked: function(e) {
       e.stopPropagation();
       this.fire('update-params', {
-        package: this.package.name
+        pack: this.pack.name
       });
     },
     _tagClicked: function(e) {
@@ -69,13 +69,13 @@
         tag: e.currentTarget.name
       });
     },
-    _elementid: function(elementid, package) {
+    _elementid: function(elementid, pack) {
       console.log('_elementid',elementid);
 
     },
-    _updatePackage: function(element, package) {
-      // console.log('_updatePackage',element, package);
-      // this.package = this.querySelector('catalog-package').data;
+    _updatePack: function(element, pack) {
+      // console.log('_updatePackage',element, pack);
+      // this.pack = this.querySelector('catalog-package').data;
     },
     nav: function(e) {
       if (Polymer.dom(e).localTarget === this.$.actions) {

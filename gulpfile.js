@@ -135,7 +135,7 @@ gulp.task('html', function () {
     .pipe($.if('*.html', $.replace('elements/elements.html', 'elements/elements.build.html')))
     .pipe(assets)
     // Concatenate And Minify JavaScript
-    .pipe($.if('*.js', $.uglify({preserveComments: 'some'})))
+    .pipe($.if('*.js', $.uglify({preserveComments: 'false'})))
     // Concatenate And Minify Styles
     // In case you are still using useref build blocks
     .pipe($.if('*.css', $.cssmin()))
@@ -230,7 +230,7 @@ gulp.task('pagespeed', function (cb) {
 });
 
 gulp.task('catalog_assets:dist', function() {
-  return gulp.src('guides/assets/**/*').pipe(gulp.dest('dist/guides/assets'));
+  // return gulp.src('guides/assets/**/*').pipe(gulp.dest('dist/guides/assets'));
 });
 
 // Build element catalog JSON file

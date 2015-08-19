@@ -16,7 +16,7 @@
 <link rel="import" href="../theme-color/theme-color.html">
 <link rel="import" href="../cart-icon/cart-icon.html">
 <link rel="import" href="../cart-item-icon/cart-item-icon.html">
-<link rel="import" href="../../bower_components/firebase-element/firebase-document.html">
+<!-- <link rel="import" href="../../bower_components/firebase-element/firebase-document.html"> -->
 
 
 <dom-module id="page-element">
@@ -25,10 +25,10 @@
     <!-- <catalog-data id="cdata" app="charlesiesbeta" getpackages="packages" packages="{{packages}}" elements="{{elements}}" blog="{{blog}}" blogid="8038113399974572777"></catalog-data> -->
     <!-- <catalog-element name="[[item]]" data="{{metadata}}"></catalog-element> -->
     <!-- <catalog-package name="[[metadata.package]]" data="{{collection}}"></catalog-package> -->
-    <firebase-document id="fbPackage" location="{{_locPackage}}" data="{{package}}"></firebase-document>
+    <firebase-document id="fbPackage" location="{{_locPackage}}" data="{{getPackage}}"></firebase-document>
     <firebase-collection location="{{_locElements}}" data="{{elements}}"></firebase-collection>
 
-    <theme-color color="[[package.color]]">
+    <theme-color color="[[getPackage.color]]">
       <paper-drawer-panel drawer-width="272px" disable-edge-swipe>
         <app-sidebar drawer>
           <paper-toolbar>
@@ -36,13 +36,13 @@
             <app-bar class="horizontal layout center end-justified" query="{{q}}"></app-bar>
           </paper-toolbar>
           <div class="content">
-            <a is="app-link" href="[[_packageLink(package.__firebaseKey__)]]" class="horizontal layout center" id="package-heading">
+            <a is="app-link" href="[[_packageLink(getPackage.__firebaseKey__)]]" class="horizontal layout center" id="package-heading">
               <iron-icon icon="chevron-left"></iron-icon>
-              <package-symbol package="[[package]]"></package-symbol>
-              <span class="name flex">[[package.title]]</span>
+              <package-symbol package="[[getPackage]]"></package-symbol>
+              <span class="name flex">[[getPackage.title]]</span>
             </a>
             <div id="element-header">
-              <span class="version">[[package]]</span>
+              <span class="version">[[getPackage]]</span>
               <h2 id="element-title">[[element.name]]</h2>
               <div id="element-desc">
                 <p>[[element.description]]</p>
@@ -131,7 +131,7 @@
       docs: Object,
       metadata: Object,
       elements: Array,
-      package: Object,
+      getPackage: Object,
       router: Object,
       q: String,
       _locPackage: {
@@ -140,11 +140,11 @@
       },
       _locElements: {
         type: String,
-        computed: '_locfbelements(package)'
+        computed: '_locfbelements(getPackage)'
       },
       // _locPackagex: {
       //   type: String,
-      //   computed: '_elementLocation(package, elements)'
+      //   computed: '_elementLocation(getPackage, elements)'
       // },
     },
     observers: [
@@ -154,8 +154,8 @@
       'search(q)'
     ],
 
-    _locfbelements: function(package) {
-      // console.log('_locfbelements', 'https://' + 'charlesiesbeta' + '.firebaseio.com/' + "elements" + "/", package);
+    _locfbelements: function(getPackage) {
+      // console.log('_locfbelements', 'https://' + 'charlesiesbeta' + '.firebaseio.com/' + "elements" + "/", getPackage);
       return 'https://' + 'charlesiesbeta' + '.firebaseio.com/' + "elements" + "/";
     },
 
@@ -204,7 +204,7 @@
       });
     },
     _packageLink: function() {
-      return "/p/" + this.package.name;
+      return "/p/" + this.getPackage.name;
     },
     navToElement: function(e) {
       this.router.go("/elements/" + e.currentTarget.getAttribute('name'));
@@ -240,7 +240,7 @@
       this.$.cartIcon.toggle();
     },
     listFilter: function(el) {
-      return el.package === this.package.name;
+      return el.package === this.getPackage.name;
     },
     _demoName: function(name) {
       return name === 'demo' ? 'Demo' : name;

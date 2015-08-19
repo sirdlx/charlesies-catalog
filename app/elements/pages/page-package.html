@@ -122,7 +122,7 @@
               <div id="element-cards" class="horizontal layout wrap">
                 <template is="dom-if" if="[[_stampCards(view,_forceCards)]]">
                   <template name="element-cards-repeat" is="dom-repeat" items="[[getPackage.elementsKeys]]">
-                    <element-card elementid="[[item]]" package="[[getPackage]]"></element-card>
+                    <element-card elementid="[[item]]" pack="[[getPackage]]"></element-card>
                   </template>
                 </template>
               </div>
