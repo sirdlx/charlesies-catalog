@@ -34,7 +34,7 @@ cart-icon {
 /* Base classes for all media */
 
 .Grid {
-  width: 320px;
+  width: 332px;
   margin: 16px auto;
   display: flex;
   flex-wrap: wrap;
@@ -43,8 +43,8 @@ cart-icon {
 }
 .Grid-cell {
   margin: 8px;
-  width: 304px;
-  height: 304px;
+  width: 150px;
+  height: 150px;
   display: block;
 }
 
@@ -55,8 +55,8 @@ cart-icon {
     width: 688px;
   }
   .Grid-cell {
-    width: 328px;
-    height: 328px;
+    width: 250px;
+    height: 250px;
   }
 }
 
@@ -64,7 +64,7 @@ cart-icon {
   .Grid {
     width: 912px;
   }
-  .Grid-cell {
+  .Grid-cellxxx {
     width: 212px;
     height: 212px;
   }
