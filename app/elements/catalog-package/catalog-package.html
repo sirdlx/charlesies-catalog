@@ -1,61 +1,59 @@
-<link rel="import" href="../catalog-data/catalog-data.html">
-<!-- <link rel="import" href="../../bower_components/firebase-element/firebase-document.html"> -->
-
 <dom-module id="catalog-package">
   <template>
     <!-- <catalog-data id="cdata" package-map="{{_packages}}"></catalog-data> -->
     <firebase-document id="fbdoc" location$="[[_packageLocation(id)]]" data="{{_package}}"></firebase-document>
   </template>
-</dom-module>
-<script>
-  Polymer({
-    is: 'catalog-package',
-    properties: {
-      id: {
-        type: String,
-        notify: true
+  <script>
+    Polymer({
+      is: 'catalog-package',
+      properties: {
+        id: {
+          type: String,
+          notify: true
+        },
+        _package: {
+          type: Object,
+          notify: true
+        },
+        elements: {
+          type: Array,
+          notify: true,
+          value: []
+        },
+        data: {
+          type: Object,
+          notify: true,
+          computed: 'getData(_package)'
+        }
       },
-      _package: {
-        type: Object,
-        notify: true
+      _packageLocation: function(id) {
+        return "https://charlesiesbeta.firebaseio.com/packages/" + id;
       },
-      elements: {
-        type: Array,
-        notify: true,
-        value: []
+      getData: function(_package) {
+        if (!_package) return;
+
+        var ref = this.$.fbdoc.query.ref().child("elements");
+        // console.log(this.packageid);
+        // ref.orderByChild("packageByName").equalTo(getPackage.name).on("child_added", function(snapshot) {
+        //   console.log(snapshot.key());
+        // });
+        _package.elementsKeys = [];
+
+        ref.on("child_added", function(snapshot) {
+          // console.log(snapshot.key());
+          _package.elementsKeys.push(snapshot.key());
+        });
+        // console.log(_package);
+
+        return _package;
+
       },
-      data: {
-        type: Object,
-        notify: true,
-        computed: 'getData(_package)'
+      remove: function(item) {
+
       }
-    },
-    _packageLocation: function(id) {
-      return "https://charlesiesbeta.firebaseio.com/packages/" + id;
-    },
-    getData: function(_package) {
-      if (!_package) return;
-
-      var ref = this.$.fbdoc.query.ref().child("elements");
-      // console.log(this.packageid);
-      // ref.orderByChild("packageByName").equalTo(getPackage.name).on("child_added", function(snapshot) {
-      //   console.log(snapshot.key());
-      // });
-      _package.elementsKeys = [];
-
-      ref.on("child_added", function(snapshot) {
-        // console.log(snapshot.key());
-        _package.elementsKeys.push(snapshot.key());
-      });
-      // console.log(_package);
-
-      return _package;
-
-    },
-    remove: function(item) {
-
-    }
 
 
-  });
-</script>
+    });
+  </script>
+
+</dom-module>

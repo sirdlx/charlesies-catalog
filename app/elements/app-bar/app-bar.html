@@ -1,5 +1,5 @@
 <dom-module id="app-bar">
-  <!--<link rel="import" type="css" href="app-bar.css">-->
+
   <style>
     :host * {
       box-sizing: border-box;
@@ -11,7 +11,7 @@
       z-index: 1001;
     }
 
-    :host ::content iron-icon {
+    :host::content iron-icon {
       margin-right: 15px;
       cursor: pointer;
     }
@@ -62,63 +62,66 @@
       </form>
     </div>
   </template>
-</dom-module>
 
-<script>
-  Polymer({
-    is: 'app-bar',
-    properties: {
-      query: {
-        type: String,
-        notify: true
-      },
-      showingSearch: {
-        type: Boolean,
-        value: false
-      },
-      noSearch: {
-        type: Boolean,
-        value: false
-      }
-    },
-    observers: [
-      'updateSearchDisplay(showingSearch)'
-    ],
-    listeners: {
-      keyup: 'hotkeys'
-    },
-    toggleSearch: function(e) {
-      if (e) {
-        e.stopPropagation();
-      }
-      if (e.target === this.$.query) {
-        return;
-      }
 
-      this.showingSearch = !this.showingSearch;
-    },
-    clearSearch: function() {
-      this.showingSearch = false;
-    },
-    updateSearchDisplay: function(showingSearch) {
-      if (showingSearch) {
-        this.classList.add('search-on');
-        this.async(function() {
-          this.$.query.focus();
-        });
-      } else {
-        this.classList.remove('search-on');
-      }
-    },
-    hotkeys: function(e) {
-      // ESC
-      if (e.keyCode === 27 && Polymer.dom(e).rootTarget === this.$.query) {
+  <script>
+    Polymer({
+      is: 'app-bar',
+      properties: {
+        query: {
+          type: String,
+          notify: true
+        },
+        showingSearch: {
+          type: Boolean,
+          value: false
+        },
+        noSearch: {
+          type: Boolean,
+          value: false
+        }
+      },
+      observers: [
+        'updateSearchDisplay(showingSearch)'
+      ],
+      listeners: {
+        keyup: 'hotkeys'
+      },
+      toggleSearch: function(e) {
+        if (e) {
+          e.stopPropagation();
+        }
+        if (e.target === this.$.query) {
+          return;
+        }
+
+        this.showingSearch = !this.showingSearch;
+      },
+      clearSearch: function() {
         this.showingSearch = false;
+      },
+      updateSearchDisplay: function(showingSearch) {
+        if (showingSearch) {
+          this.classList.add('search-on');
+          this.async(function() {
+            this.$.query.focus();
+          });
+        } else {
+          this.classList.remove('search-on');
+        }
+      },
+      hotkeys: function(e) {
+        // ESC
+        if (e.keyCode === 27 && Polymer.dom(e).rootTarget === this.$.query) {
+          this.showingSearch = false;
+        }
+      },
+      performSearch: function(e) {
+        e.preventDefault();
+        this.fire('nav', {
+          url: '/browse?q=' + this.query
+        });
       }
-    },
-    performSearch: function(e) {
-      e.preventDefault();
-      this.fire('nav', {url: '/browse?q=' + this.query});
-    }
-  });
-</script>
+    });
+  </script>
+</dom-module>

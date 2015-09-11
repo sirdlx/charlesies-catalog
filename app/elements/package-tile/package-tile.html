@@ -1,15 +1,149 @@
-<link rel="import" href="../catalog-package/catalog-package.html">
-<link rel="import" href="../theme-color/theme-color.html">
-<link rel="import" href="../../bower_components/paper-input/paper-input.html">
-<link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <dom-module id="package-tile">
-  <link rel="import" type="css" href="package-tile.css">
+  <style>
+    :host {
+      display: block;
+      height: 100%;
+      width: 100%;
+      position: relative;
+      transition: var(--material-curve-320);
+      transform: translate(-100px, 0px);
+      opacity: 0;
+      overflow: hidden;
+    }
+
+    :host(.active) {
+      transform: translate(0, 0);
+      opacity: 1;
+    }
+
+    .contentx {
+      display: block;
+      position: relative;
+      width: 100%;
+      height: 100%;
+      box-sizing: border-box;
+      padding: 16px;
+    }
+
+    h2 {
+      font-weight: 400;
+      font-size: 48px;
+      margin: 20px 0;
+      transform: translate(-50px, 0);
+      opacity: 0;
+      transition: all 500ms 320ms;
+      transition-timing-function: var(--material-curve-320);
+    }
+
+    :host(.active) h2 {
+      transform: translate(0, 0);
+      opacity: 1;
+    }
+
+    h3 {
+      transform: translate(-50px, 0);
+      opacity: 0;
+      transition: all 600ms 320ms;
+      transition-timing-function: var(--material-curve-320);
+    }
+
+    :host(.active) h3 {
+      transform: translate(0, 0);
+      opacity: 1;
+    }
+
+    hr {
+      border: 0;
+      background: #fff;
+      width: 0;
+      height: 1px;
+      opacity: 0.2;
+      margin: 0;
+      transition: width 400ms 320ms;
+      transition-timing-function: var(--material-curve-320);
+    }
+
+    :host(.active) hr {
+      width: 100%;
+      background: #606060;
+      opacity: 1;
+    }
+
+    .version {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      font-size: 13px;
+      transition: all 400ms 320ms;
+      transition-timing-function: var(--material-curve-320);
+      transform: translate(50px, 0);
+      opacity: 0;
+    }
+
+    :host(.active) .version {
+      transform: translate(0, 0);
+      opacity: 0.8;
+    }
+
+    .title {
+      /*display: table-caption;*/
+      margin: 0 0 15px;
+      height: 64px;
+      font-size: 20px;
+      font-weight: 500;
+      line-height: 28px;
+    }
+
+    .title[extended] {
+      display: block;
+    }
+
+    .tagline {
+      transition: all 700ms 320ms;
+      transition-timing-function: var(--material-curve-320);
+      transform: translate(-50px, 0);
+      opacity: 0;
+      font-size: 13px;
+      margin: 10px 0 0 0;
+      line-height: 20px;
+      height: 40px;
+    }
+
+    :host(.active) .tagline {
+      transform: translate(0, 0);
+      opacity: 1;
+    }
+
+    :host(.active) .trash {
+      transform: translate(0, 0);
+      opacity: 1;
+    }
+
+    .trash {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      font-size: 13px;
+      transition: all 400ms 320ms;
+      transition-timing-function: var(--material-curve-320);
+      transform: translate(50px, 0);
+      opacity: 0;
+      z-index: 99;
+    }
+
+    paper-material {
+      box-sizing: border-box;
+      height: 100%;
+      width: 100%;
+      padding: 8px;
+    }
+  </style>
   <template>
     <!-- <catalog-package id="package" key="{{key}}"></catalog-package> -->
 
-    <theme-color draggable="true" id="content" color="[[package.color]]" url="[[package.image]]" >
+    <theme-color draggable="true" id="content" color="[[package.color]]" url="[[package.image]]">
       <paper-material elevation="1" animated="true" themed themed-image>
-        <h2 class="symbol" hidden$="{{package.image}}" >[[package.symbol]]</h2>
+        <h2 class="symbol" hidden$="{{package.image}}">[[package.symbol]]</h2>
         <h2 hidden$="{{!package.image}}" class="symbol" themed-color>[[package.title]]</h2>
         <span class="version" hidden$="{{package.image}}">[[package.version]]</span>
         <!-- <span class="trash">
@@ -24,37 +158,37 @@
     </theme-color>
 
   </template>
-</dom-module>
 
-<script>
-  Polymer({
-    is: 'package-tile',
-    enableCustomStyleProperties: true,
-    properties: {
-      key: {
-        type: String,
-        notify: true
+  <script>
+    Polymer({
+      is: 'package-tile',
+      enableCustomStyleProperties: true,
+      properties: {
+        key: {
+          type: String,
+          notify: true
+        },
+        package: {
+          type: Object
+        }
       },
-      package: {
-        type: Object
+      attached: function() {
+        var tiles = this.parentNode.parentNode.querySelectorAll('package-tile');
+        var index = Array.prototype.indexOf.call(tiles, this);
+        // console.log(Array.prototype.indexOf.call(tiles, this));
+        setTimeout(function() {
+          this.classList.add('active');
+        }.bind(this), (index + 1) * 90);
+      },
+      _extendedTitle: function(p) {
+        // console.log('_extendedTitle', p.title.length > 20);
+        if (!p.title) return;
+        if (p.title.length > 20) return true;
+      },
+      _onTrashClick: function(e) {
+        // console.log(this.package);
+        this.$.package.remove(this.package);
       }
-    },
-    attached: function() {
-      var tiles = this.parentNode.parentNode.querySelectorAll('package-tile');
-      var index = Array.prototype.indexOf.call(tiles, this);
-      // console.log(Array.prototype.indexOf.call(tiles, this));
-      setTimeout(function() {
-        this.classList.add('active');
-      }.bind(this), (index + 1) * 90);
-    },
-    _extendedTitle: function(p) {
-      // console.log('_extendedTitle', p.title.length > 20);
-      if (!p.title) return;
-      if (p.title.length > 20) return true;
-    },
-    _onTrashClick: function(e) {
-      // console.log(this.package);
-      this.$.package.remove(this.package);
-    }
-  });
-</script>
+    });
+  </script>
+</dom-module>

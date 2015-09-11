@@ -16,17 +16,19 @@
   ],
   "private": true,
   "dependencies": {
-    "iron-elements": "PolymerElements/iron-elements#^1.0.0",
-    "paper-elements": "PolymerElements/paper-elements#^1.0.0",
-    "gold-elements": "PolymerElements/gold-elements#^1.0.0",
-    "neon-elements": "PolymerElements/neon-elements#^1.0.0",
-    "platinum-elements": "PolymerElements/platinum-elements#^1.0.0",
-    "google-web-components": "GoogleWebComponents/google-web-components#^1.0.0",
-    "molecules": "PolymerElements/molecules#^1.0.0",
-    "polymer": "Polymer/polymer#^1.0.0",
-    "app-router": "~2.6.0",
-    "pushstate-anchor": "~0.3.0",
+    "app-router": "~2.6.1",
     "color": "~2.5.0",
-    "hydrolysis": "PolymerLabs/hydrolysis#^1.11.0"
+    "firebase": "~2.2.9",
+    "gold-elements": "https://github.com/PolymerElements/gold-elements.git#~1.0.1",
+    "google-web-components": "GoogleWebComponents/google-web-components#^1.0.0",
+    "hydrolysis": "PolymerLabs/hydrolysis#^1.11.0",
+    "iron-elements": "https://github.com/PolymerElements/iron-elements.git#~1.0.3",
+    "molecules": "PolymerElements/molecules#^1.0.0",
+    "neon-elements": "https://github.com/PolymerElements/neon-elements.git#~1.0.0",
+    "paper-elements": "https://github.com/PolymerElements/paper-elements.git#~1.0.5",
+    "platinum-elements": "https://github.com/PolymerElements/platinum-elements.git#~1.2.0",
+    "polymer": "Polymer/polymer#^1.0.0",
+    "pushstate-anchor": "~0.3.2",
+    "webcomponentsjs": "~0.7.12"
   }
 }

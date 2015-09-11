@@ -1,44 +1,49 @@
-<link rel="import" href="../catalog-data/catalog-data.html">
-<!-- <link rel="import" href="../../bower_components/firebase-element/firebase-document.html"> -->
-
 <dom-module id="catalog-element">
   <template>
     <!-- <catalog-data element-map="{{_elements}}"></catalog-data> -->
     <firebase-document id="element" location$="[[_elementLocation(id)]]" data="{{_element}}"></firebase-document>
   </template>
+  <script>
+    Polymer({
+      is: 'catalog-element',
+      properties: {
+        id: {
+          type: String,
+          notify: true
+        },
+        _element: Object,
+        data: {
+          type: Object,
+          notify: true,
+          computed: 'getData(_element)'
+        }
+      },
+
+      observers: [
+        '_elementid(id)',
+      ],
+
+      ready: function() {
+
+      },
+
+      _elementid: function(elementid, getPackage) {
+        // console.log('_elementid',elementid);
+
+      },
+
+      _elementLocation: function(id) {
+        // console.log('_elementsLocation', "https://charlesiesbeta.firebaseio.com/elements/" + id);
+        return "https://charlesiesbeta.firebaseio.com/elements/" + id;
+      },
+
+      getData: function(_element) {
+        // console.log('getData', _element);
+        // if (!_elements) return;
+        return _element;
+
+      }
+    });
+  </script>
+
 </dom-module>
-<script>
-  Polymer({
-    is: 'catalog-element',
-    properties: {
-      id: {type: String, notify: true},
-      _element: Object,
-      data: {type: Object, notify: true, computed: 'getData(_element)'}
-    },
-
-    observers: [
-      '_elementid(id)',
-    ],
-
-    ready: function(){
-
-    },
-
-    _elementid: function(elementid, getPackage) {
-      // console.log('_elementid',elementid);
-
-    },
-
-    _elementLocation: function(id) {
-      // console.log('_elementsLocation', "https://charlesiesbeta.firebaseio.com/elements/" + id);
-      return "https://charlesiesbeta.firebaseio.com/elements/" + id;
-    },
-
-    getData: function(_element) {
-      // console.log('getData', _element);
-      // if (!_elements) return;
-      return _element;
-
-    }
-  });
-</script>

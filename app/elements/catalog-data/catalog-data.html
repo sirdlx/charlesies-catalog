@@ -1,9 +1,3 @@
-<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
-<!-- <link rel="import" href="../../bower_components/firebase-element/firebase-document.html">
-<link rel="import" href="../../bower_components/firebase-element/firebase-collection.html"> -->
-<!-- <link rel="import" href="../../bower_components/google-apis/google-client-loader.html"> -->
-
-
 <dom-module id="catalog-data">
   <template>
     <!-- <iron-ajax id="req" url="https://charlesiesbeta.firebaseio.com/.json" method="get" handle-as="json" on-response="_handleResponse"></iron-ajax> -->
@@ -13,335 +7,332 @@
     <google-client-loader id="gcl" name="blogger" version="v3"></google-client-loader>
     <!-- <iron-ajax id="req" url="/blogger.json" method="get" handle-as="json" on-response="_handlePostsResponse"></iron-ajax> -->
   </template>
-</dom-module>
+  <script>
+    (function() {
+
+      // SC.initialize({
+      //   client_id: "7ce7c8ce794f080121b96a32aeff64f4",
+      //   // redirect_uri: "http://example.com/callback",
+      // });
 
 
-<!-- <script src="//connect.soundcloud.com/sdk-2.0.0.js"></script> -->
+      var _data = {};
+      var _els = [];
 
-<script>
-  (function() {
+      _genLoc = function(app, ext) {
+        // console.log('_genLoc', app, ext);
+        return 'https://' + app + '.firebaseio.com/' + ext;
+      };
 
-    // SC.initialize({
-    //   client_id: "7ce7c8ce794f080121b96a32aeff64f4",
-    //   // redirect_uri: "http://example.com/callback",
-    // });
-
-
-    var _data = {};
-    var _els = [];
-
-    _genLoc = function(app, ext) {
-      // console.log('_genLoc', app, ext);
-      return 'https://' + app + '.firebaseio.com/' + ext;
-    };
-
-    var _generateMap = function(list) {
-      if (!list) return;
-      var out = {};
-      for (var i = 0; i < list.length; i++) {
-        out[list[i].name] = list[i];
-      }
-      return out;
-    };
-
-    var _generatePostsMap = function(list) {
-
-      var out = {};
-      for (var i = 0; i < list.length; i++) {
-        out[list[i].id] = list[i];
-      }
-      return out;
-    };
-
-    var _setPackageData = function(data) {
-      console.log('_setPackageData');
-
-      _data = data || {};
-      if (data) {
-        //this.packages = data.packages;
-
-        // _data.packages = data.packages;
-        _data.packageMap = _generateMap(data.packages);
-        _data.elementMap = _generateMap(data.elements);
-        // _data.guideMap = _generateMap(data.guides);
-        // _data.behaviorMap = {};
-        // _data.elements.forEach(function(el) {
-        //   el.behaviors.forEach(function(be) {
-        //     _data.behaviorMap[be] = el.name;
-        //   });
-        // });
-      }
-      _els.forEach(function(el) {
-        el.load(_data);
-      });
-    };
-
-    Polymer({
-      is: 'catalog-data',
-      ready: function() {
-        this.load(_data);
-        // SC.oEmbed("http://soundcloud.com/forss/flickermood", {
-        //   auto_play: true
-        // }, function(oembed) {
-        //   console.log("oEmbed response: ", oembed);
-        // });
-      },
-      attached: function() {
-        if (_els.length === 0 && !_data.packages) {
-          //this.$.req.generateRequest();
+      var _generateMap = function(list) {
+        if (!list) return;
+        var out = {};
+        for (var i = 0; i < list.length; i++) {
+          out[list[i].name] = list[i];
         }
-        _els.push(this);
-      },
-      detached: function() {
-        _els.splice(_els.indexOf(this), 1);
-      },
-      properties: {
+        return out;
+      };
 
-        /* FBDocument */
-        app: {
-          type: String,
-        },
-        getcoll: {
-          type: String
-        },
-        _locColl: {
-          type: String,
-          computed: '_locfb(app, getcoll)'
-        },
-        _locFBElements: {
-          type: String,
-          computed: '_locfb(app, itembyid)'
-        },
-        data: {
-          type: Object,
-          notify: true,
-          // computed: '_dataReady(app, getcoll, coll)'
+      var _generatePostsMap = function(list) {
 
-        },
-        itembyid: String,
-
-        packages: {
-          type: Array,
-          // readOnly: true,
-          notify: true,
-          // observer: 'packageschange'
-        },
-        packageMap: {
-          type: Object,
-          readOnly: true,
-          notify: true
-        },
-
-        newPackageObject: {
-          type: Object,
-          notify: true,
-          value: {
-            "name": "new",
-            "title": "New",
-            "color": "#8ff784",
-            "symbol": "Nw",
-            "tagline": "Add tagline",
-            "version": "0.0.0",
-            "description": "describe your product",
-            "elements": [],
-            "guides": []
-          }
-        },
-
-
-        elements: {
-          type: Array,
-          // readOnly: true,
-          notify: true
-        },
-        elementMap: {
-          type: Object,
-          readOnly: true,
-          notify: true
-        },
-
-        tags: {
-          type: Object,
-          readOnly: true,
-          notify: true
-        },
-        behaviorMap: {
-          type: Object,
-          readOnly: true,
-          notify: true
-        },
-
-        /* Blogger */
-        blogid: {
-          type: String,
-          notify: true
-        },
-        postid: {
-          type: String,
-          notify: true
-        },
-        blog: {
-          type: Object,
-          // readOnly: true,
-          notify: true
-        },
-        post: {
-          type: Object,
-          // readOnly: true,
-          notify: true
+        var out = {};
+        for (var i = 0; i < list.length; i++) {
+          out[list[i].id] = list[i];
         }
+        return out;
+      };
 
-      },
+      var _setPackageData = function(data) {
+        console.log('_setPackageData');
 
-      observers: [
-        /* Blogger */
-        '_getPostList(blogid)',
-        '_getPostSingle(blog,postid)',
-
-        // 'checkdata(elements, packages)',
-      ],
-
-      _fbcv: function(e) {
-        console.log('_fbcv', this.$.FBCollection.data);
-        _data.coll = this.coll;
-        // console.log(this.coll);
-        // this.updateAll();
-      },
-
-      _dataReady: function(app, getcoll, coll) {
-        console.log('_dataReady', app, getcoll, coll);
-        // console.log(typeof un, dos, tres);
-        _data[coll] = this.$.FBCollection.data;
-        console.log(this.$.FBCollection.data);
-        this.updateAll();
-      },
-
-
-      load: function(data) {
+        _data = data || {};
         if (data) {
-          // console.log(_data);
-          // this.data = _data;
-          // console.log(this.data);
-          // this._setPackages(data.packages);
-          // this._setPackageMap(data.packageMap);
-          // this._setElements(data.elements);
-          // this._setElementMap(data.elementMap);
-          // this.posts = data.posts;
-          // this._setPostsMap(data.postsMap);
-          //this._setBehaviorMap(data.behaviorMap);
-          //this._setTags(data.tags);
+          //this.packages = data.packages;
+
+          // _data.packages = data.packages;
+          _data.packageMap = _generateMap(data.packages);
+          _data.elementMap = _generateMap(data.elements);
+          // _data.guideMap = _generateMap(data.guides);
+          // _data.behaviorMap = {};
+          // _data.elements.forEach(function(el) {
+          //   el.behaviors.forEach(function(be) {
+          //     _data.behaviorMap[be] = el.name;
+          //   });
+          // });
         }
-      },
-      updateAll: function() {
-        console.log('updateAll', _data);
-        that = this;
-        _els.forEach(function(el) {
-          el.data = _data;
-          console.log(el);
-        });
-      },
-      _handlePostsResponse: function(_, req) {
-        // console.log(req.response);
-        // console.log(_generatePostsMap(req.response.items));
-        _data.posts = req.response.items;
-        _data.postsMap = _generatePostsMap(req.response.items);
         _els.forEach(function(el) {
           el.load(_data);
         });
+      };
 
-      },
-      _locfb: function(app, itembyid) {
-        // console.log('_locfb', app, itembyid);
-        console.log('_locfb', _genLoc(app, itembyid));
-        if (!itembyid.length) {
-          return;
-        }
-        return _genLoc(app, itembyid);
-      },
-      checkdata: function(elements, packages) {
-        // console.log('checkdata', elements, packages);
-        // console.log(typeof this.packages);
-        _data.packages = packages;
-        _data.elements = elements;
-        _data.packageMap = _generateMap(packages);
-        _data.elementMap = _generateMap(elements);
+      Polymer({
+        is: 'catalog-data',
+        ready: function() {
+          this.load(_data);
+          // SC.oEmbed("http://soundcloud.com/forss/flickermood", {
+          //   auto_play: true
+          // }, function(oembed) {
+          //   console.log("oEmbed response: ", oembed);
+          // });
+        },
+        attached: function() {
+          if (_els.length === 0 && !_data.packages) {
+            //this.$.req.generateRequest();
+          }
+          _els.push(this);
+        },
+        detached: function() {
+          _els.splice(_els.indexOf(this), 1);
+        },
+        properties: {
 
-        this.updateAll();
-      },
+          /* FBDocument */
+          app: {
+            type: String,
+          },
+          getcoll: {
+            type: String
+          },
+          _locColl: {
+            type: String,
+            computed: '_locfb(app, getcoll)'
+          },
+          _locFBElements: {
+            type: String,
+            computed: '_locfb(app, itembyid)'
+          },
+          data: {
+            type: Object,
+            notify: true,
+            // computed: '_dataReady(app, getcoll, coll)'
 
-      newPackage: function() {
-        // console.log('newPackage', this.$.packages);
-        var coll = this.$.packages;
-        coll.add(this.newPackageObject);
-      },
+          },
+          itembyid: String,
+
+          packages: {
+            type: Array,
+            // readOnly: true,
+            notify: true,
+            // observer: 'packageschange'
+          },
+          packageMap: {
+            type: Object,
+            readOnly: true,
+            notify: true
+          },
+
+          newPackageObject: {
+            type: Object,
+            notify: true,
+            value: {
+              "name": "new",
+              "title": "New",
+              "color": "#8ff784",
+              "symbol": "Nw",
+              "tagline": "Add tagline",
+              "version": "0.0.0",
+              "description": "describe your product",
+              "elements": [],
+              "guides": []
+            }
+          },
 
 
-      /*  Blogger  */
-      _getPostList: function(blogid) {
-        // console.log('_getPostList', blogid, _data.blog);
-        // if(!_data.blog) console.log('fresh blogger request');
-        // this.$.req.generateRequest();
+          elements: {
+            type: Array,
+            // readOnly: true,
+            notify: true
+          },
+          elementMap: {
+            type: Object,
+            readOnly: true,
+            notify: true
+          },
 
-        if (_data.blog) {
-          this.blog = _data.blog;
-          return;
-        }
+          tags: {
+            type: Object,
+            readOnly: true,
+            notify: true
+          },
+          behaviorMap: {
+            type: Object,
+            readOnly: true,
+            notify: true
+          },
 
-        var blogger = this.$.gcl;
-        var that = this;
-        blogger.addEventListener('google-api-load', function(event) {
-          var request = blogger.api.posts.list({
-            blogId: blogid,
-            fetchImages: true,
-            fetchBody: true,
-            key: 'AIzaSyAzyqzqu1sURmPH3VPzkOc9ywT7lCPPPF4'
+          /* Blogger */
+          blogid: {
+            type: String,
+            notify: true
+          },
+          postid: {
+            type: String,
+            notify: true
+          },
+          blog: {
+            type: Object,
+            // readOnly: true,
+            notify: true
+          },
+          post: {
+            type: Object,
+            // readOnly: true,
+            notify: true
+          }
+
+        },
+
+        observers: [
+          /* Blogger */
+          '_getPostList(blogid)',
+          '_getPostSingle(blog,postid)',
+
+          // 'checkdata(elements, packages)',
+        ],
+
+        _fbcv: function(e) {
+          console.log('_fbcv', this.$.FBCollection.data);
+          _data.coll = this.coll;
+          // console.log(this.coll);
+          // this.updateAll();
+        },
+
+        _dataReady: function(app, getcoll, coll) {
+          console.log('_dataReady', app, getcoll, coll);
+          // console.log(typeof un, dos, tres);
+          _data[coll] = this.$.FBCollection.data;
+          console.log(this.$.FBCollection.data);
+          this.updateAll();
+        },
+
+
+        load: function(data) {
+          if (data) {
+            // console.log(_data);
+            // this.data = _data;
+            // console.log(this.data);
+            // this._setPackages(data.packages);
+            // this._setPackageMap(data.packageMap);
+            // this._setElements(data.elements);
+            // this._setElementMap(data.elementMap);
+            // this.posts = data.posts;
+            // this._setPostsMap(data.postsMap);
+            //this._setBehaviorMap(data.behaviorMap);
+            //this._setTags(data.tags);
+          }
+        },
+        updateAll: function() {
+          console.log('updateAll', _data);
+          that = this;
+          _els.forEach(function(el) {
+            el.data = _data;
+            console.log(el);
+          });
+        },
+        _handlePostsResponse: function(_, req) {
+          // console.log(req.response);
+          // console.log(_generatePostsMap(req.response.items));
+          _data.posts = req.response.items;
+          _data.postsMap = _generatePostsMap(req.response.items);
+          _els.forEach(function(el) {
+            el.load(_data);
           });
 
-          request.execute(function(resp) {
-            // console.log(resp);
-            _data.blog = resp;
-            that.blog = _data.blog;
-            // that.updateAll();
-          });
-        });
-
-
-      },
-      _getPostSingle: function(blog, postid) {
-        // console.log('_getPostSingle', blog, postid);
-
-        // var blogger = this.$.gcl;
-        // var that = this;
-        // blogger.addEventListener('google-api-load', function(event) {
-        //   console.log('_getPostSingle', blogger.api.posts);
-        //   var request = blogger.api.posts.get({
-        //     blogId: blogid,
-        //     postId: postid,
-        //     key: 'AIzaSyAzyqzqu1sURmPH3VPzkOc9ywT7lCPPPF4'
-        //   });
-        //   request.execute(function(resp) {
-        //     console.log(resp);
-        //   });
-        // });
-
-
-        for (var i = 0; i < blog.items.length; i++) {
-          if (blog.items[i].id == postid) {
-            //console.log(this.blog.items[i].id);
-            // return blog.items[i];
-            // console.log(this.blog.items[i]);
-            this.post = this.blog.items[i];
+        },
+        _locfb: function(app, itembyid) {
+          // console.log('_locfb', app, itembyid);
+          console.log('_locfb', _genLoc(app, itembyid));
+          if (!itembyid.length) {
             return;
           }
+          return _genLoc(app, itembyid);
+        },
+        checkdata: function(elements, packages) {
+          // console.log('checkdata', elements, packages);
+          // console.log(typeof this.packages);
+          _data.packages = packages;
+          _data.elements = elements;
+          _data.packageMap = _generateMap(packages);
+          _data.elementMap = _generateMap(elements);
+
+          this.updateAll();
+        },
+
+        newPackage: function() {
+          // console.log('newPackage', this.$.packages);
+          var coll = this.$.packages;
+          coll.add(this.newPackageObject);
+        },
+
+
+        /*  Blogger  */
+        _getPostList: function(blogid) {
+          // console.log('_getPostList', blogid, _data.blog);
+          // if(!_data.blog) console.log('fresh blogger request');
+          // this.$.req.generateRequest();
+
+          if (_data.blog) {
+            this.blog = _data.blog;
+            return;
+          }
+
+          var blogger = this.$.gcl;
+          var that = this;
+          blogger.addEventListener('google-api-load', function(event) {
+            var request = blogger.api.posts.list({
+              blogId: blogid,
+              fetchImages: true,
+              fetchBody: true,
+              key: 'AIzaSyAzyqzqu1sURmPH3VPzkOc9ywT7lCPPPF4'
+            });
+
+            request.execute(function(resp) {
+              // console.log(resp);
+              _data.blog = resp;
+              that.blog = _data.blog;
+              // that.updateAll();
+            });
+          });
+
+
+        },
+        _getPostSingle: function(blog, postid) {
+          // console.log('_getPostSingle', blog, postid);
+
+          // var blogger = this.$.gcl;
+          // var that = this;
+          // blogger.addEventListener('google-api-load', function(event) {
+          //   console.log('_getPostSingle', blogger.api.posts);
+          //   var request = blogger.api.posts.get({
+          //     blogId: blogid,
+          //     postId: postid,
+          //     key: 'AIzaSyAzyqzqu1sURmPH3VPzkOc9ywT7lCPPPF4'
+          //   });
+          //   request.execute(function(resp) {
+          //     console.log(resp);
+          //   });
+          // });
+
+
+          for (var i = 0; i < blog.items.length; i++) {
+            if (blog.items[i].id == postid) {
+              //console.log(this.blog.items[i].id);
+              // return blog.items[i];
+              // console.log(this.blog.items[i]);
+              this.post = this.blog.items[i];
+              return;
+            }
+          }
+
+
+        },
+
+        remove: function(item) {
+          // console.log(this.$.packages);
+          this.$.packages.remove(item);
         }
+      });
+    })();
+  </script>
 
-
-      },
-
-      remove: function(item) {
-        // console.log(this.$.packages);
-        this.$.packages.remove(item);
-      }
-    });
-  })();
-</script>
+</dom-module>

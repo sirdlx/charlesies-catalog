@@ -1,5 +1,3 @@
-<link rel="import" href="../../bower_components/iron-image/iron-image.html">
-
 <dom-module id="hero-image">
   <style>
     :host {
@@ -20,24 +18,27 @@
   <template>
     <iron-image src="[[_src]]" sizing="contain"></iron-image>
   </template>
-</dom-module>
 
-<script>
-Polymer({
-  is: 'hero-image',
-  properties: {
-    src: {type: String, observer: '_update'},
-    _src: String
-  },
-  ready: function() {
-    this._update();
-  },
-  _update: function(src) {
-    if (src && src.length) {
-      this._src = src;
-    } else {
-      this._src = "/images/hero/random-" + Math.ceil(Math.random() * 4) + ".svg";
-    }
-  }
-});
-</script>
+  <script>
+    Polymer({
+      is: 'hero-image',
+      properties: {
+        src: {
+          type: String,
+          observer: '_update'
+        },
+        _src: String
+      },
+      ready: function() {
+        this._update();
+      },
+      _update: function(src) {
+        if (src && src.length) {
+          this._src = src;
+        } else {
+          this._src = "/images/hero/random-" + Math.ceil(Math.random() * 4) + ".svg";
+        }
+      }
+    });
+  </script>
+</dom-module>

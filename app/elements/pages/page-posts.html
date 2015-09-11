@@ -1,10 +1,3 @@
-<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
-<link rel="import" href="../../bower_components/paper-item/paper-item.html">
-<link rel="import" href="../../bower_components/paper-styles/paper-styles.html">
-<link rel="import" href="../../bower_components/paper-drawer-panel/paper-drawer-panel.html">
-
-<link rel="import" href="../catalog-blog/catalog-blog.html">
-
 <dom-module id="page-posts">
   <style>
     .content {
@@ -130,85 +123,86 @@
 
     </paper-drawer-panel>
   </template>
-</dom-module>
 
-<script>
-  Polymer({
-    is: 'page-posts',
-    properties: {
-      router: Object,
-      posts: Array,
-      post: Object,
-      postid: String,
-      //content: String
-    },
-    enableCustomStyleProperties: true,
-    observers: [
-      'contentChanged(post, postid)',
-      'updateMeta(post)',
-      // 'checkpost(post)'
-    ],
-    checkpost: function(post) {
-      console.log('checkpost', post);
-    },
+  <script>
+    Polymer({
+      is: 'page-posts',
+      properties: {
+        router: Object,
+        posts: Array,
+        post: Object,
+        postid: String,
+        //content: String
+      },
+      enableCustomStyleProperties: true,
+      observers: [
+        'contentChanged(post, postid)',
+        'updateMeta(post)',
+        // 'checkpost(post)'
+      ],
+      checkpost: function(post) {
+        console.log('checkpost', post);
+      },
 
-    attached: function() {
+      attached: function() {
 
-    },
-    contentChanged: function(post, postid) {
-      // console.log('contentChanged', postid);
-      this.$.content.innerHTML = this.post.content;
+      },
+      contentChanged: function(post, postid) {
+        // console.log('contentChanged', postid);
+        this.$.content.innerHTML = this.post.content;
 
 
-      // // this.$.content.innerHTML = this.content;
-      this._decorateHeadings();
-      this._highlight();
-      this.scopeSubtree(this.$.content);
-      // if (window.location.hash !== "") {
-      //   var el = Polymer.dom(this.$.content).querySelector(window.location.hash);
-      //   if (el) el.scrollIntoView();
-      // }
-    },
-    _decorateHeadings: function() {
-      var h2s = this.$.content.querySelectorAll('h2');
-      for (var i = 0; i < h2s.length; i++) {
-        var link = document.createElement('a');
-        link.className = "reference-link";
-        link.href = "#" + h2s[i].id;
-        var icon = document.createElement('iron-icon');
-        icon.icon = 'link';
-        link.appendChild(icon);
-        h2s[i].parentNode.insertBefore(link, h2s[i]);
-      }
-    },
-    _highlight: function() {
-      var els = this.$.content.querySelectorAll('pre code');
-      for (var i = 0; i < els.length; i++) {
-        var code = els[i].textContent;
-        var event = this.fire('syntax-highlight', {
-          code: code
+        // // this.$.content.innerHTML = this.content;
+        this._decorateHeadings();
+        this._highlight();
+        this.scopeSubtree(this.$.content);
+        // if (window.location.hash !== "") {
+        //   var el = Polymer.dom(this.$.content).querySelector(window.location.hash);
+        //   if (el) el.scrollIntoView();
+        // }
+      },
+      _decorateHeadings: function() {
+        var h2s = this.$.content.querySelectorAll('h2');
+        for (var i = 0; i < h2s.length; i++) {
+          var link = document.createElement('a');
+          link.className = "reference-link";
+          link.href = "#" + h2s[i].id;
+          var icon = document.createElement('iron-icon');
+          icon.icon = 'link';
+          link.appendChild(icon);
+          h2s[i].parentNode.insertBefore(link, h2s[i]);
+        }
+      },
+      _highlight: function() {
+        var els = this.$.content.querySelectorAll('pre code');
+        for (var i = 0; i < els.length; i++) {
+          var code = els[i].textContent;
+          var event = this.fire('syntax-highlight', {
+            code: code
+          });
+          if (event.detail.code && !els[i].highlighted) {
+            els[i].highlighted = true;
+            els[i].innerHTML = event.detail.code;
+          }
+        }
+      },
+      _postUrl: function(id) {
+        return "/posts/" + id;
+      },
+      updateMeta: function(post) {
+        // console.log('updateMeta', post);
+        this.fire('page-meta', {
+          title: this.post.title
         });
-        if (event.detail.code && !els[i].highlighted) {
-          els[i].highlighted = true;
-          els[i].innerHTML = event.detail.code;
+        // console.log('updateMeta', post);
+      },
+      nav: function(e) {
+        var name = e.currentTarget.getAttribute('name');
+        if (this.name !== name) {
+          this.router.go('/guides/' + name);
         }
       }
-    },
-    _postUrl: function(id) {
-      return "/posts/" + id;
-    },
-    updateMeta: function(post) {
-      // console.log('updateMeta', post);
-      this.fire('page-meta', {
-        title: this.post.title
-      });
-      // console.log('updateMeta', post);
-    },
-    nav: function(e) {
-      var name = e.currentTarget.getAttribute('name');
-      if (this.name !== name) {
-        this.router.go('/guides/' + name);
-      }
-    }
-  });
-</script>
+    });
+  </script>
+
+</dom-module>
