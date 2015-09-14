@@ -4,8 +4,9 @@
   <template>
 
     <!-- <firebase-document id="package" location$="[[_packageLocation(packageid)]]" data="{{getPackage}}"></firebase-document> -->
-    <firebase-collection location="https://charlesiesbeta.firebaseio.com/packages" data="{{packagesMenu}}"></firebase-collection>
+    <!-- <firebase-collection location="https://charlesiesbeta.firebaseio.com/packages" data="{{packagesMenu}}"></firebase-collection> -->
     <!-- <firebase-collection id="elements" location$="[[_elementsLocation(getPackage)]]" logs order-by-child="packageByName" equal-to="[[getPackage.name]]" data="{{elements}}"></firebase-collection> -->
+    <catalog-data packages="[[packages]]"></catalog-data>
 
     <catalog-package id="[[packageid]]" data="{{getPackage}}"></catalog-package>
     <iron-media-query query="(max-width: 640px)" query-matches="{{_narrowViewport}}"></iron-media-query>
@@ -195,6 +196,9 @@
         listeners: {
           'update-params': '_handleParamsUpdate'
         },
+        updateURL: function (e) {
+          console.log('updateURL: ', e);
+        },
 
         ready: function() {
           // this._updateForceCards();
@@ -325,8 +329,7 @@
           if (!getPackage) return;
 
           this.customStyle['--my-package-color'] = getPackage.color;
-          this.customStyle['--my-package-image'] = "url(" + getPackage.image +
-            ")";
+          this.customStyle['--my-package-image'] = "url(" + getPackage.image + ")";
           // console.log(this.customStyle['--my-package-image']);
           this.updateStyles();
 

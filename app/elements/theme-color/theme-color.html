@@ -94,9 +94,10 @@
         // this.style.backgroundRepeat = "no-repeat";
       },
       computeTextColor: function(color) {
-        if (this.color) {
+        // console.log(color);
+        if (color) {
           var lightness = one.color(this.color).lightness();
-          // return (lightness > 0.5) ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.8)';
+          return (lightness > 0.5) ? 'rgba(0,0,0,1)' : 'rgba(255,255,255,1)';
         } else {
           return null;
         }
@@ -116,9 +117,6 @@
         this.customStyle['--theme-background-color'] = bgColor;
         this.updateStyles();
         if (this.outline) this._outline(node, bgColor);
-
-
-
 
       },
       _colorImage: function(node) {
@@ -154,10 +152,13 @@
 
         var nodes = Polymer.dom(this).querySelectorAll('[themed],[themed-reverse],[themed-border],[themed-border-reverse],[themed-color]');
         // console.log(nodes);
+        // console.log(this);
         for (var i = 0; i < nodes.length; i++) {
           if (nodes[i].hasAttribute('themed')) {
             this._color(nodes[i], this.color, this.textColor);
+            // console.log('themed', this.color, this.textColor);
           } else if (nodes[i].hasAttribute('themed-reverse')) {
+            // console.log('themed-reverse', this.color, this.textColor);
             this._color(nodes[i], this.textColor, this.color);
           } else if (nodes[i].hasAttribute('themed-border')) {
             this._colorBorder(nodes[i], this.color);

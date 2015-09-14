@@ -1,119 +1,181 @@
 <dom-module id="app-shell">
-  <style>
-    #cartpanel::shadow > #scrim {
-      z-index: 4;
-    }
-
-    #cartpanel::shadow > #drawer {
-      z-index: 5;
-    }
-
-    paper-toast {
-      z-index: 5;
-    }
-  </style>
   <template>
-    <paper-drawer-panel id="cartpanel" class="flex" force-narrow right-drawer disable-edge-swipe disable-swipe drawer-width="320px">
-      <paper-progress value="10" secondary-progress="30"></paper-progress>
-      <app-router id="router" class="flex" mode="pushstate" main on-activate-route-end="trackPageview">
+
+    <style is="custom-style">
+      :host {
+        @apply(--app-shell);
+      }
+
+      #appToolbar {
+        @apply(--app-toolbar);
+      }
+
+      #appToolbar a {
+        @apply(--app-toolbar-link);
+      }
+    </style>
+
+    <paper-scroll-header-panel class="fit" keep-condensed-header on-paper-header-transform="headerTransform">
+
+      <paper-toolbar id="appToolbar" class="medium-tall">
+        <!-- <span class="paper-font-title">Menu</span> -->
+        <app-logo tabindex="1"></app-logo>
+        <!-- <app-bar class="horizontal layout center end-justified" no-search></app-bar> -->
+        <span class="flex"></span>
+        <paper-icon-button icon="refresh"></paper-icon-button>
+        <paper-icon-button icon="search"></paper-icon-button>
+        <div class="bottom fit">
+          <paper-icon-button class="app-icon" icon="refresh"></paper-icon-button>
+          <paper-tabs id="navtabs" selected="[[routeSelected]]" noink>
+            <paper-tab route="/" link><a class="layout horizontal center-center" is="pushstate-anchor" href="/">home</a></paper-tab>
+            <paper-tab route="/women" link><a class="layout horizontal center-center" is="pushstate-anchor" href="/women">women</a></paper-tab>
+            <paper-tab route="/men" link><a class="horizontal center-center layout" is="pushstate-anchor" href="/men/specials">men</a></paper-tab>
+            <paper-tab route="/kids" link><a class="horizontal center-center layout" is="pushstate-anchor" href="/kids">kids</a></paper-tab>
+          </paper-tabs>
+        </div>
+      </paper-toolbar>
+
+      <app-router id="router" class="flex" main mode="pushstate" on-activate-route-start="routeStart">
         <app-route path="/" element="page-packages" bindRouter></app-route>
-        <app-route path="/browse" element="page-browse" bindRouter onUrlChange="updateModel"></app-route>
-        <app-route path="/posts/:postid" element="page-posts" bindRouter></app-route>
         <app-route path="/p/:packageid" element="page-package" bindRouter onUrlChange="updateModel"></app-route>
         <app-route path="/p/:packageid/:elementid" element="page-element" bindRouter onUrlChange="updateModel"></app-route>
-
-        <app-route path="*">
-          <template>
-            <h1>Not Found</h1>
-          </template>
-        </app-route>
-
+        <app-route path="*" element="page-error"></app-route>
       </app-router>
-      <app-cart id="cart" drawer></app-cart>
-    </paper-drawer-panel>
+
+    </paper-scroll-header-panel>
+
+    <!-- Uncomment next block to enable Service Worker support (1/2) -->
+    <!--
+    <paper-toast id="caching-complete"
+                 duration="6000"
+                 text="Caching complete! This app will work offline.">
+    </paper-toast>
+
+    <platinum-sw-register auto-register
+                          clients-claim
+                          skip-waiting
+                          on-service-worker-installed="displayInstalledToast">
+      <platinum-sw-cache default-cache-strategy="networkFirst"
+                         precache-file="precache.json">
+      </platinum-sw-cache>
+    </platinum-sw-register>
+    -->
+
+
     <paper-toast id="toast"></paper-toast>
+
   </template>
 
   <script>
-    Polymer({
-      is: 'app-shell',
-      listeners: {
-        'nav': 'handleNav',
-        'page-meta': 'updateTitle',
-        'cart-close': 'cartClose',
-        'cart-open': 'cartOpen',
-        'cart-add': 'cartAdd',
-        'cart-remove': 'cartRemove',
-        'toast': 'showToast'
-      },
-      properties: {
-        settings: {
-          type: Object,
-          notify: true,
+    (function() {
+      Polymer({
+        is: 'app-shell',
+        enableCustomStyleProperties: true,
+        listeners: {
+          'toast': 'showToast'
         },
-      },
-      observers: [
-        'setApp(settings)',
-        // 'updatePacks(packages)'
-      ],
-      updatePacks: function(packages) {
-        console.log('uppacks', packages);
-        _data.packages = packages;
-      },
-      ready: function() {
-        this.title = "Catalog";
-      },
-      setApp: function(settings) {
-        // console.log('setApp', settings);
-        this.title = settings.title;
-        this.fire('page-meta', {
-          title: null
-        });
-      },
-      toggleSearch: function() {
-        this.$.search.active = !this.$.search.active;
-      },
-      performSearch: function(e) {
-        e.preventDefault();
-        if (this.query.length) this.$.router.go('/elements?q=' + this.query);
-      },
-      handleNav: function(_, nav) {
-        this.$.router.go(nav.url);
-        this.$.cartpanel.closeDrawer();
-      },
-      updateTitle: function(_, detail) {
-        if (detail.title && detail.title.length) {
-          document.title = detail.title + " - Polymer Element Catalog";
-        } else {
-          document.title = "Polymer Element Catalog";
+        properties: {
+          settings: {
+            type: Object,
+            notify: true,
+          },
+          routeSelected: {
+            type: Number,
+            notify: true
+          }
+        },
+        observers: [
+          'setApp(settings)',
+          // 'updatePacks(packages)'
+        ],
+
+        routeStart: function(event) {
+          // console.log(this.$.navtabs.items[0].attributes.route.textContent);
+          // console.log(event.detail.path);
+          var that = this;
+          this.$.navtabs.items.forEach(function(entry, index) {
+            if (typeof entry.attributes.route === 'undefined') {
+              return;
+            }
+            var tabRoute = entry.attributes.route.textContent.split('/')[1];
+            var routePath = event.detail.path.split('/')[1];
+            // console.log(routePath, index);
+            // console.log(routePath);
+
+            if (tabRoute === routePath) {
+              // console.log(entry.attributes.route.textContent);
+              // console.log(index);
+              that.routeSelected = index;
+              return;
+            }
+
+
+
+          });
+
+        },
+
+        headerTransform: function(e) {
+          var applogo = document.querySelector('app-logo.icon');
+          var detail = e.detail;
+          var heightDiff = detail.height - detail.condensedHeight;
+          var yRatio = Math.min(1, detail.y / heightDiff);
+          // console.log(yRatio);
+          // Polymer.Base.transform('translateX(' + scaleMiddle + ')', applogo);
+        },
+
+        ready: function() {
+          // this.title = "Catalog";
+        },
+        setApp: function(settings) {
+          // console.log('setApp', settings);
+          this.title = settings.title;
+          this.fire('page-meta', {
+            title: null
+          });
+        },
+        toggleSearch: function() {
+          this.$.search.active = !this.$.search.active;
+        },
+        performSearch: function(e) {
+          e.preventDefault();
+          if (this.query.length) this.$.router.go('/search?q=' + this.query);
+        },
+
+        updateTitle: function(_, detail) {
+          if (detail.title && detail.title.length) {
+            document.title = detail.title + " - Catalog";
+          } else {
+            document.title = "Catalog";
+          }
+        },
+        cartClose: function() {
+          this.$.cartpanel.closeDrawer();
+        },
+        cartOpen: function() {
+          this.$.cartpanel.openDrawer();
+        },
+        cartAdd: function(e, el) {
+          this.$.cart.add(el);
+        },
+        cartRemove: function(e, el) {
+          this.$.cart.remove(el);
+        },
+        showToast: function(e, detail) {
+          this.$.toast.text = detail.text;
+          this.$.toast.show();
+        },
+        trackPageview: function(e, detail) {
+          // this.debounce('pageview', function() {
+          //   var loc = window.location.pathname + window.location.search;
+          //   ga('send', 'pageview', {
+          //     location: loc,
+          //     title: document.title
+          //   });
+          //   ga('set', 'page', loc);
+          // }, 2000);
         }
-      },
-      cartClose: function() {
-        this.$.cartpanel.closeDrawer();
-      },
-      cartOpen: function() {
-        this.$.cartpanel.openDrawer();
-      },
-      cartAdd: function(e, el) {
-        this.$.cart.add(el);
-      },
-      cartRemove: function(e, el) {
-        this.$.cart.remove(el);
-      },
-      showToast: function(e, detail) {
-        this.$.toast.text = detail.text;
-        this.$.toast.show();
-      },
-      trackPageview: function(e, detail) {
-        // this.debounce('pageview', function() {
-        //   var loc = window.location.pathname + window.location.search;
-        //   ga('send', 'pageview', {
-        //     location: loc,
-        //     title: document.title
-        //   });
-        //   ga('set', 'page', loc);
-        // }, 2000);
-      }
-    });
+      });
+    })();
   </script>
 </dom-module>

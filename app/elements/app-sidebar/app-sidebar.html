@@ -1,81 +1,69 @@
 <dom-module id="app-sidebar">
   <template>
-    <style is="custom-style">
-      :root {
-        --app-sidebar-width: 272px;
-        --app-sidebar-background: var(--primary-background-color);
-      }
 
-      :host {
-        height: 100%;
-        box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
-        box-sizing: border-box;
-        z-index: 2;
-        background: white;
-        border-right: 1px solid #e5e5e5;
-        @apply(--layout-fit);
-        @apply(--layout);
-        @apply(--layout-vertical);
-        overflow: hidden;
-      }
 
-      ::content paper-toolbar {
-        --paper-toolbar-background: white;
-      }
+    <paper-drawer-panel id="paperDrawerPanel">
+      <!-- Drawer Scroll Header Panel -->
+      <paper-scroll-header-panel drawer fixed>
+        <!-- Drawer Content -->
+        <paper-menu>
 
-      ::content .content {
-        @apply(--layout-flex);
-        @apply(--layout);
-        @apply(--layout-vertical);
-        overflow-x: hidden;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-      }
+          <paper-submenu>
+            <paper-item class="menu-trigger">Men</paper-item>
+            <paper-menu class="menu-content sublist">
+              <a is="pushstate-anchor" href="/login"><paper-item>Topic 1</paper-item></a>
+              <a is="pushstate-anchor" href="/login"><paper-item>Topic 1</paper-item></a>
+              <a is="pushstate-anchor" href="/login"><paper-item>Topic 1</paper-item></a>
+            </paper-menu>
+          </paper-submenu>
 
-      ::content .section {
-        margin-bottom: 20px;
-        opacity: 0;
-        transform: translate(0, 100px);
-        transition: var(--material-curve-320);
-      }
+          <paper-submenu>
+            <paper-item class="menu-trigger">Women</paper-item>
+            <paper-menu class="menu-content sublist">
+              <a is="pushstate-anchor" href="/login"><paper-item>Topic 1</paper-item></a>
+              <a is="pushstate-anchor" href="/login"><paper-item>Topic 1</paper-item></a>
+              <a is="pushstate-anchor" href="/login"><paper-item>Topic 1</paper-item></a>
+            </paper-menu>
+          </paper-submenu>
 
-      ::content .section:first-child {
-        transition-delay: 100ms;
-      }
+        </paper-menu>
+      </paper-scroll-header-panel>
 
-      ::content .section:nth-child(2) {
-        transition-delay: 200ms;
-      }
+      <!-- Main Area -->
 
-      ::content .section:nth-child(3) {
-        transition-delay: 300ms;
-      }
+      <div class="" main>
 
-      ::content .section:nth-child(4) {
-        transition-delay: 400ms;
-      }
+      </div>
 
-      ::content .active .section {
-        transform: translate(0, 0);
-        opacity: 1;
-      }
+      <!-- <app-cart id="cart" drawer></app-cart> -->
 
-      ::content .section h5 {
-        @apply(--paper-font-body2);
-        border-top: 1px solid;
-        border-top-color: var(--divider-color);
-        margin: 24px 0 0 0;
-        padding: 16px 24px 12px 24px;
-      }
 
-      ::content .section p {
-        @apply(--paper-font-body1);
-        color: var(--secondary-text-color);
-        padding: 0 24px;
-        margin: 0;
-      }
-    </style>
-    <content></content>
+
+      <!-- <paper-scroll-header-panel condenses keep-condensed-header>
+
+        <!-- Main Toolbar --2>
+        <paper-toolbar id="mainToolbar" class="tall">
+          <paper-icon-button id="paperToggle" icon="menu" paper-drawer-toggle></paper-icon-button>
+          <span class="flex"></span>
+
+          <!-- Toolbar icons --2>
+          <paper-icon-button icon="refresh"></paper-icon-button>
+          <paper-icon-button icon="search"></paper-icon-button>
+
+          <!-- Application name --2>
+          <div class="middle middle-container center horizontal layout">
+            <div class="app-name">Polymer Starter Kit</div>
+          </div>
+
+          <!-- Application sub title --2>
+          <div class="bottom bottom-container center horizontal layout">
+            <div class="bottom-title paper-font-subhead">The future of the web today</div>
+          </div>
+
+        </paper-toolbar>
+
+      </paper-scroll-header-panel> -->
+    </paper-drawer-panel>
   </template>
 
   <script>
