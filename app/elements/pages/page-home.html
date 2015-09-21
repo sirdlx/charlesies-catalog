@@ -1,4 +1,4 @@
-<dom-module id="page-packages">
+<dom-module id="page-home">
   <template>
     <style is="custom-style">
       .grid-layout {
@@ -30,7 +30,7 @@
 
     <div class="grid-layout">
       <template is="dom-repeat" items="{{packages}}">
-        <a href$="[[_packageLink(item.__firebaseKey__)]]" is="pushstate-anchor" class="grid-cell">
+        <a href$="[[_packageLink(item.name)]]" is="pushstate-anchor" class="grid-cell">
           <package-tile package="[[item]]" name$="[[item.name]]"></package-tile>
         </a>
       </template>
@@ -40,9 +40,10 @@
 
   <script>
     Polymer({
-      is: 'page-packages',
+      is: 'page-home',
       enableCustomStyleProperties: true,
       properties: {},
+      
 
       newItemClick: function(e, f) {
         // console.log('newItemClick', e, f);
@@ -60,7 +61,7 @@
 
       _packageLink: function(id) {
         // return "/browse?packageId=" + name;
-        return "/p/" + id;
+        return "/items/?category=" + id;
       }
     });
   </script>

@@ -13,32 +13,50 @@
       #appToolbar a {
         @apply(--app-toolbar-link);
       }
+
+      #btnCart {
+        margin-right: 16px;
+        margin-top: 16px;
+      }
     </style>
 
-    <paper-scroll-header-panel class="fit" keep-condensed-header on-paper-header-transform="headerTransform">
+    <iron-media-query query="(min-width: 600px)" query-matches="{{narrow}}"></iron-media-query>
+
+    <!-- <catalog-cart id="catalogData" cartcount="{{cartcount}}"></catalog-cart> -->
+
+    <paper-scroll-header-panel class="fit" fixed on-paper-header-transform="headerTransform">
 
       <paper-toolbar id="appToolbar" class="medium-tall">
         <!-- <span class="paper-font-title">Menu</span> -->
         <app-logo tabindex="1"></app-logo>
         <!-- <app-bar class="horizontal layout center end-justified" no-search></app-bar> -->
         <span class="flex"></span>
-        <paper-icon-button icon="refresh"></paper-icon-button>
-        <paper-icon-button icon="search"></paper-icon-button>
+        <!-- <iron-input id="query" type="search" autocomplete="off" value="{{q::keyup}}" placeholder="Search Elements" class="flex"></iron-input> -->
+
+        <paper-icon-button id="btnCart" icon="shopping-cart"></paper-icon-button>
+        <paper-badge class="cartBadge" for="btnCart" label="{{cartcount}}" hidden$="{{!_cartcount(cartcount)}}"></paper-badge>
+
         <div class="bottom fit">
-          <paper-icon-button class="app-icon" icon="refresh"></paper-icon-button>
           <paper-tabs id="navtabs" selected="[[routeSelected]]" noink>
-            <paper-tab route="/" link><a class="layout horizontal center-center" is="pushstate-anchor" href="/">home</a></paper-tab>
-            <paper-tab route="/women" link><a class="layout horizontal center-center" is="pushstate-anchor" href="/women">women</a></paper-tab>
-            <paper-tab route="/men" link><a class="horizontal center-center layout" is="pushstate-anchor" href="/men/specials">men</a></paper-tab>
-            <paper-tab route="/kids" link><a class="horizontal center-center layout" is="pushstate-anchor" href="/kids">kids</a></paper-tab>
+            <paper-tab route="/" link>
+              <a class="layout horizontal center-center" is="pushstate-anchor" href="/">
+                <iron-icon class="app-icon" icon="home"></iron-icon>
+              </a>
+            </paper-tab>
+            <paper-tab route="/women" link>
+              <a class="layout horizontal center-center" is="pushstate-anchor" href="/women">women</a></paper-tab>
+            <paper-tab route="/men" link>
+              <a class="horizontal center-center layout" is="pushstate-anchor" href="/men/specials">men</a></paper-tab>
+            <paper-tab route="/kids" link>
+              <a class="horizontal center-center layout" is="pushstate-anchor" href="/kids">kids</a></paper-tab>
           </paper-tabs>
         </div>
       </paper-toolbar>
 
       <app-router id="router" class="flex" main mode="pushstate" on-activate-route-start="routeStart">
-        <app-route path="/" element="page-packages" bindRouter></app-route>
-        <app-route path="/p/:packageid" element="page-package" bindRouter onUrlChange="updateModel"></app-route>
-        <app-route path="/p/:packageid/:elementid" element="page-element" bindRouter onUrlChange="updateModel"></app-route>
+        <app-route path="/" element="page-items" bindRouter></app-route>
+        <!-- <app-route path="/item/" element="page-items" bindRouter onUrlChange="updateModel"></app-route> -->
+        <app-route path="/items/:itemid" element="page-home" bindRouter onUrlChange="updateModel"></app-route>
         <app-route path="*" element="page-error"></app-route>
       </app-router>
 
@@ -61,7 +79,6 @@
     </platinum-sw-register>
     -->
 
-
     <paper-toast id="toast"></paper-toast>
 
   </template>
@@ -82,12 +99,25 @@
           routeSelected: {
             type: Number,
             notify: true
+          },
+          cartcount: {
+            type: Number,
+            notify: true,
+            value: 0
           }
         },
         observers: [
           'setApp(settings)',
           // 'updatePacks(packages)'
         ],
+
+        _cartcount: function(cartcount) {
+          console.log('_cartcount', cartcount);
+          if (cartcount === 0) {
+            return false
+          };
+          return true;
+        },
 
         routeStart: function(event) {
           // console.log(this.$.navtabs.items[0].attributes.route.textContent);
@@ -108,8 +138,6 @@
               that.routeSelected = index;
               return;
             }
-
-
 
           });
 

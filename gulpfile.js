@@ -177,6 +177,8 @@ gulp.task('precache', function (callback) {
 // Clean Output Directory
 gulp.task('clean', del.bind(null, ['.tmp', 'dist']));
 
+gulp.task('clean:extra', del.bind(null, ['dist/bower**']));
+
 // Watch Files For Changes & Reload
 gulp.task('serve', ['styles', 'elements', 'images'], function () {
   browserSync({
@@ -238,7 +240,7 @@ gulp.task('default', ['clean'], function (cb) {
     ['copy', 'styles'],
     'elements',
     ['jshint', 'images', 'fonts', 'html'],
-    'vulcanize',
+    'vulcanize', 'clean:extra',
     cb);
     // Note: add , 'precache' , after 'vulcanize', if your are going to use Service Worker
 });

@@ -32,9 +32,22 @@
   <!-- Tile icon for Win8 (144x144) -->
   <meta name="msapplication-TileImage" content="images/touch/ms-touch-icon-144x144-precomposed.png">
 
+  <style media="screen">
+    body.fullbleed {
+      margin: 0;
+      height: 100vh;
+      font-family: 'Roboto', 'Noto', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      transition: opacity ease-in 0.2s;
+    }
+    html /deep/ .1x1 {
+      background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX0QzYBWW+JAAAACklEQVR4nGNiAAAABgADNjd8qAAAAABJRU5ErkJggg==');
+    }
+  </style>
+
   <!-- build:js lib.min.js -->
-  <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
-  <script src="bower_components/firebase/firebase.js"></script>
+  <script src="bower_components/webcomponentsjs/webcomponents-lite.js" async></script>
+  <script src="bower_components/firebase/firebase.js" async></script>
   <!-- endbuild -->
 
   <!-- will be replaced with elements/elements.vulcanized.html -->
@@ -42,7 +55,7 @@
   <!-- endreplace-->
 </head>
 
-<body unresolved class="fullbleed layout vertical">
+<body class="fullbleed layout vertical">
   <span id="browser-sync-binding"></span>
   <app-shell></app-shell>
 </body>

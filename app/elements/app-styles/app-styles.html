@@ -2,15 +2,15 @@
   /* Application theme */
 
   * {
-      box-sizing: border-box;
-    }
+    box-sizing: border-box;
+  }
 
   :root {
     /* App Colors */
-    --dark-primary-color: #303F9F;
+    --dark-primary-color: var(--paper-grey-50);
     --default-primary-color: #3F51B5;
     --light-primary-color: #C5CAE9;
-    --accent-color: var(--google-red-700);
+    --accent-color: var(--paper-red-500);
     --primary-background-color: #c5cae9;
     --text-primary-color: var(--paper-grey-900);
     /*text/icons*/
@@ -38,19 +38,16 @@
       color: var(--secondary-text-color);
     }
   }
+
+  body, a{
+    color: var(--text-primary-color);
+  }
+
+
   /* Breakpoints */
   /* Small */
 
   @media (max-width: 600px) {
-    paper-materials {
-      --menu-container-display: none;
-      width: calc(97.33% - 32px);
-      padding-left: 16px;
-      padding-right: 16px;
-    }
-    .paper-font-display1 {
-      font-size: 12px;
-    }
     paper-toolbar.tall .app-name {
       font-size: 24px;
       font-weight: 400;
@@ -68,12 +65,6 @@
   /* Tablet+ */
 
   @media (min-width: 601px) {
-    paper-materialx {
-      width: calc(98% - 46px);
-      margin-bottom: 32px;
-      padding-left: 30px;
-      padding-right: 30px;
-    }
     #drawer.paper-drawer-panel > [drawer] {
       border-right: 1px solid rgba(0, 0, 0, 0.14);
     }
@@ -99,7 +90,10 @@
   @media all and (min-width: 961px) and (orientation: landscape) {}
   /* tablet-small */
 
-  @media all and (min-width: 600px) and (orientation: portrait) {}
+  @media all and (min-width: 600px) {
+    /*and (orientation: portrait) */
+
+  }
   /* tablet-large */
 
   @media all and (min-width: 601px) and (max-width: 840px) and (orientation: portrait) {}
