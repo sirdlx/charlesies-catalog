@@ -17,13 +17,13 @@
       --app-logo-font-family: 'niconneregular';
     }
 
-    .red {
-      color: var(--accent-color);
+    .color {
+      color: var(--secondary-text-color);
     }
 
     a {
       max-width: 125px;
-      color: white;
+      color: black;
       text-transform: none;
       text-decoration: none;
     }
@@ -60,7 +60,7 @@
       <!-- <h1 class="logo" hidden$="[[!full]]">
         <span class="red">C</span>harlesie's.com Catalog</h1> -->
       <h1 class="logo" hidden$="[[icon]]">
-        <span class="red">C</span>harlesie's.com</h1>
+        <span class="color">C</span><span hidden$="{{!full}}">harlesie's.com</span></h1>
       </h1>
       <h1 class="red" hidden="[[!icon]]">C</h1>
     </a>

@@ -7,43 +7,49 @@
 
   :root {
     /* App Colors */
-    --dark-primary-color: var(--paper-grey-50);
-    --default-primary-color: #3F51B5;
-    --light-primary-color: #C5CAE9;
+    --dark-primary-color: var(--paper-red-900);
+    --default-primary-color: var(--paper-red-500);
+    --light-primary-color: var(--paper-red-300);
     --accent-color: var(--paper-red-500);
     --primary-background-color: #c5cae9;
     --text-primary-color: var(--paper-grey-900);
+    --primary-background-color: #FFFFFF;
     /*text/icons*/
-    --primary-text-color: #212121;
+    --primary-text-color: var(--paper-grey-900);
     --secondary-text-color: #FFFFFF;
     --disabled-text-color: #bdbdbd;
     --divider-color: #B6B6B6;
     /* Components */
     /* paper-drawer-panel */
-    --toolbar-menu-color: var(--paper-grey-900);
     --drawer-border-color: 1px solid #ccc;
     --drawer-toolbar-border-color: 1px solid rgba(0, 0, 0, 0.22);
     /* TABS */
-    --paper-tabs-selection-bar-color: var(--google-red-700);
-    --paper-toolbar-color: var(--secondary-text-color);
-    --app-shell: {
-      height: 200px;
-    }
+    --paper-tabs-selection-bar-color: #fff;
     --app-toolbar: {
-      color: var(--secondary-text-color);
+      color: var(--primary-text-color);
       background: var(--toolbar-menu-color);
       border-bottom: var(--drawer-toolbar-border-color);
     }
     --app-toolbar-link: {
       color: var(--secondary-text-color);
     }
+
+    paper-item {
+      --paper-item: {
+        cursor: pointer;
+      };
+    }
+
   }
 
-  body, a{
+  body,a {
     color: var(--text-primary-color);
+
   }
 
-
+  body {
+    background-color: var(--google-grey-100);
+  }
   /* Breakpoints */
   /* Small */
 
@@ -92,7 +98,6 @@
 
   @media all and (min-width: 600px) {
     /*and (orientation: portrait) */
-
   }
   /* tablet-large */
 

@@ -1,0 +1,129 @@
+<dom-module id="product-card">
+
+  <style media="screen">
+    :root {
+      /*--paper-card-header: {
+        height: 256px;
+        overflow: hidden;
+      }*/
+    }
+
+    .card-actions .itemPrice {
+      float: right;
+      display: inline-block;
+      position: relative;
+      padding: 8px;
+      outline: none;
+      -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    .card-actions {
+      border: none;
+    }
+
+    .card-content {
+      height: 1.5em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    paper-card {
+      display: block;
+    }
+
+    img {
+      height: 256px;
+      width: 100%;
+    }
+  </style>
+
+  <template>
+
+
+    <firebase-collection id="imagesREF" location="https://charlesiesbeta.firebaseio.com/images" data="{{images}}" order-by-child="rel" equal-to="[[product.__firebaseKey__]]" on-firebase-value="_computeImages"></firebase-collection>
+
+
+    <paper-card>
+
+      <a href$="{{_computeLink(product)}}" is="pushstate-anchor">
+        <img src="[[firstImageURL]]">
+      </a>
+
+      <div class="card-content">
+        <span>[[product.description]]</span>
+      </div>
+
+      <div class="card-actions">
+
+        <paper-icon-button icon="favorite" on-tap="_favTap"></paper-icon-button>
+        <paper-icon-button icon="shopping-cart" on-tap="_cartTap"></paper-icon-button>
+
+        <h4 class="itemPrice">$
+          <span class="red">[[product.default_price]]</span>
+        </h4>
+
+      </div>
+    </paper-card>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'product-card',
+      enableCustomStyleProperties: true,
+      properties: {
+        product: Object,
+        firstImageURL: String,
+        images: Object
+      },
+      listeners: {
+
+      },
+      observers: [
+        // '_productid(productid, pack)',
+        // '_el(product)'
+      ],
+
+      _computeLink: function(item) {
+        return '/products/' + item.name;
+      },
+
+      _computeFirstImage: function(images) {
+        console.log('_computeFirstImage: ', images);
+
+      },
+
+      _computeImages: function(e, ref) {
+        // console.log('_computeImages: ', ref.val());
+        var key = Object.keys(ref.val())[0];
+        this.images = ref.val()[key].images;
+        this.firstImageURL = this.images[0];
+        // console.log(this.images[0]);
+      },
+
+      _el: function(el) {
+        console.log(el);
+      },
+      _favTap: function(e) {
+        // e.stopPropagation();
+
+        console.log('add-to-fav', e);
+        this.fire('add-to-fav', {
+          product: this.product
+        });
+
+      },
+      _cartTap: function(e) {
+        // e.stopPropagation();
+        // console.log('fire: add-to-cart');
+        this.fire('add-to-cart', {
+          product: this.product
+        });
+
+      }
+    });
+  </script>
+</dom-module>

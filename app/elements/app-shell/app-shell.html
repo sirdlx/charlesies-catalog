@@ -14,54 +14,70 @@
         @apply(--app-toolbar-link);
       }
 
-      #btnCart {
+      #btnCartx {
         margin-right: 16px;
         margin-top: 16px;
       }
+
+      #appToolbar paper-icon-button[icon=menu] {
+        margin-right: 8px;
+      }
     </style>
+    <firebase-auth id="firebaseLogin" user="{{user}}" status-known="{{statusKnown}}" location="https://charlesiesbeta.firebaseio.com"></firebase-auth>
 
-    <iron-media-query query="(min-width: 600px)" query-matches="{{narrow}}"></iron-media-query>
-
+    <iron-media-query query="(min-width: 705px)" query-matches="{{narrow}}"></iron-media-query>
+    <firebase-collection id="packagess" location="https://charlesiesbeta.firebaseio.com/packages" data="{{packages}}"></firebase-collection>
+    <iron-localstorage name="cart" value="{{cart}}" on-iron-localstorage-load-empty="initializeDefaultCart"></iron-localstorage>
     <!-- <catalog-cart id="catalogData" cartcount="{{cartcount}}"></catalog-cart> -->
+    <paper-drawer-panel responsive-width="704px">
 
-    <paper-scroll-header-panel class="fit" fixed on-paper-header-transform="headerTransform">
+      <paper-scroll-header-panel id="menuPanel" drawer class="layout vertical">
 
-      <paper-toolbar id="appToolbar" class="medium-tall">
-        <!-- <span class="paper-font-title">Menu</span> -->
-        <app-logo tabindex="1"></app-logo>
-        <!-- <app-bar class="horizontal layout center end-justified" no-search></app-bar> -->
-        <span class="flex"></span>
-        <!-- <iron-input id="query" type="search" autocomplete="off" value="{{q::keyup}}" placeholder="Search Elements" class="flex"></iron-input> -->
+        <paper-toolbar id="appToolbar">
+          <span class="paper-font-title">Menu</span>
+        </paper-toolbar>
 
-        <paper-icon-button id="btnCart" icon="shopping-cart"></paper-icon-button>
-        <paper-badge class="cartBadge" for="btnCart" label="{{cartcount}}" hidden$="{{!_cartcount(cartcount)}}"></paper-badge>
+        <paper-menu class="list" attr-for-selected="data-route" selected="[[routeSelected]]">
+          <template is="dom-repeat" items="[[packages]]">
+            <a href$="{{_computeNav(item)}}" is="pushstate-anchor">
+              <paper-item>{{item.name}}</paper-item>
+            </a>
+          </template>
+        </paper-menu>
 
-        <div class="bottom fit">
-          <paper-tabs id="navtabs" selected="[[routeSelected]]" noink>
-            <paper-tab route="/" link>
-              <a class="layout horizontal center-center" is="pushstate-anchor" href="/">
-                <iron-icon class="app-icon" icon="home"></iron-icon>
-              </a>
-            </paper-tab>
-            <paper-tab route="/women" link>
-              <a class="layout horizontal center-center" is="pushstate-anchor" href="/women">women</a></paper-tab>
-            <paper-tab route="/men" link>
-              <a class="horizontal center-center layout" is="pushstate-anchor" href="/men/specials">men</a></paper-tab>
-            <paper-tab route="/kids" link>
-              <a class="horizontal center-center layout" is="pushstate-anchor" href="/kids">kids</a></paper-tab>
-          </paper-tabs>
-        </div>
-      </paper-toolbar>
+      </paper-scroll-header-panel>
 
-      <app-router id="router" class="flex" main mode="pushstate" on-activate-route-start="routeStart">
-        <app-route path="/" element="page-items" bindRouter></app-route>
-        <!-- <app-route path="/item/" element="page-items" bindRouter onUrlChange="updateModel"></app-route> -->
-        <app-route path="/items/:itemid" element="page-home" bindRouter onUrlChange="updateModel"></app-route>
-        <app-route path="*" element="page-error"></app-route>
-      </app-router>
+      <paper-scroll-header-panel id="content" main class="fit" fixed>
 
-    </paper-scroll-header-panel>
+        <paper-toolbar id="appToolbar">
+          <!-- <span class="paper-font-title">Menu</span> -->
+          <paper-icon-button id="btnMenu" icon="menu" paper-drawer-toggle></paper-icon-button>
+          <app-logo full="{{narrow}}" tabindex="1"></app-logo>
+          <!-- <app-bar class="horizontal layout center end-justified" no-search></app-bar> -->
+          <span class="flex"></span>
+          <!-- <iron-input id="query" type="search" autocomplete="off" value="{{q::keyup}}" placeholder="Search Elements" class="flex"></iron-input> -->
 
+          <paper-icon-button id="btnCart" icon="shopping-cart"></paper-icon-button>
+
+          <!-- <paper-badge class="cartBadge" for="btnCart" label="{{cartItemsCount}}" hiddenx="{{!cartShowCount}}" style="position:relative;top:0;left:0;"></paper-badge> -->
+
+          </div>
+        </paper-toolbar>
+
+        <app-router id="router" class="flex" main mode="pushstate" on-activate-route-start="routeStart">
+          <app-route path="/" element="page-items" bindRouter></app-route>
+          <!-- <app-route path="/item/" element="page-items" bindRouter onUrlChange="updateModel"></app-route> -->
+          <app-route path="/products/:itemid" element="page-home" bindRouter onUrlChange="updateModel"></app-route>
+          <app-route path="/login" element="page-user" bindRouter onUrlChange="updateModel"></app-route>
+          <app-route path="/cart" element="page-items" bindRouter onUrlChange="updateModel"></app-route>
+          <app-route path="/cart/checkout" element="page-items" bindRouter onUrlChange="updateModel"></app-route>
+          <app-route path="*" element="page-error"></app-route>
+        </app-router>
+
+        <!-- <a href="//www.iubenda.com/privacy-policy/434491" class="iubenda-white iubenda-embed" title="Privacy Policy">Privacy Policy</a> -->
+
+      </paper-scroll-header-panel>
+    </paper-drawer-panel>
     <!-- Uncomment next block to enable Service Worker support (1/2) -->
     <!--
     <paper-toast id="caching-complete"
@@ -81,6 +97,25 @@
 
     <paper-toast id="toast"></paper-toast>
 
+
+    <script type="text/javascript">
+      (function(w, d) {
+        var loader = function() {
+          var s = d.createElement("script"),
+            tag = d.getElementsByTagName("script")[0];
+          s.src = "//cdn.iubenda.com/iubenda.js";
+          tag.parentNode.insertBefore(s, tag);
+        };
+        if (w.addEventListener) {
+          w.addEventListener("load", loader, false);
+        } else if (w.attachEvent) {
+          w.attachEvent("onload", loader);
+        } else {
+          w.onload = loader;
+        }
+      })(window, document);
+    </script>
+
   </template>
 
   <script>
@@ -88,58 +123,92 @@
       Polymer({
         is: 'app-shell',
         enableCustomStyleProperties: true,
-        listeners: {
-          'toast': 'showToast'
-        },
         properties: {
           settings: {
             type: Object,
             notify: true,
           },
+          narrow: Boolean,
           routeSelected: {
             type: Number,
             notify: true
           },
-          cartcount: {
+          cartItems: {
+            type: Array,
+            notify: true,
+          },
+          cartItemsCount: {
             type: Number,
             notify: true,
-            value: 0
+          },
+          cartShowCount: {
+            type: Boolean,
+            notify: true,
+            // value: false
           }
+        },
+        listeners: {
+          'toast': 'showToast',
+          'add-to-cart': 'addCart',
+          'content-scroll': 'firePageScroll'
         },
         observers: [
           'setApp(settings)',
-          // 'updatePacks(packages)'
+          // 'updatePacks(packages)',
+          '_cartItemsCount(cartItems.splice)'
         ],
 
-        _cartcount: function(cartcount) {
-          console.log('_cartcount', cartcount);
-          if (cartcount === 0) {
-            return false
-          };
-          return true;
+        _computeNav: function(item) {
+          return '/products/' + item.name;
+        },
+
+        initializeDefaultCart: function() {
+          this.cart = [];
+        },
+
+        firePageScroll: function(e, el) {
+          var content = el.target;
+          var bottom = (content.scrollHeight - content.scrollTop) === content.clientHeight;
+          // console.log(bottom);
+          if (bottom === true) {
+            this.fire('page-fetch-more', e);
+          }
+
+        },
+
+        _cartItemsCount: function(_newCartItems) {
+          // console.log('_cartItemsCount', _newCartItems);
+          if (_newCartItems.length > 0) {
+            this.cartShowCount = true;
+          } else {
+            this.cartShowCount = false;
+          }
+          // console.log(_newCartItems.length);
+          this.cartItemCount = _newCartItems.length;
+          // console.log(this.cartItemCount);
         },
 
         routeStart: function(event) {
           // console.log(this.$.navtabs.items[0].attributes.route.textContent);
           // console.log(event.detail.path);
-          var that = this;
-          this.$.navtabs.items.forEach(function(entry, index) {
-            if (typeof entry.attributes.route === 'undefined') {
-              return;
-            }
-            var tabRoute = entry.attributes.route.textContent.split('/')[1];
-            var routePath = event.detail.path.split('/')[1];
-            // console.log(routePath, index);
-            // console.log(routePath);
-
-            if (tabRoute === routePath) {
-              // console.log(entry.attributes.route.textContent);
-              // console.log(index);
-              that.routeSelected = index;
-              return;
-            }
-
-          });
+          // var that = this;
+          // this.$.navtabs.items.forEach(function(entry, index) {
+          //   if (typeof entry.attributes.route === 'undefined') {
+          //     return;
+          //   }
+          //   var tabRoute = entry.attributes.route.textContent.split('/')[1];
+          //   var routePath = event.detail.path.split('/')[1];
+          //   // console.log(routePath, index);
+          //   // console.log(routePath);
+          //
+          //   if (tabRoute === routePath) {
+          //     // console.log(entry.attributes.route.textContent);
+          //     // console.log(index);
+          //     that.routeSelected = index;
+          //     return;
+          //   }
+          //
+          // });
 
         },
 
@@ -177,14 +246,44 @@
             document.title = "Catalog";
           }
         },
+
+        /*   Menu   */
+
+        menuClose: function() {
+          this.$.menuPanel.closeDrawer();
+        },
+        menuOpen: function() {
+          this.$.menuPanel.openDrawer();
+        },
+        menuToggle: function() {
+          this.$.menuPanel.togglePanel();
+        },
+
+        /*   Cart   */
+
+
         cartClose: function() {
           this.$.cartpanel.closeDrawer();
         },
         cartOpen: function() {
           this.$.cartpanel.openDrawer();
         },
-        cartAdd: function(e, el) {
-          this.$.cart.add(el);
+        addCart: function(e, el) {
+          // console.log('addCart', e, el);
+
+          for (var i = 0; i < this.cart.length; i++) {
+            // console.log(this.cart[i].product.__firebaseKey__);
+            if (this.cart[i].product.__firebaseKey__ === el.product.__firebaseKey__) {
+              // console.log('item match');
+              this.cart[i].quantity++;
+              // console.log(this.cart[i]);
+              return;
+            }
+          }
+          el.quantity = 1;
+          this.cart.push(el);
+          // this._cartItemsCount(this.cart)
+          // console.log(this.cart);
         },
         cartRemove: function(e, el) {
           this.$.cart.remove(el);

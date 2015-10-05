@@ -234,6 +234,11 @@ gulp.task('serve:dist', ['default'], function () {
   });
 });
 
+
+// Build and distribute with Firebase hosting
+var shell = require('gulp-shell');
+gulp.task('dist', ['default'], shell.task('firebase deploy'));
+
 // Build Production Files, the Default Task
 gulp.task('default', ['clean'], function (cb) {
   runSequence(

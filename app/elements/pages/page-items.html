@@ -2,11 +2,9 @@
   <template>
 
     <style is="custom-style" media="screen">
-      .red {
-        color: var(--accent-color);
-      }
 
       .grid-layout {
+        padding-top: 16px;
         display: -ms-inline-flexbox;
         display: -webkit-inline-flex;
         display: inline-flex;
@@ -30,68 +28,43 @@
         justify-content: center;
       }
 
-       .grid-cell {
-        margin: 16px;
+      .grid-cell {
+        margin: 8px;
         width: calc(100vh*.5);
       }
 
-
-      @media all and (min-width: 480px) {
+      @media all and (min-width: 448px) {
         .grid-cell {
           width: 208px;
+          /*margin: 0 8px;*/
+        }
+      }
+
+      /*@media all and (min-width: 640px) {
+        .grid-cell {
+          width: 200px;
           margin: 8px;
         }
-      }
+      }*/
 
-      @media all and (min-width: 600px) {
+      /*@media all and (min-width: 1184px) {
         .grid-cell {
-          width: 264px;
+          margin: 8px 16px;
         }
-      }
-
-      @media all and (min-width: 1120px) {
-        .grid-cell {
-          margin: 16px;
-        }
-      }
+      }*/
     </style>
 
-    <!-- <firebase-collection id="elements" location="https://charlesiesbeta.firebaseio.com/elements" data="{{elements}}" order-by-child="priorty" limit-to-first="{{queryLimit}}"></firebase-collection> -->
+    <firebase-collection id="products" location="https://charlesiesbeta.firebaseio.com/products" data="{{products}}" order-by-child="[[_orderByChild]]" equal-to="[[_equalTo]]" limit-to-first="[[queryLimit]]"></firebase-collection>
+    <!-- <catalog-data products="[[products]]"></catalog-data> -->
+    <!-- <iron-ajax id="firebaseProducts" params="{{_params()}}" url="https://charlesiesbeta.firebaseio.com/products.json" handle-as="json" loading="{{loading}}" last-response="{{_products}}" auto></iron-ajax> -->
 
-    <catalog-data elements="[[elements]]"></catalog-data>
+    <paper-spinner></paper-spinner>
 
-    <iron-ajax id="firebaseElements" params="{{_params()}}" url="https://charlesiesbeta.firebaseio.com/elements.json" handle-as="json" loading="{{loading}}" last-response="{{_elements}}" auto></iron-ajax>
+    <div id="grid" class="grid-layout">
 
-    <iron-media-query query="(max-width: 640px)" query-matches="{{_narrowViewport}}"></iron-media-query>
-    <paper-spinner active="{{loading}}"></paper-spinner>
-
-    <div class="grid-layout">
-
-      <template is="dom-repeat" items="[[elements]]">
-        <element-card element="{{item}}" class="grid-cell"></element-card>
+      <template is="dom-repeat" items="[[products]]">
+        <product-card product="{{item}}" class="grid-cell"></product-card>
       </template>
-
-      <!-- <iron-list items="[[elements]]" as="item" class="flex">
-        <template>
-
-          <paper-card heading="[[item.name]]" image="http://placehold.it/280x380" class="grid-cell">
-            <div class="card-content">
-              Lorem ipsum dolor sit amet, nec ad conceptam interpretaris.
-            </div>
-            <div class="card-actions">
-
-              <paper-icon-button icon="favorite"></paper-icon-button>
-              <paper-icon-button icon="shopping-cart"></paper-icon-button>
-
-              <h4 class="itemPrice">$
-                <span class="red">[[item.version]]</span>
-              </h4>
-
-            </div>
-          </paper-card>
-
-        </template>
-      </iron-list> -->
 
     </div>
 
@@ -99,28 +72,25 @@
 
   <script>
     (function() {
+
       Polymer({
         is: 'page-items',
         enableCustomStyleProperties: true,
         properties: {
           router: Object,
-          pageTitle: {
-            type: String
-          },
           // Query Parameters
           search: {
             type: String,
             notify: true,
             value: ''
           },
-          tag: {
+          productname: {
             type: String,
             notify: true,
-            value: ''
+            value: null
           },
-          elements: {
+          products: {
             type: Array,
-            notify: true
           },
           tagList: {
             type: Array,
@@ -131,21 +101,43 @@
           },
           queryLimit: {
             type: Number,
-            value: 10
+            notify: true,
+            // value: 12
+          },
+          _orderByChild: {
+            type: String,
+            notify: true,
+            value: 'packageByName'
+          },
+
+          _equalTo: {
+            type: String,
+            notify: true,
+            computed: '_computeEqualTo(packagename)'
           }
+
         },
         observers: [
           // 'updateURL(q,package,tag,view,packageid)',
-          // 'updateMeta(elements)',
-          'updateElements(_elements)'
+          // 'updateProducts(_products)',
+          // 'updateMeta(packagename)'
         ],
         listeners: {
-          'update-params': '_handleParamsUpdate'
+          'update-params': '_handleParamsUpdate',
+          // 'page-fetch-more': '_fetchMore'
+        },
+
+        _productTap:function (e) {
+          console.log(e);
+        },
+
+        _fetchMore: function(e) {
+          this.queryLimit = this.queryLimit + 12;
         },
 
         attached: function() {
           // this.updateMeta();
-          this.updateSearch();
+          // this.updateSearch();
         },
 
         _params: function() {
@@ -156,27 +148,63 @@
           return p;
         },
 
-        updateElements: function(els) {
-          this.elements = Object.keys(els).map(function(key) {
-            return els[key];
-          });
-          els = null;
+        updateProducts: function(els) {
+
+          // ________________________________________________________
+          // object list to array
+          // this.products = Object.keys(els).map(function(key) {
+          //   return els[key];
+          // });
+          // els = null;
+          // ________________________________________________________
+
+
+
+          // ________________________________________________________
+          // import products from bigcartel
+          // var ref = new Firebase("https://charlesiesbeta.firebaseio.com/products");
+          // for (var i = 0; i < els.length; i++) {
+          //   ref.push(els[i]);
+          // }
+          // ________________________________________________________
+
+
+
+          // ________________________________________________________
+          // Image relations with products by key
+          // var ref = new Firebase("https://charlesiesbeta.firebaseio.com/products");
+          // ref.on('value', function(p) {
+            // console.log(p.val());
+            // var products = p.val();
+            //
+            // p.forEach(function(childSnapshot) {
+              // key will be "fred" the first time and "barney" the second time
+              // var key = childSnapshot.key();
+              // childData will be the actual contents of the child
+              // var childData = childSnapshot.val();
+              // var images = childData.images;
+              // console.log(childData.images[0].secure_url);
+              // var imagesRef = new Firebase("https://charlesiesbeta.firebaseio.com/images");
+            //   var out = {
+            //     rel: key,
+            //     images: []
+            //   };
+            //   for (var i = 0; i < images.length; i++) {
+            //     out.images.push(images[i].secure_url);
+            //   }
+            //   // console.log(out);
+            //   imagesRef.push(out);
+            //
+            // });
+
+          // });
+
+          // ________________________________________________________
+
         },
 
-        updateTag: function(e, detail) {
-          e.stopPropagation();
-          e.preventDefault();
-          var newTag = detail.name;
-          var t = this.tagList.slice(0);
-          if (t.indexOf(newTag) < 0) t.push(newTag);
-          this.tag = t.join(',');
-        },
-        clearTag: function() {
-          this.tag = null;
-        },
-
-        clearITEMS: function() {
-          this.package = null;
+        _computeEqualTo: function(e) {
+          // console.log('_computeEqualTo: ', e);
         },
 
         _parseQueryString: function() {
@@ -212,31 +240,13 @@
           }
         },
 
-        updateMeta: function(elements) {
-          console.log('updateMeta', elements[0]);
+        updateMeta: function(name) {
+          console.log('updateMeta', name);
 
           // this.customStyle['--my-package-color'] = getPackage.color;
           // this.customStyle['--my-package-image'] = "url(" + getPackage.image + ")";
           // console.log(this.customStyle['--my-package-image']);
           // this.updateStyles();
-
-          if (this.q && this.q.length) {
-            var t = "'" + this.q + "' ";
-            t += (this.packageid && getPackage.title) ? getPackage.title :
-              "Elements";
-            this.pageTitle = t;
-          } else if (elements) {
-            // this.pageTitle = getPackage.title;
-          } else if (this.tagList.length) {
-            this.pageTitle = "Elements Tagged '" + this.tagList.join(
-              "' or '") + "'";
-          } else {
-            this.pageTitle = "All Elements";
-          }
-
-          this.fire('page-meta', {
-            title: this.pageTitle
-          });
 
         },
 
