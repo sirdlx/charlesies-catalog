@@ -1,0 +1,58 @@
+<dom-module id="catalog-category">
+  <template>
+    <firebase-document id="fbdoc" location$="[[_categoryLocation(id)]]" data="{{_category}}"></firebase-document>
+  </template>
+  <script>
+    Polymer({
+      is: 'catalog-category',
+      properties: {
+        id: {
+          type: String,
+          notify: true
+        },
+        _category: {
+          type: Object,
+          notify: true
+        },
+        products: {
+          type: Array,
+          notify: true,
+          value: []
+        },
+        data: {
+          type: Object,
+          notify: true,
+          computed: 'getData(_category)'
+        }
+      },
+      _categoryLocation: function(id) {
+        return "https://charlesiesbeta.firebaseio.com/category/" + id;
+      },
+      getData: function(_category) {
+        if (!_category) return;
+
+        var ref = this.$.fbdoc.query.ref().child("products");
+        // console.log(this.categoryid);
+        // ref.orderByChild("categoryByName").equalTo(getcategory.name).on("child_added", function(snapshot) {
+        //   console.log(snapshot.key());
+        // });
+        _category.productsKeys = [];
+
+        ref.on("child_added", function(snapshot) {
+          // console.log(snapshot.key());
+          _category.productsKeys.push(snapshot.key());
+        });
+        // console.log(_category);
+
+        return _category;
+
+      },
+      remove: function(item) {
+
+      }
+
+
+    });
+  </script>
+
+</dom-module>

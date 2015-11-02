@@ -1,0 +1,280 @@
+<dom-module id="page-cart">
+  <template>
+
+    <style is="custom-style" media="screen">
+      :host {
+        --paper-item-icon-width: 82px;
+      }
+
+      paper-toolbar {
+        --paper-toolbar-background: white;
+      }
+
+      .no_items_container {
+        background-color: #eeeeee;
+      }
+
+      .no_items {
+        display: block;
+        background-image: url('https://ssl.gstatic.com/android/market_images/web/empty_cart.png');
+        background-size: cover;
+        width: 200px;
+        height: 200px;
+        padding: 56px;
+      }
+
+      .continue_button {
+        background: #f44336;
+        color: white;
+        --paper-button-ink-color: white;
+      }
+
+      .cart-container {
+        /*width: 90%;*/
+        margin: 16px auto;
+      }
+
+      .cart-list {
+        position: relative;
+        background-color: white;
+        display: block;
+        margin: 16px;
+        @apply(--shadow-elevation-1dp);
+      }
+
+      .cart-item {
+        /*padding: 16px 0;*/
+        border-bottom: #efefef 1px solid;
+        height: 100px;
+      }
+
+      .price {
+        height: 40px;
+        line-height: 40px;
+        margin-right: 16px;
+      }
+
+      .quanity_input {
+        width: 30px;
+        height: 80px;
+        margin: 0;
+        margin-right: 16px;
+        display: inline-block;
+      }
+
+      .mobile_quantity_button {
+        width: 10px
+      }
+
+      .avatar {
+        display: inline-block;
+        width: 72px;
+        height: 72px;
+        overflow: none background: #ccc;
+      }
+
+      .cart_actions {
+        padding: 16px;
+      }
+
+      .cart_actions paper-button {
+        width: 100%;
+        margin-bottom: 16px;
+      }
+
+      .cart_actions .continue_button {
+        background-color: white;
+        color: #848484;
+        --paper-button-ink-color: #f44336;
+      }
+
+      .checkout_button {
+        background-color: var(--paper-green-a700);
+        color: white;
+        --paper-button-ink-color: white;
+      }
+
+      .cart_subtotal {
+        width: 100%;
+        border-top: 1px solid #c2c2c2;
+      }
+
+      .cart_subtotal_text {
+        color: #777;
+        font-size: 14px;
+      }
+
+      .cart_subtotal_text_price {
+        color: var(--paper-green-a700);
+        font-size: 16px;
+      }
+    </style>
+
+    <catalog-cart id="catalogCart" items="{{cart}}" count={{count}}></catalog-cart>
+
+    <paper-toolbar hidden$="{{_cartCount(count)}}">
+
+      <div>Items (
+        <span>{{count}}</span>)</div>
+
+      <span class="flex"></span>
+
+      <paper-button raised class="checkout_button" on-tap="_clickCheckout">
+        $
+        <span>{{cartTotal}}</span>
+        <span>
+          Checkout
+        </span>
+      </paper-button>
+    </paper-toolbar>
+
+
+
+    <div hidden$="{{!_cartCount(count)}}" style="height: 100%;">
+
+      <div class="no_items_container layout vertical center-center" style="height: 100%;">
+        <div class="no_items layout vertical center-center">
+          <h3>Your Cart is empty</h3>
+          <paper-button class="continue_button" on-tap="" hidden$="{{!_cartCount(count)}}">keep shopping</paper-button>
+        </div>
+      </div>
+
+
+
+    </div>
+
+
+
+    <div class="cart-container">
+
+      <div class="cart-list" role="list">
+
+        <template is="dom-repeat" items="{{cart}}">
+          <paper-icon-item class="cart-item">
+            <div class="avatar" item-icon>
+              <img src="http://lorempixel.com/200/200/fashion/" width="72">
+            </div>
+            <paper-item-body two-line>
+
+              <div>{{item.name}}</div>
+
+              <div secondary>$
+                <span>[[_computePrice(item.default_price)]]</span>
+                <paper-button class="mobile_quantity_button">Qty:
+                  <span>{{item.quantity}}</span>
+                </paper-button>
+              </div>
+
+
+            </paper-item-body>
+
+            <!-- <div class="price">
+              <span>[[_computePrice(item.default_price)]]</span>
+            </div>
+
+            <paper-input always-float-label="false" class="quanity_input" type="number" min="1" value="{{item.quantity::value-changed}}"></paper-input> -->
+
+
+            <!-- <div class="actions">
+              <span class="equals">=</span>
+              <span>[[_computeTotal(item.default_price, item.quantity)]]</span>
+              <paper-icon-button on-tap="_removeFromCart" index="{{index}}" icon="icons:remove-circle-outline"></paper-icon-button>
+            </div> -->
+
+
+            <paper-icon-button on-tap="_removeFromCart" index="{{index}}" icon="icons:remove-circle-outline"></paper-icon-button>
+          </paper-icon-item>
+        </template>
+        <!-- END cart-list -->
+      </div>
+
+
+
+      <div class="cart_actions layout vertical center-center " hidden$="{{_cartCount(count)}}">
+
+        <div class="cart_subtotal layout horizontal">
+          <h3 class="cart_subtotal_text">Subtotal</h3>
+          <span class="flex"></span>
+          <h3 class="cart_subtotal_text_price">{{_computeCartSubtotal(cartTotal)}}</h3>
+        </div>
+
+        <paper-button class="continue_button" on-tap="">keep shopping</paper-button>
+
+        <paper-button class="checkout_button" on-tap="_clickCheckout">
+          <iron-icon icon="shopping-cart" style="width:20px;"></iron-icon>Checkout</paper-button>
+
+      </div>
+
+
+      <!-- END cart-container -->
+    </div>
+
+
+  </template>
+
+  <script>
+    (function() {
+
+      Polymer({
+        is: 'page-cart',
+        enableCustomStyleProperties: true,
+        properties: {
+          router: Object,
+          cart: Array,
+          cartTotal: {
+            type: Number,
+            notify: true,
+            computed: '_computeCartTotal(cart.*)'
+          },
+        },
+
+        _computePrice: function(price) {
+          return Number(price).toFixed(2);
+        },
+
+        _computeTotal: function(price, quantity) {
+          return Number((quantity * price)).toFixed(2);
+        },
+
+        _computeCartTotal: function(change) {
+          // console.log(change.base);
+          var cart = change.base;
+          if (cart.length) {
+            var total = 0;
+            for (var i = 0; i < cart.length; i++) {
+              total += cart[i].default_price * cart[i].quantity;
+            }
+            return Number(total).toFixed(2);
+          }
+          return Number(0).toFixed(2);
+        },
+
+        _removeFromCart: function(e) {
+          // console.log(e.model.__data__.index);
+          // this.$.catalogCart.removeFromCart(e.model.__data__.index);
+          this.fire('remove-from-cart', {
+            index: e.model.__data__.index
+          });
+        },
+
+        _cartCount: function(count) {
+          // console.log(count);
+          return count < 1;
+
+        },
+        _clickCheckout: function() {
+          router.go('/cart/checkout');
+        },
+
+
+        _computeCartSubtotal: function(total) {
+          // console.log(total);
+          return '$' + total;
+        }
+
+
+      });
+    })();
+  </script>
+
+</dom-module>

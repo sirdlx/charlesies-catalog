@@ -1,0 +1,386 @@
+<dom-module id="page-checkout">
+  <template>
+
+    <style is="custom-style" media="screen">
+      :host {
+        display: block;
+      }
+
+      .container {
+        /*width: 100%;*/
+      }
+
+      .checkout-layout {
+        /*display: block;*/
+        background-color: white;
+        margin: 16px;
+        padding: 16px;
+      }
+
+      .section {
+        margin-bottom: 16px;
+      }
+
+      .header {
+        margin: 0;
+        font-size: 16px;
+      }
+
+      .price_summary {
+        margin: 24px 0;
+      }
+
+      .price_summary_header {
+        margin-bottom: 16px;
+        font-size: 24px;
+      }
+
+      .cart_total_text {
+        color: var(--paper-green-a700);
+        font-size: 20px;
+      }
+
+      .checkout_actions paper-button {
+        width: 100%;
+      }
+
+      .checkout_actions .edit_cart_button {
+        background-color: white;
+        color: #848484;
+        --paper-button-ink-color: #f44336;
+      }
+
+      .checkout_actions .order_button {
+        background-color: var(--paper-green-a700);
+        color: white;
+        --paper-button-ink-color: white;
+      }
+
+      .address-input,
+      .field,
+      .shipping_menu,
+      #addForm {
+        width: 100%;
+      }
+
+      .cc_type {
+        --iron-icon-height: 24px;
+        --iron-icon-width: 38px;
+      }
+    </style>
+
+    <catalog-cart id="catalogCart" items="{{cart}}" count={{count}}></catalog-cart>
+    <catalog-user id="catalogUser" loggedin="{{loggedin}}" wait="{{wait}}" user="{{_user}}"></catalog-user>
+
+    <firebase-collection id="fbCard" location$="[[_computeCardLoccation(user, loggedin)]]" data="{{card}}"></firebase-collection>
+    <firebase-collection id="fbAddress" location$="[[_computeAddressLocation(user, loggedin)]]" data="{{address}}"></firebase-collection>
+
+    <!-- <h2>Checkout</h2>
+    <paper-slider disabledx id="checkoutSteps" pin snaps max="2" step="1" value="{{checkoutProgress}}"></paper-slider> -->
+
+    <div class="container">
+
+
+      <paper-material class="checkout-layout layout vertical">
+        <form class="checkout-form" is="iron-form" id="checkoutForm" method="post" action="/" on-iron-form-submit="_submitCheckoutForm">
+
+          <div class="section">
+            <h3 class="header">Pay With</h3>
+            <paper-dropdown-menu label="Select Card" no-label-float required>
+              <paper-menu id="selectedCardMenu" class="dropdown-content" selected="{{selectedCard}}">
+                <template is="dom-repeat" items="{{card}}">
+                  <paper-item>
+                    <paper-item-body>
+                      <!-- <div>{{item.cc_end}}</div> -->
+                      <div>
+                        <iron-icon class="cc_type" src$="[[_computeTypeIcon(item.cc_type)]]"></iron-icon>
+                        <span>{{item.cc_end}}</span>
+                      </div>
+                    </paper-item-body>
+                  </paper-item>
+                </template>
+                <paper-item>Add New Card</paper-item>
+              </paper-menu>
+            </paper-dropdown-menu>
+          </div>
+
+          <div class="section">
+            <h3 class="header">Ship to</h3>
+            <paper-dropdown-menu label="Select Address" no-label-float class="field" required>
+              <paper-menu id="selectedAddressMenu" class="dropdown-content" selected="{{selectedAddress}}">
+                <template is="dom-repeat" items="{{address}}">
+                  <paper-item>
+                    <paper-item-body two-line>
+                      <div>{{item.add_street}}</div>
+                      <div secondary>{{_computeAddressFormatted(item)}}</div>
+                    </paper-item-body>
+                  </paper-item>
+                </template>
+                <paper-item>Add New Address</paper-item>
+              </paper-menu>
+            </paper-dropdown-menu>
+          </div>
+
+
+          <div class="price_summary layout vertical">
+
+            <h3 class="price_summary_header">Price summary</h3>
+
+            <div class="section layout horizontal">
+              <div class="label">Subtotal</div>
+              <span class="flex"></span>
+              <div class="value">
+                <span>[[cartSubtotal]]</span>
+              </div>
+            </div>
+
+            <!-- <div class="section layout horizontal">
+            <div class="label">Tax</div>
+            <span class="flex"></span>
+            <div class="value">
+              <span>[[cartSalesTax]]</span>
+            </div>
+          </div> -->
+
+            <div class="section">
+              <!-- <div class="label">Shipping</div> -->
+              <paper-dropdown-menu class="shipping_menu" label="Select Shipping Method" no-label-float>
+                <paper-menu class="dropdown-content" selected="{{selectedShippingOption}}">
+                  <template is="dom-repeat" items="{{shippingOptions}}">
+                    <paper-item>
+                      <span>{{item.title}}</span>
+                    </paper-item>
+                  </template>
+                  <paper-item>Ground (3-5 business days) $0.00</paper-item>
+                  <paper-item>Two Day (2 business days) $13.99</paper-item>
+                  <paper-item>Next Day (1 business day) $20.99</paper-item>
+                </paper-menu>
+              </paper-dropdown-menu>
+            </div>
+
+
+            <div class="section layout horizontal">
+              <div class="label">Total</div>
+              <span class="flex"></span>
+              <div class="cart_total_text">
+                <span>[[cartTotal]]</span>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="checkout_actions section layout vertical center-center">
+            <paper-button raised class="edit_cart_button section" on-tap="_navToCart">Edit Cart</paper-button>
+            <paper-button class="order_button" on-tap="_clickProcess">Place Order</paper-button>
+          </div>
+
+          <!-- <div class="buttons">
+          <paper-button on-tap="_clickBack">{{stepLeftText}}</paper-button>
+          <paper-button autofocus on-tap="_clickNext">{{stepRightText}}</paper-button>
+        </div> -->
+        </form>
+      </paper-material>
+
+    </div>
+
+
+  </template>
+
+  <script>
+    (function() {
+
+      var componentForm = {
+        street_number: 'short_name',
+        route: 'long_name',
+        locality: 'long_name',
+        administrative_area_level_1: 'short_name',
+        country: 'long_name',
+        postal_code: 'short_name'
+      };
+
+      Polymer({
+        is: 'page-checkout',
+        enableCustomStyleProperties: true,
+        properties: {
+          router: Object,
+
+          cart: Array,
+
+          cartTotalNumber: {
+            type: String,
+            notify: true,
+            computed: '_computeCartTotalNumber(cart)'
+          },
+
+          cartTotal: {
+            type: String,
+            notify: true,
+            computed: '_computeCartTotal(cartTotalNumber, selectedShippingOption)'
+          },
+
+          cartSubtotal: {
+            type: String,
+            notify: true,
+            computed: '_computeCartSubtotal(cartTotalNumber)'
+          },
+
+          checkoutProgress: {
+            type: Number,
+            notify: true,
+            value: 0
+          },
+
+          stepRightText: {
+            type: String,
+            notify: true,
+            // computed: '_computeRightText(checkoutProgress)'
+          },
+
+          stepLeftText: {
+            type: String,
+            notify: true,
+            // computed: '_computeLeftText(checkoutProgress)'
+          },
+
+          _user: {
+            type: Object,
+            notify: true,
+          },
+
+          user: {
+            type: Object,
+            notify: true,
+            computed: '_computeUser(loggedin, wait)'
+          },
+
+          address: {
+            type: Array,
+            notify: true,
+            // computed: '_computeUserAddress(user)'
+          },
+
+          selectedShippingOption: {
+            type: String,
+            notify: true,
+            value: 0
+          },
+
+
+        },
+
+        observers: [
+          '_cardChange(selectedCard)',
+          '_addressChange(selectedAddress)'
+        ],
+
+
+        _computeAddressFormatted: function(item) {
+          // console.log(item.add_city + ', ' + item.add_state + ', ' + item.add_zip);
+          return item.add_city + ', ' + item.add_state + ', ' + item.add_zip;
+        },
+
+        _navToCart: function(argument) {
+          this.router.go('/cart');
+        },
+
+
+        _computeTypeIcon: function(type) {
+          return 'bower_components/gold-cc-input/images/' + type + '.png'
+
+        },
+
+        _cardChange: function(selectedCard) {
+          // console.log(selectedCard);
+          // console.log(this.$.selectedCardMenu.items.length-1);
+          if (selectedCard === this.$.selectedCardMenu.items.length - 1) {
+            // Show new card dialog
+            this.fire('open-card-dialog');
+          }
+
+        },
+        _addressChange: function(selectedAddress) {
+          // console.log(selectedCard);
+          // console.log(this.$.selectedAddressMenu.items.length-1);
+          if (selectedAddress === this.$.selectedAddressMenu.items.length - 1) {
+            // Show new card dialog
+            // this.$.selectedAddressMenu.selected=-1;
+            this.fire('open-address-dialog');
+          }
+
+        },
+
+        _computeCartTotalNumber: function(cart) {
+          if (cart.length) {
+            var total = 0;
+            for (var i = 0; i < cart.length; i++) {
+              total += cart[i].default_price * cart[i].quantity;
+            }
+            return Number(total).toFixed(2);
+          }
+          return Number(0).toFixed(2);
+        },
+
+        _computeCartSubtotal: function(cartTotalNumber) {
+          return String('$' + cartTotalNumber);
+        },
+
+        _computeCartTotal: function(cartTotalNumber, selectedShippingOption) {
+          // console.log(cart);
+
+          var _shippingOptions = [0, 13.99, 20.99];
+
+          // console.log(_shippingOptions[selectedShippingOption]);
+
+          var absShipping = Number(_shippingOptions[selectedShippingOption]);
+
+          var absTotal = +cartTotalNumber + +_shippingOptions[selectedShippingOption];
+
+          // console.log(+cartTotalNumber+ + absShipping);
+
+          return String('$' + absTotal);
+
+        },
+
+        _computeUser: function(loggedin, wait) {
+          if (wait) {
+            // console.log('waiting for user');
+            return;
+          }
+          if (loggedin) {
+            // console.log('user found');
+            return this._user;
+          }
+          // console.log('no user');
+          return {
+            guest: {
+              address: []
+            }
+          };
+        },
+
+        _computeCardLoccation: function(user, loggedin) {
+          // console.log(user.uid, loggedin);
+          if (loggedin) {
+            return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid + '/cards';
+          } else {
+            console.log(user);
+          }
+        },
+
+        _computeAddressLocation: function(user, loggedin) {
+          // console.log(user.uid, loggedin);
+          if (loggedin) {
+            return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid + '/address';
+          } else {
+            console.log(user);
+          }
+        },
+
+
+        // END
+
+      });
+    })();
+  </script>
+
+</dom-module>

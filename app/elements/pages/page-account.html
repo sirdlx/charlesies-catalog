@@ -1,0 +1,260 @@
+<dom-module id="page-account">
+  <template>
+
+    <style media="screen" is="custom-style">
+      .profile {
+        background-color: white;
+        margin: 16px;
+        /*padding: 16px 16px 32px 16px;*/
+        padding: 16px;
+      }
+
+
+      .profile .userIcon {
+        border-radius: 50%;
+      }
+
+      .info {
+        margin: 8px;
+        /*padding: 16px 16px 32px 16px;*/
+        padding-left: 8px;
+      }
+
+      .address {
+        margin: 8px;
+        padding: 16px 16px 32px 16px;
+        /*padding-left: 8px;*/
+        border-bottom: 1px solid;
+      }
+
+      .address h3 {
+        font-size: 16px;
+      }
+
+      .address iron-icon {
+        padding-right: 4px;
+      }
+
+      .cards {
+        margin: 8px;
+        padding: 16px 16px 32px 16px;
+        /*padding-left: 8px;*/
+      }
+
+      .cards table,
+      .address table {
+        width: 100%;
+      }
+
+      h3,
+      p {
+        margin: 0;
+      }
+
+      paper-icon-button.cardsEdit {
+        width: 10px;
+        height: 10px;
+        --paper-icon-button-ink-color: var(--paper-indigo-500);
+      }
+
+      th {
+        text-align: left;
+      }
+
+      .headerIcon {
+        width: 34px;
+        height: 34px;
+      }
+    </style>
+
+    <catalog-user id="catalogUser" loggedin="{{loggedin}}" wait="{{wait}}" user="{{user}}"></catalog-user>
+
+    <paper-material class="profile layout vertical">
+
+      <div class="user layout horizontal">
+        <iron-image class="userIcon" src="{{user.profileImage}}" alt="user image" width="100" height="100" fade sizing="contain">
+        </iron-image>
+
+
+        <div class="info">
+          <h3>{{user.displayName}}</h3>
+          <span>{{user.displayName}}</span>
+        </div>
+
+      </div>
+
+
+      <div class="address">
+        <h2>
+          <iron-icon class="headerIcon" icon="maps:local-shipping"></iron-icon>
+          Address
+        </h2>
+
+        <table>
+          <tbody>
+
+            <tr>
+              <th>
+                Address
+              </th>
+              <th>
+                DEFAULT
+              </th>
+              <th>
+                EDIT
+              </th>
+            </tr>
+
+            <tr>
+              <td rowspan="2">
+                5353 Cleveland Ave
+                <br> Columbus, Ohio, 43231
+              </td>
+              <td rowspan="2">
+                <paper-radio-button name="def2"></paper-radio-button>
+              </td>
+              <td>
+                <paper-icon-button icon="editor:mode-edit"></paper-icon-button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+      </div>
+
+      <div class="cards">
+        <h2>
+          <iron-icon class="headerIcon" icon="icons:credit-card"></iron-icon>
+          Cards
+        </h2>
+
+        <table>
+          <tbody>
+            <tr>
+              <th>
+                TYPE
+              </th>
+              <th>
+                ENDING
+              </th>
+              <th>
+                DEFAULT
+              </th>
+
+              <th>
+                EDIT
+              </th>
+            </tr>
+
+            <tr>
+              <td>
+                VISA
+              </td>
+              <td>
+                5555
+              </td>
+              <td>
+                <paper-radio-button name="def"></paper-radio-button>
+              </td>
+              <td>
+                <paper-icon-button class="cardsEdit" icon="editor:mode-edit"></paper-icon-button>
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                VISA
+              </td>
+              <td>
+                5555
+              </td>
+              <td>
+                <paper-radio-button name="def2"></paper-radio-button>
+              </td>
+              <td>
+                <paper-icon-button class="cardsEdit" icon="editor:mode-edit"></paper-icon-button>
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+
+      </div>
+
+    </paper-material>
+
+
+  </template>
+
+  <script>
+    (function() {
+      Polymer({
+        is: 'page-account',
+        enableCustomStyleProperties: true,
+        properties: {
+          email: {
+            type: String,
+            notify: true,
+            value: ""
+          },
+          password: {
+            type: String,
+            notify: true,
+            value: ""
+          },
+          wait: {
+            type: Boolean,
+            notify: true,
+          },
+          loggedin: {
+            type: Boolean,
+            notify: true
+          },
+          user: {
+            type: Object,
+            notify: true,
+          },
+          provider: {
+            type: String,
+            value: 'password'
+          }
+        },
+
+        observers: [
+          '_checkLoggedin(loggedin, wait)',
+        ],
+
+
+        _checkLoggedin: function(loggedin, wait) {
+          // console.log(loggedin, wait);
+
+
+
+
+
+
+          if (!loggedin && !wait) {
+            // console.log('not logged in!');
+            this.fire('toast', {
+              text: 'Have to be logged in to view page'
+            });
+            router.go('/login', {
+              replace: true
+            });
+
+            return;
+
+          }
+
+          if (loggedin && !wait) {
+            // console.log('is logged in!');
+          }
+
+        },
+
+
+      });
+    })();
+  </script>
+
+</dom-module>

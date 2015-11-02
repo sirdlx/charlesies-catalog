@@ -2,37 +2,51 @@
   <template>
     <style is="custom-style">
       .grid-layout {
-        /*width: 94%;*/
-        /*margin: 0 auto;*/
-        /*padding: 16px;*/
-        @apply(--layout-inline);
-        @apply(--layout-wrap);
-        @apply(--layout-start);
-        @apply(--layout-horizontal);
-      }
-
-      .small {
-        width: 180px;
-        height: 180px;
-        margin-right: 8px;
-        margin-bottom: 8px;
+        padding-top: 16px;
+        display: -ms-inline-flexbox;
+        display: -webkit-inline-flex;
+        display: inline-flex;
+        -ms-flex-wrap: wrap;
+        -webkit-flex-wrap: wrap;
+        flex-wrap: wrap;
+        -ms-flex-align: start;
+        -webkit-align-items: flex-start;
+        align-items: flex-start;
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+        -ms-flex-direction: row;
+        -webkit-flex-direction: row;
+        flex-direction: row;
+        -ms-flex-align: center;
+        -webkit-align-items: center;
+        align-items: center;
+        -ms-flex-pack: center;
+        -webkit-justify-content: center;
+        justify-content: center;
       }
 
       .grid-cell {
-        display: block;
-        width: 100%;
-        height: 210px;
+        margin: 8px;
+        width: calc(100vh*.5);
       }
 
-
+      @media all and (min-width: 448px) {
+        .grid-cell {
+          width: 208px;
+          /*margin: 0 8px;*/
+        }
+      }
     </style>
-    <firebase-collection id="packages" location="https://charlesiesbeta.firebaseio.com/packages" data="{{packages}}" order-by-child="priorty"></firebase-collection>
+
+    <firebase-collection id="products" location="https://charlesiesbeta.firebaseio.com/products" data="{{products}}" order-by-child="priorty"></firebase-collection>
 
     <div class="grid-layout">
-      <template is="dom-repeat" items="{{packages}}">
-        <a href$="[[_packageLink(item.name)]]" is="pushstate-anchor" class="grid-cell">
-          <package-tile package="[[item]]" name$="[[item.name]]"></package-tile>
-        </a>
+      <template is="dom-repeat" items="{{products}}">
+        <!-- <a href$="[[_packageLink(item.name)]]" is="pushstate-anchor" class="grid-cell"> -->
+        <!-- <package-tile package="[[item]]" name$="[[item.name]]"></package-tile> -->
+        <!-- </a> -->
+        <product-card product="{{item}}" class="grid-cell"></product-card>
       </template>
     </div>
 
@@ -43,13 +57,12 @@
       is: 'page-home',
       enableCustomStyleProperties: true,
       properties: {},
-      
 
       newItemClick: function(e, f) {
         // console.log('newItemClick', e, f);
         // this.$.cdata.newPackage();
-        var coll = this.$.packages;
-        coll.add(this.$.cdata.newPackageObject);
+        // var coll = this.$.packages;
+        // coll.add(this.$.cdata.newPackageObject);
       },
 
       attached: function() {
@@ -57,11 +70,7 @@
         this.fire('page-meta', {
           title: null
         });
-      },
 
-      _packageLink: function(id) {
-        // return "/browse?packageId=" + name;
-        return "/items/?category=" + id;
       }
     });
   </script>

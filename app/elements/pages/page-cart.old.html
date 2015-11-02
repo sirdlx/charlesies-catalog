@@ -1,0 +1,276 @@
+<dom-module id="page-cart">
+  <template>
+
+    <style is="custom-style" media="screen">
+      :host {
+        display: block;
+        position: relative;
+      }
+
+      .page-header {
+        padding-top: 16px;
+      }
+
+      .cart-table {
+        /*display: none;*/
+        display: block;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 5px;
+        border: 1px solid #e5e5e5;
+      }
+
+      .cart-table thead th {
+        padding: 0 24px;
+        line-height: 56px;
+        font-size: 12px;
+        font-weight: 500;
+        color: rgba(0, 0, 0, 0.54);
+      }
+
+      .cart-table td,
+      .cart-table th {
+        padding: 12px 24px;
+      }
+
+      .cart-table th {
+        @apply(--paper-font-body1);
+        color: var(--secondary-text-color);
+        text-align: left;
+      }
+
+      .cart-table tbody tr {
+        cursor: pointer;
+        /*overflow: hidden;*/
+        height: 48px;
+      }
+
+      .cart-table tbody tr:hover {
+        background: #efefef;
+      }
+
+      .cart-table a {
+        font-weight: bold;
+      }
+
+      .cart-table a,
+      .cart-tableiron-icon {
+        cursor: pointer;
+      }
+
+      [size=xs] .cart-table .name {
+        display: none;
+      }
+      /*.cart-table .name {
+        white-space: nowrap;
+        font-weight: 400;
+        font-size: 13px;
+          line-height: 24px;
+      }*/
+
+      .cart-table .pricing {
+        /*color: var(--secondary-text-color);*/
+        /*line-height: 24px;*/
+      }
+
+      .quanity_input {
+        width: 30px;
+      }
+
+      .cart-layout {
+        display: -ms-inline-flexbox;
+        display: -webkit-inline-flex;
+        display: inline-flex;
+        -ms-flex-wrap: wrap;
+        -webkit-flex-wrap: wrap;
+        flex-wrap: wrap;
+        -ms-flex-align: start;
+        -webkit-align-items: flex-start;
+        align-items: flex-start;
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+        -ms-flex-direction: row;
+        -webkit-flex-direction: row;
+        flex-direction: row;
+        -ms-flex-align: center;
+        -webkit-align-items: center;
+        align-items: center;
+        -ms-flex-pack: center;
+        -webkit-justify-content: center;
+        justify-content: center;
+      }
+
+      .cart-item {
+        margin: 8px;
+        width: 280px;
+      }
+
+      .cart-item .pricing {
+        line-height: 80px;
+        height: 56px;
+        padding: 0 16px;
+      }
+
+      .checkout {
+        background-color: #f44336;
+        color: white;
+      }
+
+      .checkout[disabled] {
+        background-color: #efefef;
+        color: white;
+      }
+    </style>
+
+    <catalog-cart id="catalogCart" items="{{cart}}" count={{count}}></catalog-cart>
+
+    <div class="page-header layout vertical center-center">
+      <h2>Cart (
+        <span>{{count}}</span>)</h2>
+    </div>
+
+
+    <div class="table-container layout vertical center-center">
+      <table id="cart-table" class="cart-table">
+        <thead>
+          <tr>
+            <th class="item_header">Item</th>
+            <th class="blank"></th>
+            <th class="price_header">Price</th>
+            <th class="quantity_header">Quantity</th>
+            <th class="total_header">Total</th>
+            <th class="actions">Remove</th>
+          </tr>
+        </thead>
+        <tbody>
+          <template is="dom-repeat" items="{{cart}}">
+            <tr tabindex="0">
+              <td>
+                <img src="http://lorempixel.com/100/100/fashion/">
+              </td>
+              <td class="name" width="100">
+                <span>[[item.name]]</span>
+              </td>
+              <td class="pricing">
+                $
+                <span>[[_computePrice(item.default_price)]]</span>
+              </td>
+              <td class="quantity">
+                <paper-input class="quanity_input" label="total" type="number" min="1" value="{{item.quantity::value-changed}}"></paper-input>
+              </td>
+
+              <td class="pricing">
+                $
+                <span>[[_computeTotal(item.default_price, item.quantity)]]</span>
+              </td>
+
+              <td class="action_remove">
+                <paper-icon-button on-tap="_removeFromCart" index="{{index}}" icon="icons:remove-circle-outline"></paper-icon-button>
+              </td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+
+
+    <div class="cart-layout">
+      <template is="dom-repeat" items="{{cart}}">
+
+        <paper-card image="http://lorempixel.com/100/100/fashion/" class="cart-item">
+          <div class="card-content">{{item.name}}</div>
+          <div class="card-actions layout horizontal">
+            <div class="pricing">
+              <span>[[_computePrice(item.default_price)]]</span>
+            </div>
+            <paper-input always-float-label="false" class="quanity_input" type="number" min="1" value="{{item.quantity::value-changed}}"></paper-input>
+            <div class="pricing">
+              <span class="equals">=</span>
+              <span>[[_computeTotal(item.default_price, item.quantity)]]</span>
+            </div>
+          </div>
+        </paper-card>
+
+      </template>
+    </div>
+
+    <br>
+
+    <div class="layout horizontal center-center" style="width:100%;padding-bottom:32px;">
+
+      <paper-button class="checkout" on-tap="_clickCheckout" disabled$="{{_cartCount(count)}}">
+        $
+        <span>{{cartTotal}}</span>
+        <span>
+          Checkout
+        </span>
+      </paper-button>
+
+    </div>
+
+
+
+  </template>
+
+  <script>
+    (function() {
+
+      Polymer({
+        is: 'page-cart',
+        enableCustomStyleProperties: true,
+        properties: {
+          router: Object,
+          cart: Array,
+          cartTotal: {
+            type: Number,
+            notify: true,
+            computed: '_computeCartTotal(cart.*)'
+          },
+
+        },
+
+        _computePrice: function(price) {
+          return Number(price).toFixed(2);
+        },
+
+        _computeTotal: function(price, quantity) {
+          return Number((quantity * price)).toFixed(2);
+        },
+
+        _computeCartTotal: function(change) {
+          // console.log(change.base);
+          var cart = change.base;
+          if (cart.length) {
+            var total = 0;
+            for (var i = 0; i < cart.length; i++) {
+              total += cart[i].default_price * cart[i].quantity;
+            }
+            return Number(total).toFixed(2);
+          }
+          return Number(0).toFixed(2);
+        },
+
+        _removeFromCart: function(e) {
+          // console.log(e.model.__data__.index);
+          // this.$.catalogCart.removeFromCart(e.model.__data__.index);
+          this.fire('remove-from-cart', {
+            index: e.model.__data__.index
+          });
+        },
+
+        _cartCount: function(count) {
+          // console.log(count);
+          return count < 1;
+
+        },
+        _clickCheckout: function() {
+          router.go('/cart/checkout');
+        },
+
+
+      });
+    })();
+  </script>
+
+</dom-module>

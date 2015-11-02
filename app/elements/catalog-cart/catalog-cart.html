@@ -1,86 +1,136 @@
+<link rel="import" href="../catalog-product/catalog-product.html">
+
 <script>
-(function() {
-  var _instances = [];
+  (function() {
+    var _instances = [];
 
-  var _store = function() {
-    if (_instances.length) {
-      localStorage['catalog.cart'] = JSON.stringify(_instances[0].items);
-    }
-  };
+    var _store = function() {
+      if (_instances.length) {
+        localStorage['catalog.cart'] = JSON.stringify(_instances[0].items);
+      }
+    };
 
-  var _add = function(name) {
-    var el = document.createElement('catalog-element');
-    el.name = name;
+    var _retrieve = function() {
+      try {
+        return JSON.parse(localStorage['catalog.cart'] || '[]');
+      } catch (e) {
+        console.log('error retrieving catalog data from localstorage.', e);
+        return [];
+      }
+    };
 
-    var check = _instances[0];
-    var insertAt;
-    if (check.items.length === 0 || check.items[0].name > name) {
-      insertAt = 0;
-    } else {
+    var _add = function(product) {
+      var check = _instances[0];
+      var insertAt = 0;
+
       for (var i = 0; i < check.items.length; i++) {
-        if (name > check.items[i].name && (!check.items[i + 1] || name < check.items[i+1].name)) {
-          console.log(name, ">", check.items[i].name);
-          insertAt = i + 1;
-          break;
+        // console.log(check.items[i].__firebaseKey__);
+        if (check.items[i].__firebaseKey__ === product.__firebaseKey__) {
+          // console.log('product match');
+          check.items[i].quantity++;
+          _store();
+          // console.log(check.items[i].quantity);
+          // console.log(check);
+          return;
         }
       }
-    }
 
-    _instances.forEach(function(instance) {
-      instance.splice('items',insertAt,0,el.data);
-      instance.fire('item-added', {name: el.name, element: el.data}, {bubbles: false});
-    });
-    _store();
-    return el.data;
-  };
+      product.quantity = 1;
 
-  var _remove = function(el) {
-    var check = _instances[0];
-    var removeAt = -1;
-    for (var i = 0; i < check.items.length; i++) {
-      if (check.items[i] === el || check.items[i].name === el) {
-        removeAt = i;
-      }
-    }
-
-    if (removeAt >= 0) {
       _instances.forEach(function(instance) {
-        instance.splice('items',removeAt,1);
-        instance.fire('item-removed', {name: el.name, element: el.data}, {bubbles: false});
+        instance.splice('items', insertAt, 0, product);
+        instance.fire('item-added', product, {
+          bubbles: false
+        });
       });
-      _store();
-    } else {
-      return false;
-    }
-  };
 
-  Polymer({
-    is: 'catalog-cart',
-    properties: {
-      items: {
-        type: Array,
-        notify: true,
-        value: function() {
-          return JSON.parse(localStorage['catalog.cart'] || '[]');
+      _store();
+
+      return product;
+    };
+
+    var _remove = function(product_index) {
+      var check = _instances[0];
+      var removeAt = product_index;
+      // for (var i = 0; i < check.items.length; i++) {
+      //   if (check.items[i] === product || check.items[i].name === product.name) {
+      //     removeAt = i;
+      //   }
+      // }
+
+      if (removeAt >= 0) {
+        _instances.forEach(function(instance) {
+          instance.splice('items', removeAt, 1);
+          instance.fire('item-removed', product_index, {
+            bubbles: false
+          });
+        });
+        _store();
+      } else {
+        return false;
+      }
+    };
+
+
+    var _updateAll = function() {
+      _instances.forEach(function(instance) {
+        instance.items = _instances[0].items;
+      });
+    };
+
+
+    Polymer({
+      is: 'catalog-cart',
+      properties: {
+        items: {
+          type: Array,
+          notify: true,
+          value: function() {
+            return _retrieve();
+          }
+        },
+        count: {
+          type: Number,
+          notify: true,
+          computed: '_count(items.splices)'
         }
+      },
+
+      observers: [
+        '_save(items.*)'
+      ],
+
+      created: function() {
+        _instances.push(this);
+      },
+      update: function() {
+        this.items = _retrieve();
+      },
+      addCart: function(item) {
+        // if (this.includes(name)) return false;
+        return _add(item);
+      },
+      removeCart: function(item) {
+        return _remove(item);
+      },
+      _count: function(items) {
+        return this.items.length;
+      },
+      _save: function(changes) {
+        // console.log(changes);
+        // console.log(changes.path.split('.'));
+        var path = changes.path.split('.');
+        // console.log(path[2]); // = "quantity"
+
+        if (path[2]) {
+          var check = _instances[0];
+          // console.log(check.items[path[1]]);
+          check.items[path[1]].quantity = changes.value;
+          _updateAll();
+          _store();
+        }
+
       }
-    },
-    created: function() {
-      _instances.push(this);
-    },
-    add: function(name) {
-      if (this.includes(name)) return false;
-      return _add(name);
-    },
-    remove: function(name) {
-      return _remove(name);
-    },
-    includes: function(el) {
-      for (var i = 0; i < this.items.length; i++) {
-        if (this.items[i] === el || this.items[i].name === el) return true;
-      }
-      return false;
-    }
-  });
-})();
+    });
+  })();
 </script>

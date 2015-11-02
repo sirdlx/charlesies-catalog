@@ -1,11 +1,15 @@
 <dom-module id="product-card">
 
   <style media="screen">
-    :root {
-      /*--paper-card-header: {
-        height: 256px;
-        overflow: hidden;
-      }*/
+    :host {
+      transition: box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      transition-delay: 0.2s;
+      box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
+    }
+
+    :host:hover {
+      box-shadow: 0 8px 17px 0 rgba(0, 0, 0, 0.2);
+      transition-delay: 0s;
     }
 
     .card-actions .itemPrice {
@@ -31,23 +35,27 @@
       text-overflow: ellipsis;
     }
 
-    paper-card {
-      display: block;
+    img {
+      width: 100%;
     }
 
-    img {
-      height: 256px;
-      width: 100%;
+    [in-fav] {
+      color: #f44336;
+    }
+
+    [in-cart] {
+      color: #f44336;
     }
   </style>
 
   <template>
 
-
     <firebase-collection id="imagesREF" location="https://charlesiesbeta.firebaseio.com/images" data="{{images}}" order-by-child="rel" equal-to="[[product.__firebaseKey__]]" on-firebase-value="_computeImages"></firebase-collection>
+    <firebase-document id="fbfav" location$="[[_favLocation(user, product)]]" data="{{_fav}}" on-firebase-value="_updateFavIcon"></firebase-document>
+    <catalog-user id="catalogUser" loggedin="{{loggedin}}" wait="{{wait}}" user="{{user}}"></catalog-user>
+    <catalog-cart id="catalogCart" items="{{cart}}"></catalog-cart>
 
-
-    <paper-card>
+    <paper-card animated-shadow="true" elevation="1">
 
       <a href$="{{_computeLink(product)}}" is="pushstate-anchor">
         <img src="[[firstImageURL]]">
@@ -59,14 +67,15 @@
 
       <div class="card-actions">
 
-        <paper-icon-button icon="favorite" on-tap="_favTap"></paper-icon-button>
-        <paper-icon-button icon="shopping-cart" on-tap="_cartTap"></paper-icon-button>
+        <paper-icon-button icon="favorite" on-tap="_favTap" in-fav$="[[inFav]]" disabled$="[[!loggedin]]"></paper-icon-button>
+        <paper-icon-button icon="shopping-cart" on-tap="_cartTap" in-cart$="[[inCart]]"></paper-icon-button>
 
         <h4 class="itemPrice">$
           <span class="red">[[product.default_price]]</span>
         </h4>
 
       </div>
+
     </paper-card>
 
   </template>
@@ -76,54 +85,96 @@
       enableCustomStyleProperties: true,
       properties: {
         product: Object,
+        images: Object,
         firstImageURL: String,
-        images: Object
-      },
-      listeners: {
-
+        user: Object,
+        cart: Array,
+        inCart: {
+          type: Boolean,
+          value: false,
+          notify: true,
+        },
+        inFav: {
+          type: Boolean,
+          value: false,
+          notify: true
+        },
+        _fav: {
+          type: Object,
+          notify: true
+        },
       },
       observers: [
-        // '_productid(productid, pack)',
-        // '_el(product)'
+        '_updateCartIcon(cart, product)'
       ],
+      // Product
 
       _computeLink: function(item) {
-        return '/products/' + item.name;
+        // return '/products/' + item.name.split(' ').join('_');
+        return '/products/' + item.__firebaseKey__;
       },
-
       _computeFirstImage: function(images) {
         console.log('_computeFirstImage: ', images);
-
       },
-
       _computeImages: function(e, ref) {
         // console.log('_computeImages: ', ref.val());
         var key = Object.keys(ref.val())[0];
         this.images = ref.val()[key].images;
-        this.firstImageURL = this.images[0];
+        // this.firstImageURL = this.images[0];
+        this.firstImageURL = "http://lorempixel.com/400/400/fashion/";
         // console.log(this.images[0]);
       },
 
-      _el: function(el) {
-        console.log(el);
-      },
-      _favTap: function(e) {
-        // e.stopPropagation();
+      // Cart
 
-        console.log('add-to-fav', e);
-        this.fire('add-to-fav', {
-          product: this.product
-        });
-
-      },
       _cartTap: function(e) {
         // e.stopPropagation();
         // console.log('fire: add-to-cart');
         this.fire('add-to-cart', {
           product: this.product
         });
+        // this.$.catalogCart.addCart(this.product);
+        this.inCart = true;
+      },
 
+      _updateCartIcon: function(cart, product) {
+        // console.log(product);
+        for (var i = 0; i < cart.length; i++) {
+          // console.log(cart[i].__firebaseKey__ === product.__firebaseKey__);
+          if (cart[i].__firebaseKey__ === product.__firebaseKey__) {
+            this.inCart = true;
+            // return true;
+          }
+        }
+      },
+
+      // Favorites
+
+      _favTap: function(e) {
+        e.stopPropagation();
+        // console.log('add-to-fav', e);
+        this.fire('add-to-fav', {
+          product: this.product
+        });
+        // this.$.catalogUser.addFav(this.product);
+      },
+
+      _favLocation: function(user, product) {
+        // console.log(user);
+        if (user.uid) {
+          return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid + '/favorites/' + product.__firebaseKey__;
+        }
+      },
+
+      _updateFavIcon: function(e, ref) {
+        // console.log(ref.val());
+        if (ref.val()) {
+          this.inFav = true;
+        } else {
+          this.inFav = false;
+        }
       }
+
     });
   </script>
 </dom-module>

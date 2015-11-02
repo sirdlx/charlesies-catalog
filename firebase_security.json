@@ -10,7 +10,6 @@
         "created": {
           ".validate": "newData.val() < now"
         }
-
       }
     },
 
@@ -32,12 +31,6 @@
         ".read": true,
         ".write": "auth.isModerator === true"
       }
-    },
-
-
-    "test": {
-      ".read": true,
-      ".write": "auth !== null"
     }
 
   }

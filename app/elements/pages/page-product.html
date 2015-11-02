@@ -1,0 +1,257 @@
+<dom-module id="page-product">
+  <template>
+    <style media="screen" is="custom-style">
+      responsive-product[size=xs].layout {
+        flex-direction: column;
+      }
+
+      [size=xs] app-sidebar {
+        min-width: 100%;
+        height: auto;
+      }
+
+      app-sidebar paper-toolbar {
+        --paper-toolbar-background: white;
+        --paper-toolbar: {
+          border-bottom: 1px solid;
+          border-bottom-color: var(--divider-color);
+          box-sizing: border-box;
+        }
+      }
+
+      [size=xs] app-sidebar paper-toolbar /deep/ #topBar {
+        padding: 0 16px;
+      }
+
+      #product-heading {
+        height: 48px;
+        line-height: 48px;
+        background: var(--paper-blue-grey-50);
+        border: solid;
+        border-color: var(--paper-blue-grey-100);
+        border-width: 1px 0;
+        cursor: pointer;
+        font-weight: 500;
+      }
+
+      #product-heading iron-icon {
+        margin: 0 0 0 4px;
+      }
+
+      #product-heading product-symbol {
+        margin: 0 8px 0 2px;
+      }
+
+      #product-header {
+        position: relative;
+        padding: 8px 16px;
+      }
+
+      #product-header .version {
+        position: absolute;
+        top: 24px;
+        right: 16px;
+        font-size: 14px;
+        color: var(--paper-grey-500);
+      }
+
+      #product-header h2 {
+        margin: 0;
+      }
+
+      #product-desc p {
+        margin-bottom: 0;
+      }
+
+      #product-tags tag-link:last-of-type + span {
+        display: none;
+      }
+
+      [size=xs] .section {
+        display: none;
+      }
+
+      paper-item,
+      a.item {
+        display: block;
+        font-size: 14px;
+        padding: 4px 16px;
+        min-height: inherit;
+        cursor: pointer;
+        font-weight: 400;
+      }
+
+      .nav {
+        display: block;
+        margin-top: 8px;
+      }
+
+      .nav iron-icon {
+        width: 18px;
+        height: 18px;
+        margin-right: 8px;
+      }
+
+      .nav [active] {
+        background: var(--paper-blue-grey-50);
+      }
+
+      .nav [active] iron-icon {
+        color: var(--paper-blue-a700);
+      }
+
+      app-sidebar h4 {
+        font-size: 14px;
+        font-weight: 500;
+        margin: 12px 16px;
+      }
+
+      app-sidebar section {
+        border-top: 1px solid #e5e5e5;
+      }
+
+      section[main] {
+        background: #fafafa;
+      }
+
+      [narrow] iron-component-page {
+        top: 56px;
+      }
+
+      [paper-drawer-toggle] {
+        position: absolute;
+        top: 24px;
+        left: 24px;
+      }
+
+      cart-icon {
+        position: absolute;
+        top: 24px;
+        right: 24px;
+      }
+
+      cart-item-icon {
+        --cart-item-icon-size: 18px;
+        --cart-item-icon-label: {
+          margin-left: 8px;
+        }
+        ;
+      }
+
+      #other-products {
+        overflow: hidden;
+        -webkit-flex-shrink: 5;
+        flex-shrink: 5;
+      }
+
+      #other-products .list {
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      #product-header,
+      #product-heading,
+      #nav,
+      #cart-add {
+        -webkit-flex-shrink: 0;
+        flex-shrink: 0;
+      }
+
+      .shrinkable {
+        overflow: hidden;
+        @apply(--layout);
+        @apply(--layout-vertical);
+      }
+
+      .shrinkable .nav,
+      .shrinkable .list {
+        overflow-x: hidden;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+    </style>
+    <!-- <catalog-data id="cdata" app="charlesiesbeta" products="products" products="{{products}}" products="{{products}}" blog="{{blog}}" blogid="8038113399974572777"></catalog-data> -->
+    <!-- <catalog-product name="[[item]]" data="{{metadata}}"></catalog-product> -->
+    <!-- <catalog-product name="[[metadata.product]]" data="{{collection}}"></catalog-product> -->
+    <firebase-document id="fbproduct" location="{{_locProduct}}" data="{{product}}"></firebase-document>
+    <!-- <firebase-collection location="{{_locproducts}}" data="{{products}}"></firebase-collection> -->
+
+
+      <paper-material class="content layout vertical center-center">
+
+        <div id="product-header">
+          <span class="version">[[product.default_price]]</span>
+          <h2 id="product-title">[[product.name]]</h2>
+          <div id="product-desc">
+            <p>[[product.description]]</p>
+          </div>
+        </div>
+
+        <section hidden$="[[_oneOrFewer(docproducts)]]" class="shrinkable">
+          <h4>Bundled products</h4>
+
+          <nav id="elnav" class="nav">
+            <template is="dom-repeat" items="[[docproducts]]">
+              <a is="app-link" class="item" href$="[[_link(item.is,view)]]" active$="[[_isEqual(item.is,active)]]">[[item.is]]</a>
+            </template>
+          </nav>
+        </section>
+
+        <section class="shrinkable" hidden$="[[_oneOrFewer(docBehaviors)]]">
+          <h4>Bundled Behaviors</h4>
+
+          <nav id="elnav" class="nav" attr-for-selected="name" selected="{{active}}">
+            <template is="dom-repeat" items="[[docBehaviors]]">
+              <a is="app-link" class="item" href$="[[_link(item.is,view)]]" active$="[[_isEqual(item.is,active)]]">[[item.is]]</a>
+            </template>
+          </nav>
+        </section>
+      </paper-material>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'page-product',
+      enableCustomStyleProperties: true,
+      properties: {
+        productid: {
+          type: String,
+          notify: true
+        },
+        router: Object,
+        cart: Array,
+        _locproducts: {
+          type: String,
+          computed: '_locfbproduct(productid)'
+        }
+      },
+      observers: [
+        'updateMeta(productid)',
+      ],
+
+      _locfbproduct: function(productid) {
+        // console.log('_locfbproduct', 'https://' + 'charlesiesbeta' + '.firebaseio.com/' + "products/" + productid);
+        return 'https://' + 'charlesiesbeta' + '.firebaseio.com/' + "products/" + productid;
+      },
+
+      attached: function() {
+        // this.updateMeta();
+      },
+      updateMeta: function(product, active) {
+        // console.log('updateMeta', product, active);
+        this.fire('page-meta', {
+          title: this.product.name
+        });
+      },
+      _productLink: function() {
+        return "/p/" + this.product.name;
+      },
+      navToproduct: function(e) {
+        this.router.go("/products/" + e.currentTarget.getAttribute('name'));
+      },
+      cartAdd: function() {
+        this.fire('cart-add', this.product);
+      }
+    });
+  </script>
+</dom-module>

@@ -1,5 +1,5 @@
 {
-  "name": "polymer-element-catalog",
+  "name": "charlesies-catalog",
   "version": "0.1.0",
   "authors": [
     "Google"
@@ -16,18 +16,17 @@
   ],
   "private": true,
   "dependencies": {
-    "app-router": "~2.6.1",
+    "iron-elements": "PolymerElements/iron-elements#^1.0.0",
+    "paper-elements": "PolymerElements/paper-elements#^1.0.0",
+    "gold-elements": "PolymerElements/gold-elements#^1.0.0",
+    "neon-elements": "PolymerElements/neon-elements#^1.0.0",
+    "platinum-elements": "PolymerElements/platinum-elements#^1.0.0",
+    "google-web-components": "GoogleWebComponents/google-web-components#^1.0.0",
+    "molecules": "PolymerElements/molecules#^1.0.0",
+    "polymer": "Polymer/polymer#^1.0.0",
+    "app-router": "blasten/app-router#master",
+    "pushstate-anchor": "~0.3.0",
     "color": "~2.5.0",
-    "firebase-element": "https://github.com/GoogleWebComponents/firebase-element.git#~1.0.5",
-    "iron-elements": "PolymerElements/iron-elements#1.0.0",
-    "neon-elements": "PolymerElements/neon-elements#1.0.0",
-    "page": "visionmedia/page.js#~1.6.3",
-    "paper-elements": "PolymerElements/paper-elements#1.0.1",
-    "platinum-elements": "PolymerElements/platinum-elements#1.0.1",
-    "pushstate-anchor": "~0.3.2"
-  },
-  "devDependencies": {
-    "web-component-tester": "*",
-    "test-fixture": "PolymerElements/test-fixture#^1.0.0"
+    "hydrolysis": "PolymerLabs/hydrolysis#^1.11.0",
   }
 }

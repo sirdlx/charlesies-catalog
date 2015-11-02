@@ -1,0 +1,81 @@
+<dom-module id="catalog-cart">
+  <template>
+    <iron-localstorage id="cartStorage" name="cart" value="{{cart}}" on-iron-localstorage-load-empty="initializeDefaultCart"></iron-localstorage>
+  </template>
+  <script>
+    (function() {
+
+      Polymer({
+        is: 'catalog-cart',
+        properties: {
+          // Cart
+          cart: {
+            type: Array,
+            notify: true,
+          },
+          count: {
+            type: Number,
+            notify: true
+          },
+
+        },
+        observers: [
+          '_computeCart(cart.splices)'
+        ],
+
+        /*   Cart   */
+
+        initializeDefaultCart: function() {
+          console.log('initializeDefaultCart');
+          this.cart = [];
+        },
+
+        _computeCart: function(e) {
+          // console.log('_computeCart: ' + this.cart.length);
+          console.log(this.cart);
+          this.count = this.cart.length;
+        },
+
+        addCart: function(product) {
+          var item = {
+            __firebaseKey__: product.__firebaseKey__,
+            name: product.name,
+            description: product.description,
+            default_price: product.default_price
+          };
+
+          // #NOTE: Add image url also
+
+          for (var i = 0; i < this.cart.length; i++) {
+            // console.log(this.cart[i].__firebaseKey__);
+            if (this.cart[i].__firebaseKey__ === item.__firebaseKey__) {
+              // console.log('item match');
+              this.cart[i].quantity++;
+              this.$.cartStorage.save();
+              // console.log(this.cart[i].quantity);
+              // console.log(this.cart);
+              return;
+            }
+          }
+
+          // console.log('added item: ' + item.name, item);
+
+          item.quantity = 1;
+          this.push('cart', item);
+          // console.log(this.cart);
+          // this.$.cartStorage.save();
+        },
+
+        removeFromCart: function(index) {
+          // console.log(index);
+          // console.log(this.cart.length);
+          this.splice('cart', index, 1);
+          // console.log(this.cart);
+          // this.$.cartStorage.save();
+        },
+
+      });
+    })();
+  </script>
+
+</dom-module>

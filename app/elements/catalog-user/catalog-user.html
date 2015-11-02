@@ -1,0 +1,190 @@
+<dom-module id="catalog-user">
+  <template>
+    <firebase-auth id="firebaseLogin" user="{{_user}}" status-known="{{statusKnown}}" location="https://charlesiesbeta.firebaseio.com" provider="{{provider}}" on-error="errorHandler" on-user-created="userSuccessHandler" on-password-changed="userSuccessHandler"
+    on-password-reset="userSuccessHandler" on-user-removed="userSuccessHandler"></firebase-auth>
+    <!-- <firebase-document id="firebaseFavorites" location$="{{_favLocation(user)}}" data="{{_favs}}"></firebase-document> -->
+
+  </template>
+  <script>
+    (function() {
+      Polymer({
+        is: 'catalog-user',
+        properties: {
+          email: {
+            type: String,
+            notify: true,
+            value: ""
+          },
+          password: {
+            type: String,
+            notify: true,
+            value: ""
+          },
+          user: {
+            type: Object,
+            notify: true,
+          },
+          statusKnown: {
+            type: Boolean,
+            notify: true,
+          },
+          provider: {
+            type: String,
+            notify: true,
+            value: 'password'
+          },
+          loggedin: {
+            type: Boolean,
+            notify: true,
+            value: false,
+            // computed: 'computeLoginStatus(statusKnown, user)'
+          },
+          wait: {
+            type: Boolean,
+            notify: true,
+            value: true
+          },
+          _favs: {
+            type: Array,
+            notify: true
+          },
+
+        },
+        observers: [
+          '_computeUser(_user)',
+          'checkstatus(statusKnown, _user)',
+        ],
+        // Favorites
+
+        _favLocation: function(user) {
+          // console.log(user.uid);
+          return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid + '/favorites';
+        },
+
+        addFav: function(product) {
+          // console.log(product.__firebaseKey__);
+          var ref = new Firebase('https://charlesiesbeta.firebaseio.com/users/' + this.user.uid + '/favorites/' + product.__firebaseKey__);
+          ref.once("value", function(snapshot) {
+            // console.log(snapshot.val());
+            if (snapshot.val()) {
+              ref.set(false);
+            } else {
+              ref.set(true);
+            }
+          });
+
+        },
+
+        // User
+
+        _computeUser: function(user) {
+          // console.log(user);
+          if (!user) return;
+          // console.log(user);
+
+          if (typeof user.google === 'object') {
+            user.profileImage = user.google.profileImageURL;
+            user.displayName = user.google.displayName;
+          }
+
+          if (typeof user.facebook === 'object') {
+            user.profileImage = user.facebook.profileImageURL;
+            user.displayName = user.facebook.displayName;
+          }
+
+          if (typeof user.twitter === 'object') {
+            user.profileImage = user.twitter.profileImageURL;
+            user.displayName = user.twitter.displayName;
+          }
+
+          if (typeof user.password === 'object') {
+            user.profileImage = user.password.profileImageURL;
+            user.displayName = user.password.email;
+          }
+          this.user = user;
+        },
+
+        login: function(provider, email, password) {
+          console.log(provider, email, password);
+          // this.wait = true;
+          var params;// = {email: email, password: password};
+          // try {
+          //   params = JSON.parse(this.params);
+          // } catch (e) {
+          //   params = null;
+          // }
+          if (provider == 'password') {
+            params = params || {};
+            params.email = email;
+            params.password = password;
+          }
+          console.log('login: ', provider, params);
+          this.$.firebaseLogin.provider = provider;
+          this.$.firebaseLogin.login(params);
+        },
+        logout: function() {
+          this.$.firebaseLogin.logout();
+          this.user = null;
+          this.loggedin = false;
+          this.wait = false;
+          console.log('logout!');
+        },
+        errorHandler: function(e) {
+          this.fire('toast', {
+            text: e.detail.message
+          });
+          console.log('error: ', e.detail.message);
+        },
+        userSuccessHandler: function(e) {
+          this.fire('toast', {
+            text: 'Xsuccess!'
+          });
+          console.log('success: ', this.user);
+        },
+        createUserHandler: function(e) {
+          this.$.firebaseLogin.createUser(this.email, this.password);
+          this.fire('toast', {
+            text: 'Thanks for joining Charlesies.com ' + this.email
+          });
+        },
+        changePasswordHandler: function(e) {
+          this.$.firebaseLogin.changePassword(this.email, this.password, this.newPassword);
+          this.fire('toast', {
+            text: 'Password for account ' + this.email + ' has been changed'
+          });
+        },
+        resetPasswordHandler: function(e) {
+          this.$.firebaseLogin.sendPasswordResetEmail(this.email);
+          this.fire('toast', {
+            text: 'Reset password requset sent to ' + this.email
+          });
+        },
+
+        checkstatus: function(statusKnown, user) {
+          // console.log(statusKnown);
+          // console.log(user, statusKnown);
+          if (statusKnown && user) {
+
+            // console.log('logged in');
+            this.loggedin = true;
+            this.wait = false;
+            return true;
+          }
+          if (statusKnown) {
+
+            // console.log('NOT logged in');
+            this.loggedin = false;
+            this.wait = false;
+            return false;
+          }
+          // console.log('Unknown (checking status...)');
+          this.loggedin = false;
+          this.wait = true;
+          // return 'Unknown (checking status...)';
+        }
+
+
+      });
+    })();
+  </script>
+</dom-module>

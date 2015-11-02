@@ -1,0 +1,288 @@
+<dom-module id="page-product-list">
+  <template>
+
+    <style is="custom-style" media="screen">
+      .grid-layout {
+        padding-top: 16px;
+        display: -ms-inline-flexbox;
+        display: -webkit-inline-flex;
+        display: inline-flex;
+        -ms-flex-wrap: wrap;
+        -webkit-flex-wrap: wrap;
+        flex-wrap: wrap;
+        -ms-flex-align: start;
+        -webkit-align-items: flex-start;
+        align-items: flex-start;
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+        -ms-flex-direction: row;
+        -webkit-flex-direction: row;
+        flex-direction: row;
+        -ms-flex-align: center;
+        -webkit-align-items: center;
+        align-items: center;
+        -ms-flex-pack: center;
+        -webkit-justify-content: center;
+        justify-content: center;
+      }
+
+      .grid-cell {
+        margin: 8px;
+        width: calc(100vh*.5);
+      }
+
+      @media all and (min-width: 448px) {
+        .grid-cell {
+          width: 208px;
+          /*margin: 0 8px;*/
+        }
+      }
+      /*@media all and (min-width: 640px) {
+        .grid-cell {
+          width: 200px;
+          margin: 8px;
+        }
+      }*/
+      /*@media all and (min-width: 1184px) {
+        .grid-cell {
+          margin: 8px 16px;
+        }
+      }*/
+    </style>
+
+    <firebase-collection id="products" location="https://charlesiesbeta.firebaseio.com/products" data="{{products}}" order-by-child="[[_orderByChild]]" equal-to="[[_equalTo]]" limit-to-first="[[queryLimit]]"></firebase-collection>
+    <!-- <catalog-data products="[[products]]"></catalog-data> -->
+    <!-- <iron-ajax id="firebaseProducts" params="{{_params()}}" url="https://charlesiesbeta.firebaseio.com/products.json" handle-as="json" loading="{{loading}}" last-response="{{_products}}" auto></iron-ajax> -->
+
+    <div id="grid" class="grid-layout">
+
+      <paper-spinner active="true"></paper-spinner>
+
+      <template is="dom-repeat" items="[[products]]">
+        <product-card product="{{item}}" class="grid-cell"></product-card>
+      </template>
+
+    </div>
+
+  </template>
+
+  <script>
+    (function() {
+
+      Polymer({
+        is: 'page-product-list',
+        enableCustomStyleProperties: true,
+        properties: {
+          router: Object,
+          // Query Parameters
+          search: {
+            type: String,
+            notify: true,
+            value: ''
+          },
+          category: {
+            type: String,
+            notify: true,
+            value: null
+          },
+          products: {
+            type: Array,
+          },
+          tagList: {
+            type: Array,
+            computed: 'arrayParam(tag)',
+            value: function() {
+              return [];
+            }
+          },
+          queryLimit: {
+            type: Number,
+            notify: true,
+            // value: 12
+          },
+          _orderByChild: {
+            type: String,
+            notify: true,
+            value: 'categoryByName'
+          },
+
+          _equalTo: {
+            type: String,
+            notify: true,
+            computed: '_computeEqualTo(category)'
+          }
+
+        },
+        observers: [
+          // 'updateURL(q,package,tag,view,packageid)',
+          // 'updateProducts(_products)',
+          // 'updateMeta(packagename)'
+        ],
+        listeners: {
+          'update-params': '_handleParamsUpdate',
+          // 'page-fetch-more': '_fetchMore'
+        },
+
+        _productTap: function(e) {
+          console.log(e);
+        },
+
+        _fetchMore: function(e) {
+          this.queryLimit = this.queryLimit + 12;
+        },
+
+        attached: function() {
+          // this.updateMeta();
+          // this.updateSearch();
+        },
+
+        _params: function() {
+          var p = {};
+          p.orderBy = '\"priorty\"';
+          p.limitToFirst = 8;
+          // console.log(p);
+          return p;
+        },
+
+        updateProducts: function(els) {
+
+          // ________________________________________________________
+          // object list to array
+          // this.products = Object.keys(els).map(function(key) {
+          //   return els[key];
+          // });
+          // els = null;
+          // ________________________________________________________
+
+
+
+          // ________________________________________________________
+          // import products from bigcartel
+          // var ref = new Firebase("https://charlesiesbeta.firebaseio.com/products");
+          // for (var i = 0; i < els.length; i++) {
+          //   ref.push(els[i]);
+          // }
+          // ________________________________________________________
+
+
+
+          // ________________________________________________________
+          // Image relations with products by key
+          // var ref = new Firebase("https://charlesiesbeta.firebaseio.com/products");
+          // ref.on('value', function(p) {
+          // console.log(p.val());
+          // var products = p.val();
+          //
+          // p.forEach(function(childSnapshot) {
+          // key will be "fred" the first time and "barney" the second time
+          // var key = childSnapshot.key();
+          // childData will be the actual contents of the child
+          // var childData = childSnapshot.val();
+          // var images = childData.images;
+          // console.log(childData.images[0].secure_url);
+          // var imagesRef = new Firebase("https://charlesiesbeta.firebaseio.com/images");
+          //   var out = {
+          //     rel: key,
+          //     images: []
+          //   };
+          //   for (var i = 0; i < images.length; i++) {
+          //     out.images.push(images[i].secure_url);
+          //   }
+          //   // console.log(out);
+          //   imagesRef.push(out);
+          //
+          // });
+
+          // });
+
+          // ________________________________________________________
+
+        },
+
+        _computeEqualTo: function(e) {
+          console.log('_computeEqualTo: ', e);
+          return e;
+
+        },
+
+        _parseQueryString: function() {
+          var query = window.location.search.substring(1);
+          var params = query.split('&');
+          var results = [];
+          for (var i = 0; i < params.length; i++) {
+            var pair = params[i].split('=');
+            results[pair[0]] = pair[1];
+          }
+          return results;
+        },
+        _buildQueryString: function() {
+          var out = [];
+          if (this.q && this.q.length) out.push("q=" + this.q);
+          if (this.tag && this.tag.length) out.push("tag=" + this.tag);
+          // if (this.getPackage && this.getPackage.length) out.push("package=" + this.package);
+
+          return out.join("&");
+        },
+        _handleParamsUpdate: function(_, params) {
+          for (var key in params) {
+            this[key] = params[key];
+          }
+        },
+
+        updateSearch: function() {
+          var params = this._parseQueryString();
+          if (params && params.q) {
+            this.async(function() {
+              this.$.query.focus();
+            });
+          }
+        },
+
+        updateMeta: function(name) {
+          console.log('updateMeta', name);
+
+          // this.customStyle['--my-package-color'] = getPackage.color;
+          // this.customStyle['--my-package-image'] = "url(" + getPackage.image + ")";
+          // console.log(this.customStyle['--my-package-image']);
+          // this.updateStyles();
+
+        },
+
+        arrayParam: function(param) {
+          if (!param || !param.length) {
+            return [];
+          }
+          return param.toString().split(',');
+        },
+        cartOpen: function(e) {
+          this.fire('cart-open');
+        },
+
+        _detectIEVersion: function() {
+          // via http://stackoverflow.com/questions/17907445/how-to-detect-ie11
+          var rv = -1;
+          var ua, re;
+          if (navigator.appName === 'Microsoft Internet Explorer') {
+            ua = navigator.userAgent;
+            re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+            if (re.exec(ua) !== null)
+              rv = parseFloat(RegExp.$1);
+          } else if (navigator.appName === 'Netscape') {
+            ua = navigator.userAgent;
+            re = new RegExp("Trident/.*rv:([0-9]{1,}[\.0-9]{0,})");
+            if (re.exec(ua) !== null)
+              rv = parseFloat(RegExp.$1);
+          }
+          return rv;
+        },
+
+        _isEqual: function(a, b) {
+          // console.log('_isEqual', a, b);
+          return a === b;
+        }
+      });
+    })();
+  </script>
+
+</dom-module>

@@ -1,0 +1,44 @@
+<dom-module id="catalog-product">
+  <template>
+    <!-- <catalog-data product-map="{{_products}}"></catalog-data> -->
+    <!-- <firebase-document id="prooduct" location$="[[_productLocation(id)]]" data="{{_product}}"></firebase-document> -->
+  </template>
+  <script>
+    Polymer({
+      is: 'catalog-product',
+      properties: {
+        id: {
+          type: String,
+          notify: true
+        },
+        _product: Object,
+        data: {
+          type: Object,
+          notify: true,
+          computed: 'getData(_product)'
+        }
+      },
+
+      observers: [
+        '_productid(id)',
+      ],
+
+      _productid: function(productid, getPackage) {
+        // console.log('_productid',productid);
+      },
+
+      _productLocation: function(id) {
+        // console.log('_productsLocation', "https://charlesiesbeta.firebaseio.com/products/" + id);
+        return "https://charlesiesbeta.firebaseio.com/products/" + id;
+      },
+
+      getData: function(_product) {
+        // console.log('getData', _product);
+        // if (!_products) return;
+        return _product;
+
+      }
+    });
+  </script>
+
+</dom-module>

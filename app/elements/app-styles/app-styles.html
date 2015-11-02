@@ -16,35 +16,43 @@
     --primary-background-color: #FFFFFF;
     /*text/icons*/
     --primary-text-color: var(--paper-grey-900);
-    --secondary-text-color: #FFFFFF;
+    --secondary-text-color: var(--paper-grey-900);
     --disabled-text-color: #bdbdbd;
     --divider-color: #B6B6B6;
+    --app-logo-color: #FFFFFF;
     /* Components */
-    /* paper-drawer-panel */
-    --drawer-border-color: 1px solid #ccc;
-    --drawer-toolbar-border-color: 1px solid rgba(0, 0, 0, 0.22);
     /* TABS */
     --paper-tabs-selection-bar-color: #fff;
+    /* Main Toolbar */
     --app-toolbar: {
       color: var(--primary-text-color);
       background: var(--toolbar-menu-color);
       border-bottom: var(--drawer-toolbar-border-color);
+      box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.16);
     }
     --app-toolbar-link: {
       color: var(--secondary-text-color);
     }
-
     paper-item {
       --paper-item: {
         cursor: pointer;
-      };
+      }
     }
-
+    --paper-menu-focused-item-after {
+      background: transparent;
+    }
+    --paper-badge-background: white;
+    --paper-badge-text-color: var(--text-primary-color);
+    --paper-button-ink-color: var(--accent-color);
   }
 
-  body,a {
-    color: var(--text-primary-color);
+  #menuPanel {
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
+  }
 
+  body,
+  a {
+    color: var(--text-primary-color);
   }
 
   body {
