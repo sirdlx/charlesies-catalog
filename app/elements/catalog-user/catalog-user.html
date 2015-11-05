@@ -4,9 +4,68 @@
     on-password-reset="userSuccessHandler" on-user-removed="userSuccessHandler"></firebase-auth>
     <!-- <firebase-document id="firebaseFavorites" location$="{{_favLocation(user)}}" data="{{_favs}}"></firebase-document> -->
 
+    <firebase-collection id="fbCard" location$="[[_computeCardLocation(user, loggedin)]]" data="{{card}}" order-by-child="createdAt"></firebase-collection>
+    <firebase-collection id="fbAddress" location$="[[_computeAddressLocation(user, loggedin)]]" data="{{address}}" order-by-child="createdAt"></firebase-collection>
+
   </template>
   <script>
     (function() {
+
+      var _instances = [];
+
+      var _add = function(type, item) {
+        var check = _instances[0];
+        var insertAt = 0;
+
+        // for (var i = 0; i < check[type].length; i++) {
+        //   // console.log(check.items[i].__firebaseKey__);
+        //
+        // }
+
+        _instances.forEach(function(instance) {
+          if (!instance[type]) {
+            return;
+          }
+          instance.splice(type, insertAt, 0, item);
+
+        });
+        // _updateAll();
+        return item;
+      };
+
+      var _remove = function(type, item_index) {
+        var check = _instances[0];
+        var removeAt = item_index;
+        // for (var i = 0; i < check[type].length; i++) {
+        //   if (check[type][i] === item || check[type][i].name === item.name) {
+        //     removeAt = i;
+        //   }
+        // }
+
+        if (removeAt >= 0) {
+          _instances.forEach(function(instance) {
+            instance.splice(type, removeAt, 1);
+          });
+        } else {
+          return false;
+        }
+
+        _updateAll();
+        return true;
+      };
+
+
+      var _updateAll = function() {
+        _instances.forEach(function(instance) {
+          instance.address = _instances[0].address;
+        });
+        _instances.forEach(function(instance) {
+          instance.card = _instances[0].card;
+        });
+      };
+
+
+
       Polymer({
         is: 'catalog-user',
         properties: {
@@ -49,11 +108,40 @@
             notify: true
           },
 
+          _card: {
+            type: Array,
+            notify: true,
+          },
+
+          card: {
+            type: Array,
+            notify: true,
+          },
+
+          _address: {
+            type: Object,
+            notify: true,
+          },
+
+          address: {
+            type: Array,
+            notify: true,
+          },
+
         },
         observers: [
           '_computeUser(_user)',
           'checkstatus(statusKnown, _user)',
+          // 'check(user)',
         ],
+
+        created: function() {
+          _instances.push(this);
+        },
+
+        check: function(user) {
+          console.log(user);
+        },
         // Favorites
 
         _favLocation: function(user) {
@@ -79,8 +167,10 @@
 
         _computeUser: function(user) {
           // console.log(user);
-          if (!user) return;
-          // console.log(user);
+          if (!user) {
+            this.user = {};
+            return;
+          };
 
           if (typeof user.google === 'object') {
             user.profileImage = user.google.profileImageURL;
@@ -107,7 +197,7 @@
         login: function(provider, email, password) {
           console.log(provider, email, password);
           // this.wait = true;
-          var params;// = {email: email, password: password};
+          var params; // = {email: email, password: password};
           // try {
           //   params = JSON.parse(this.params);
           // } catch (e) {
@@ -171,7 +261,6 @@
             return true;
           }
           if (statusKnown) {
-
             // console.log('NOT logged in');
             this.loggedin = false;
             this.wait = false;
@@ -181,7 +270,58 @@
           this.loggedin = false;
           this.wait = true;
           // return 'Unknown (checking status...)';
-        }
+        },
+
+        _computeCardLocation: function(user, loggedin) {
+          if (loggedin) {
+            return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid + '/cards';
+          }
+        },
+
+        _computeAddressLocation: function(user, loggedin) {
+          // console.log(user.uid, loggedin);
+          if (loggedin) {
+            return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid + '/address';
+          }
+        },
+
+
+        // Save Address
+
+        save_address: function(newAddress) {
+          // If logged in, add to database
+          if (!this.loggedin) {
+            _add('address', newAddress);
+            return;
+          }
+
+          var key = this.$.fbAddress.add(newAddress).key();
+          this.fire('toast', {
+            text: 'New address saved!'
+          });
+          // console.log(this.$.fbAddress.add(this.newAddress).key());
+        },
+
+        // Save Card
+
+        save_card: function function_name(newCard) {
+          // If logged in, add to database
+          if (!this.loggedin) {
+            // If guest, add to guest card array
+            _add('card', newCard);
+            return;
+          }
+
+          // console.log('loggedin, saved to db');
+          var key = this.$.fbCard.add(newCard).key();
+          this.fire('toast', {
+            text: 'New card saved!'
+          });
+          // console.log(this.$.fbAddress.add(this.newAddress).key());
+
+        },
+
+
 
 
       });

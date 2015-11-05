@@ -40,17 +40,18 @@
         font-size: 20px;
       }
 
-      .checkout_actions paper-button {
+      .actions paper-button {
         width: 100%;
+        margin-bottom: 16px;
       }
 
-      .checkout_actions .edit_cart_button {
+      .actions .step_left {
         background-color: white;
         color: #848484;
         --paper-button-ink-color: #f44336;
       }
 
-      .checkout_actions .order_button {
+      .actions .step_right {
         background-color: var(--paper-green-a700);
         color: white;
         --paper-button-ink-color: white;
@@ -58,8 +59,7 @@
 
       .address-input,
       .field,
-      .shipping_menu,
-      #addForm {
+      .shipping_menu {
         width: 100%;
       }
 
@@ -70,71 +70,69 @@
     </style>
 
     <catalog-cart id="catalogCart" items="{{cart}}" count={{count}}></catalog-cart>
-    <catalog-user id="catalogUser" loggedin="{{loggedin}}" wait="{{wait}}" user="{{_user}}"></catalog-user>
-
-    <firebase-collection id="fbCard" location$="[[_computeCardLoccation(user, loggedin)]]" data="{{card}}"></firebase-collection>
-    <firebase-collection id="fbAddress" location$="[[_computeAddressLocation(user, loggedin)]]" data="{{address}}"></firebase-collection>
+    <catalog-user id="catalogUser" loggedin="{{loggedin}}" wait="{{wait}}" user="{{_user}}" card="{{card}}" address="{{address}}"></catalog-user>
+    <catalog-data id="catalogData"></catalog-data>
 
     <!-- <h2>Checkout</h2>
     <paper-slider disabledx id="checkoutSteps" pin snaps max="2" step="1" value="{{checkoutProgress}}"></paper-slider> -->
 
     <div class="container">
 
-
       <paper-material class="checkout-layout layout vertical">
-        <form class="checkout-form" is="iron-form" id="checkoutForm" method="post" action="/" on-iron-form-submit="_submitCheckoutForm">
 
-          <div class="section">
-            <h3 class="header">Pay With</h3>
-            <paper-dropdown-menu label="Select Card" no-label-float required>
-              <paper-menu id="selectedCardMenu" class="dropdown-content" selected="{{selectedCard}}">
-                <template is="dom-repeat" items="{{card}}">
-                  <paper-item>
-                    <paper-item-body>
-                      <!-- <div>{{item.cc_end}}</div> -->
-                      <div>
-                        <iron-icon class="cc_type" src$="[[_computeTypeIcon(item.cc_type)]]"></iron-icon>
-                        <span>{{item.cc_end}}</span>
-                      </div>
-                    </paper-item-body>
-                  </paper-item>
-                </template>
-                <paper-item>Add New Card</paper-item>
-              </paper-menu>
-            </paper-dropdown-menu>
-          </div>
-
-          <div class="section">
-            <h3 class="header">Ship to</h3>
-            <paper-dropdown-menu label="Select Address" no-label-float class="field" required>
-              <paper-menu id="selectedAddressMenu" class="dropdown-content" selected="{{selectedAddress}}">
-                <template is="dom-repeat" items="{{address}}">
-                  <paper-item>
-                    <paper-item-body two-line>
-                      <div>{{item.add_street}}</div>
-                      <div secondary>{{_computeAddressFormatted(item)}}</div>
-                    </paper-item-body>
-                  </paper-item>
-                </template>
-                <paper-item>Add New Address</paper-item>
-              </paper-menu>
-            </paper-dropdown-menu>
-          </div>
-
-
-          <div class="price_summary layout vertical">
-
-            <h3 class="price_summary_header">Price summary</h3>
-
-            <div class="section layout horizontal">
-              <div class="label">Subtotal</div>
-              <span class="flex"></span>
-              <div class="value">
-                <span>[[cartSubtotal]]</span>
-              </div>
+        <iron-pages selected="{{checkoutProgress}}">
+          <form class="checkout-form" is="iron-form" id="checkoutForm" method="post" action="/" on-iron-form-submit="_submitCheckoutForm">
+            <div class="section">
+              <h3 class="header">Pay With</h3>
+              <paper-dropdown-menu label="Select Card" no-label-float required>
+                <paper-menu id="selectedCardMenu" class="dropdown-content" selected="{{selectedCard}}">
+                  <template is="dom-repeat" items="{{card}}">
+                    <paper-item>
+                      <paper-item-body>
+                        <!-- <div>{{item.cc_end}}</div> -->
+                        <div>
+                          <iron-icon class="cc_type" src$="[[_computeTypeIcon(item.cc_type)]]"></iron-icon>
+                          <span>{{item.cc_end}}</span>
+                        </div>
+                      </paper-item-body>
+                    </paper-item>
+                  </template>
+                  <paper-item>Add New Card</paper-item>
+                </paper-menu>
+              </paper-dropdown-menu>
             </div>
 
-            <!-- <div class="section layout horizontal">
+            <div class="section">
+              <h3 class="header">Ship to</h3>
+              <paper-dropdown-menu label="Select Address" no-label-float class="field" required>
+                <paper-menu id="selectedAddressMenu" class="dropdown-content" selected="{{selectedAddress}}">
+                  <template is="dom-repeat" items="{{address}}">
+                    <paper-item>
+                      <paper-item-body>
+                        <div label>
+                          <span>{{_computeAddressFormatted(item)}}</span>
+                        </div>
+                      </paper-item-body>
+                    </paper-item>
+                  </template>
+                  <paper-item>Add New Address</paper-item>
+                </paper-menu>
+              </paper-dropdown-menu>
+            </div>
+
+            <div class="price_summary layout vertical">
+
+              <h3 class="price_summary_header">Price summary</h3>
+
+              <div class="section layout horizontal">
+                <div class="label">Subtotal</div>
+                <span class="flex"></span>
+                <div class="value">
+                  <span>[[cartSubtotal]]</span>
+                </div>
+              </div>
+
+              <!-- <div class="section layout horizontal">
             <div class="label">Tax</div>
             <span class="flex"></span>
             <div class="value">
@@ -142,47 +140,76 @@
             </div>
           </div> -->
 
-            <div class="section">
-              <!-- <div class="label">Shipping</div> -->
-              <paper-dropdown-menu class="shipping_menu" label="Select Shipping Method" no-label-float>
-                <paper-menu class="dropdown-content" selected="{{selectedShippingOption}}">
-                  <template is="dom-repeat" items="{{shippingOptions}}">
-                    <paper-item>
-                      <span>{{item.title}}</span>
-                    </paper-item>
-                  </template>
-                  <paper-item>Ground (3-5 business days) $0.00</paper-item>
-                  <paper-item>Two Day (2 business days) $13.99</paper-item>
-                  <paper-item>Next Day (1 business day) $20.99</paper-item>
-                </paper-menu>
-              </paper-dropdown-menu>
-            </div>
-
-
-            <div class="section layout horizontal">
-              <div class="label">Total</div>
-              <span class="flex"></span>
-              <div class="cart_total_text">
-                <span>[[cartTotal]]</span>
+              <div class="section">
+                <paper-dropdown-menu class="shipping_menu" label="Select Shipping Method" no-label-float>
+                  <paper-menu id="selectedShippingOptionMenu" class="dropdown-content" selected="{{selectedShippingOption}}">
+                    <template is="dom-repeat" items="{{shippingOptions}}">
+                      <paper-item>
+                        <span>{{item.label}}</span>
+                      </paper-item>
+                    </template>
+                  </paper-menu>
+                </paper-dropdown-menu>
               </div>
+
+              <div class="section layout horizontal">
+                <div class="label">Total</div>
+                <span class="flex"></span>
+                <div class="cart_total_text">
+                  <span>[[cartTotal]]</span>
+                </div>
+              </div>
+
             </div>
+          </form>
 
+
+          <div class="confirm-dialog layout vertical center-center">
+            <p>
+              <strong>
+                <span>[[count]]</span>
+              </strong>
+              <span> Items(s) totaling </span>
+              <strong>
+                <span>[[cartTotal]]</span>
+              </strong>
+              <br>
+              <span> being shipped to </span>
+              <br>
+              <strong>
+                <span>[[_computeSelectedAddressText(selectedAddress)]]</span>
+              </strong>
+              <br>
+              <span> in </span>
+              <strong>
+                <span>[[_computeSelectedShippingOptionText(selectedShippingOption)]]</span>
+              </strong>
+              <br>
+              <span>paid with this </span>
+              <strong>
+                <span>[[selectedCardText1]]</span>
+              </strong>
+              <span> ending in </span>
+              <strong>
+                <span>[[selectedCardText2]]</span>
+              </strong>
+            </p>
           </div>
 
-          <div class="checkout_actions section layout vertical center-center">
-            <paper-button raised class="edit_cart_button section" on-tap="_navToCart">Edit Cart</paper-button>
-            <paper-button class="order_button" on-tap="_clickProcess">Place Order</paper-button>
+          <div class="finished-dialog layout vertical center-center">
+            <p>Thank the plug for purchase</p>
           </div>
 
-          <!-- <div class="buttons">
-          <paper-button on-tap="_clickBack">{{stepLeftText}}</paper-button>
-          <paper-button autofocus on-tap="_clickNext">{{stepRightText}}</paper-button>
-        </div> -->
-        </form>
+        </iron-pages>
+
+        <div class="actions section layout vertical center-center">
+          <paper-button class="step_left" raised on-tap="_clickBack" hidden="{{hideBackButton}}">{{stepLeftText}}</paper-button>
+          <paper-button class="step_right" autofocus on-tap="_clickNext">{{stepRightText}}</paper-button>
+        </div>
+
       </paper-material>
 
     </div>
-
 
   </template>
 
@@ -233,13 +260,13 @@
           stepRightText: {
             type: String,
             notify: true,
-            // computed: '_computeRightText(checkoutProgress)'
+            computed: '_computeRightText(checkoutProgress)'
           },
 
           stepLeftText: {
             type: String,
             notify: true,
-            // computed: '_computeLeftText(checkoutProgress)'
+            computed: '_computeLeftText(checkoutProgress)'
           },
 
           _user: {
@@ -253,40 +280,113 @@
             computed: '_computeUser(loggedin, wait)'
           },
 
+          card: {
+            type: Array,
+            notify: true,
+          },
+
           address: {
             type: Array,
             notify: true,
-            // computed: '_computeUserAddress(user)'
           },
 
           selectedShippingOption: {
-            type: String,
+            type: Number,
             notify: true,
-            value: 0
           },
 
+          shippingOptions: {
+            type: Array,
+            notify: true,
+            value: [{
+              'label': 'Ground (3-5 business days) $0.00',
+              'price': 00
+            }, {
+              'label': 'Two Day (2 business days) $13.99',
+              'price': 13.99
+            }, {
+              'label': 'Next Day (1 business day) $20.99',
+              'price': 20.99
+            }]
+          },
+
+          hideBackButton: {
+            type: Boolean,
+            notify: true,
+          },
+
+          selectedCard: {
+            type: String,
+            notify: true,
+          },
+
+          selectedCardText1: {
+            type: String,
+            notify: true,
+          },
+          selectedCardText2: {
+            type: String,
+            notify: true,
+          },
+
+          selectedAddress: {
+            type: String,
+            notify: true,
+          },
+
+          selectedShipping: {
+            type: Object,
+            notify: true,
+          },
+          order: {
+            type: Object,
+            notify: true,
+            computed: '_computeOrder(selectedAddress, selectedCard, selectedShippingOption)'
+          },
 
         },
 
         observers: [
           '_cardChange(selectedCard)',
-          '_addressChange(selectedAddress)'
+          '_addressChange(selectedAddress)',
         ],
 
+        attached: function(argument) {
+          this.selectedShippingOption = 0;
+        },
+
+        _computeSelectedShippingOptionText: function(selectedShippingOption) {
+          if (selectedShippingOption === 0) {
+            return "3-5 business days";
+          } else if (selectedShippingOption === 1) {
+            return "2 business days";
+          } else if (selectedShippingOption === 2) {
+            return "1 business day";
+          }
+        },
 
         _computeAddressFormatted: function(item) {
           // console.log(item.add_city + ', ' + item.add_state + ', ' + item.add_zip);
-          return item.add_city + ', ' + item.add_state + ', ' + item.add_zip;
+          return item.add_street + ', ' + item.add_city + ', ' + item.add_state + ', ' + item.add_zip;
         },
 
-        _navToCart: function(argument) {
-          this.router.go('/cart');
-        },
+        _computeSelectedAddressText: function(num) {
+          // console.log(item.add_city + ', ' + item.add_state + ', ' + item.add_zip);
 
+          if (!this.address) {
+            return;
+          }
+
+          if (!this.address[num]) {
+            return;
+          }
+
+          var item = this.address[num];
+          return item.add_street + ', ' + item.add_city + ', ' + item.add_state + ', ' + item.add_zip;
+        },
 
         _computeTypeIcon: function(type) {
-          return 'bower_components/gold-cc-input/images/' + type + '.png'
-
+          return 'bower_components/gold-cc-input/images/' + type + '.png';
         },
 
         _cardChange: function(selectedCard) {
@@ -295,6 +395,14 @@
           if (selectedCard === this.$.selectedCardMenu.items.length - 1) {
             // Show new card dialog
             this.fire('open-card-dialog');
+            this.debounce('doSomething', function() {
+              this.$.selectedCardMenu.selected = -1;
+            }, 0);
+          }
+
+          if (typeof this.card[selectedCard] === 'object') {
+            this.selectedCardText1 = this.card[selectedCard].cc_type;
+            this.selectedCardText2 = this.card[selectedCard].cc_end;
           }
 
         },
@@ -303,10 +411,13 @@
           // console.log(this.$.selectedAddressMenu.items.length-1);
           if (selectedAddress === this.$.selectedAddressMenu.items.length - 1) {
             // Show new card dialog
-            // this.$.selectedAddressMenu.selected=-1;
             this.fire('open-address-dialog');
-          }
+            this.debounce('doSomething', function() {
+              this.$.selectedAddressMenu.selected = -1;
+            }, 0);
 
+            return;
+          }
         },
 
         _computeCartTotalNumber: function(cart) {
@@ -327,13 +438,11 @@
         _computeCartTotal: function(cartTotalNumber, selectedShippingOption) {
           // console.log(cart);
 
-          var _shippingOptions = [0, 13.99, 20.99];
+          // console.log(this.shippingOptions[selectedShippingOption]);
 
-          // console.log(_shippingOptions[selectedShippingOption]);
+          var absShipping = Number(this.shippingOptions[selectedShippingOption].price);
 
-          var absShipping = Number(_shippingOptions[selectedShippingOption]);
-
-          var absTotal = +cartTotalNumber + +_shippingOptions[selectedShippingOption];
+          var absTotal = +cartTotalNumber + this.shippingOptions[selectedShippingOption].price;
 
           // console.log(+cartTotalNumber+ + absShipping);
 
@@ -358,23 +467,91 @@
           };
         },
 
-        _computeCardLoccation: function(user, loggedin) {
-          // console.log(user.uid, loggedin);
-          if (loggedin) {
-            return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid + '/cards';
-          } else {
-            console.log(user);
-          }
+
+        _submitCheckout: function() {
+          // console.log(this.order);
+          this.$.catalogData.checkout(this.order);
         },
 
-        _computeAddressLocation: function(user, loggedin) {
-          // console.log(user.uid, loggedin);
-          if (loggedin) {
-            return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid + '/address';
-          } else {
-            console.log(user);
-          }
+        _computeOrder: function(selectedAddress, selectedCard, selectedShippingOption) {
+          var add = this.address[selectedAddress];
+          var card = this.card[selectedCard];
+          var ship = this.shippingOptions[selectedShippingOption];
+
+          // console.log(JSON.stringify({address: add, card: card, shipping: ship}));
+          return JSON.stringify({
+            address: add,
+            card: card,
+            shipping: ship,
+            cart: this.cart,
+            total: this.cartTotalNumber,
+            user: this.user
+          });
+
         },
+
+        _clickBack: function() {
+          if (this.checkoutProgress === 0) {
+            this.router.go('/cart');
+            return;
+          }
+          this.checkoutProgress--;
+        },
+
+        _clickNext: function() {
+
+          if (this.checkoutProgress === 0) {
+            if (!this.$.checkoutForm.validate()) {
+              this.fire('toast', {
+                text: "checkout isn't complete, please try again"
+              });
+              console.error("checkout isn't complete, please try again");
+              return;
+            }
+          }
+
+          if (this.checkoutProgress === 1) {
+            this._submitCheckout();
+            return;
+          }
+
+          if (this.checkoutProgress === 3) {
+            this.router.go('/');
+            return;
+          }
+
+          this.checkoutProgress++;
+        },
+
+        _computeLeftText: function(checkoutProgress) {
+
+          // console.log(checkoutProgress);
+
+          if (checkoutProgress < 2) {
+            this.hideBackButton = false;
+            return 'Cancel';
+          }
+          if (checkoutProgress === 2) {
+            this.hideBackButton = true;
+            return 'Finish';
+          }
+
+          return 'Edit Cart';
+        },
+
+        _computeRightText: function(checkoutProgress) {
+
+          if (checkoutProgress === 1) {
+            return 'Confirm';
+          }
+          if (checkoutProgress === 2) {
+            return 'Finish';
+          }
+
+          return 'Continue';
+        },
+
+
 
 
         // END

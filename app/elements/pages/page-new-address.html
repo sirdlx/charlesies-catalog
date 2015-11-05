@@ -13,10 +13,10 @@
         padding: 16px;
         background-color: white;
         margin: 64px 16px 16px;
-        width: 320px;
+        width: 304px;
       }
 
-      .new-address-form{
+      .new-address-form {
         margin-bottom: 32px;
       }
 
@@ -25,14 +25,19 @@
         color: white;
         --paper-button-ink-color: white;
       }
+      .closeButton{
+        position: absolute;
+        top: 16px;
+        right: 16px;
+      }
     </style>
 
-    <catalog-user id="catalogUser" loggedin="{{loggedin}}" wait="{{wait}}" user="{{user}}"></catalog-user>
-    <firebase-collection id="fbAddress" location$="[[_computeAddressLoccation(user, loggedin)]]" data="{{address}}"></firebase-collection>
+    <catalog-user id="catalogUser" loggedin="{{loggedin}}" wait="{{wait}}" user="{{user}}" address="{{address}}"></catalog-user>
     <google-maps-api id="maps" libraries="places" on-api-load="on_api_load"></google-maps-api>
 
 
     <paper-material class="new_address_dialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
+      <paper-icon-button class="closeButton" icon="close" on-tap="cancel"></paper-icon-button>
 
       <h2>Add Address</h2>
 
@@ -91,24 +96,18 @@
 
         },
 
-        _computeAddressLoccation: function(user, loggedin) {
-          // console.log(user.uid, loggedin);
-          if (loggedin) {
-            return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid + '/address';
-          } else {
-            // console.log(user);
-          }
-        },
 
-        cancel: function function_name(argument) {
+        cancel: function function_name(_replace) {
           this.add_street = "";
           this.add_city = "";
           this.add_state = "";
           this.add_zip = "";
           this.add_suite = "";
           // console.log(window.location.pathname);
-          // document.querySelector('app-router').go(window.location.pathname, {replace: true});
-          window.history.back(-1);
+          var replace = _replace || false;
+          // console.log(replace);
+          document.querySelector('app-router').go(window.location.pathname+"?selectedAddress=0", {replace: replace});
+          // window.history.back(-1);
         },
 
         _saveAddress: function() {
@@ -131,22 +130,12 @@
           this.newAddress.add_zip = this.add_zip;
           this.newAddress.suite = this.suite || '';
 
-          // If logged in, add to database
-          if (this.loggedin) {
-            // console.log('loggedin, saved to db');
-            var key = this.$.fbAddress.add(this.newAddress).key();
-            this.fire('toast', {
-              text: 'New address saved!'
-            });
-            // console.log(this.$.fbAddress.add(this.newAddress).key());
-          }
-          // If guest, add to guest address array
-          if (typeof this.user.guest === 'object') {
-            this.user.address.push(this.newAddress);
-          }
+
+          this.$.catalogUser.save_address(this.newAddress);
+
           // document.querySelector('app-router').go(window.location.pathname, {replace: true});
           // document.querySelector('app-router').go(window.location.pathname, {replace: true});
-          this.cancel();
+          this.cancel(true);
         },
 
         on_api_load: function() {

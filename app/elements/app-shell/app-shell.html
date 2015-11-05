@@ -111,7 +111,7 @@
 
         <app-router id="router" class="flex" main mode="pushstate" on-activate-route-end="_routeEnd" on-state-change="_routerStateChange">
           <!-- <app-route path="/" element="page-home" bindRouter></app-route> -->
-          <app-route path="/" element="page-checkout" bindRouter></app-route>
+          <app-route path="/" element="page-checkout" bindRouter onUrlChange="updateModel"></app-route>
           <app-route path="/category/:category" element="page-product-list" bindRouter onUrlChange="updateModel"></app-route>
           <app-route path="/products/:itemid" element="page-product" bindRouter onUrlChange="updateModel"></app-route>
           <app-route path="/cart" element="page-cart" bindRouter onUrlChange="updateModel"></app-route>

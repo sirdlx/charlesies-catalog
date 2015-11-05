@@ -32,7 +32,6 @@
   "homepage": "https://github.com/devdlx/charlesies-catalog",
   "private": true,
   "devDependencies": {
-
     "JSONStream": "^0.10.0",
     "apache-server-configs": "^2.7.1",
     "async": "^0.9.0",
@@ -90,8 +89,8 @@
     "through2-map": "^1.4.0",
     "through2-reduce": "^0.3.0",
     "web-component-tester": "^2.2.3",
-    "writestreamp": "^0.1.0"
-
+    "writestreamp": "^0.1.0",
+    "firebase-tools": "^1.1.6"
   },
   "engines": {
     "node": ">=0.10.0"

@@ -1,34 +1,33 @@
 <dom-module id="page-new-card">
   <template>
     <style is="custom-style">
-    :host {
-      background-color: white;
-      display: block;
-      @apply(--layout-vertical);
-      @apply(--layout-center);
-      background: rgba(0, 0, 0, 0.7);
-    }
+      :host {
+        background-color: white;
+        display: block;
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        background: rgba(0, 0, 0, 0.7);
+      }
 
-    .new-card-dialog {
-      padding: 16px;
-      background-color: white;
-      margin: 64px 16px 16px;
-      width: 320px;
-    }
+      .new-card-dialog {
+        padding: 16px;
+        background-color: white;
+        margin: 64px 16px 16px;
+        width: 304px;
+      }
 
-    .new-card-form{
-      margin-bottom: 32px;
-    }
+      .new-card-form {
+        margin-bottom: 32px;
+      }
 
-    .save_button {
-      background-color: var(--paper-green-a700);
-      color: white;
-      --paper-button-ink-color: white;
-    }
+      .save_button {
+        background-color: var(--paper-green-a700);
+        color: white;
+        --paper-button-ink-color: white;
+      }
     </style>
 
-    <catalog-user id="catalogUser" loggedin="{{loggedin}}" wait="{{wait}}" user="{{_user}}"></catalog-user>
-    <firebase-collection id="fbCard" location$="[[_computeCardLoccation(user, loggedin)]]" data="{{card}}"></firebase-collection>
+    <catalog-user id="catalogUser" loggedin="{{loggedin}}" wait="{{wait}}" user="{{user}}" card="{{card}}"></catalog-user>
 
     <paper-material class="new-card-dialog">
 
@@ -48,7 +47,6 @@
         <gold-zip-input id="cc_zip" value="{{cc_zip}}" required auto-validate></gold-zip-input>
 
       </form>
-
 
       <div class="buttons">
         <paper-button raised autofocus on-tap="cancel">Cancel</paper-button>
@@ -74,10 +72,9 @@
           user: {
             type: Object,
             notify: true,
-            computed: '_computeUser(loggedin, wait)'
           },
 
-          newCard:{
+          newCard: {
             type: Object,
             notify: true,
             value: {}
@@ -86,22 +83,28 @@
           cc_num: {
             type: String,
             notify: true,
+            value: '375150143565695'
           },
           cc_exp: {
             type: String,
             notify: true,
+            value: '10/30'
+
           },
           cc_cvc: {
             type: String,
             notify: true,
+            value:'1432'
           },
           cc_name: {
             type: String,
             notify: true,
+            value:'name on card'
           },
           cc_zip: {
             type: String,
             notify: true,
+            value: "43223"
           },
 
           cc_type: {
@@ -118,11 +121,11 @@
           this.cc_name = "";
           this.cc_zip = "";
           // console.log(window.location.pathname);
-          // document.querySelector('app-router').go(window.location.pathname, {replace: true});
-          window.history.back(-1);
+          document.querySelector('app-router').go(window.location.pathname+"?selectedCard=0", {replace: true});
+          // window.history.back(-1);
         },
 
-        _validCardForm:function (argument) {
+        _validCardForm: function(argument) {
           // console.dir(this.$.newCardForm.validate());
           return this.$.newCardForm.validate();
         },
@@ -141,58 +144,21 @@
           // Add card components
 
           this.newCard.cc_num = this.cc_num;
-          this.newCard.cc_exp = this.cc_exp ;
+          this.newCard.cc_exp = this.cc_exp;
           this.newCard.cc_cvc = this.cc_cvc;
           this.newCard.cc_name = this.cc_name;
           this.newCard.cc_zip = this.cc_zip;
           this.newCard.cc_type = this.cc_type;
           this.newCard.cc_end = this.cc_num.slice(-5);
-
-
-          // If logged in, add to database
-          if (this.loggedin) {
-            // console.log('loggedin, saved to db');
-            var key = this.$.fbCard.add(this.newCard).key();
-            this.fire('toast', {
-              text: 'New card saved!'
-            });
-            // console.log(this.$.fbAddress.add(this.newAddress).key());
-          }
-          // If guest, add to guest address array
-          if (typeof this.user.guest === 'object') {
-            this.user.card.push(this.newCard);
-          }
-          // document.querySelector('app-router').go(window.location.pathname, {replace: true});
-          // document.querySelector('app-router').go(window.location.pathname, {replace: true});
-          this.cancel();
-        },
-
-
-        _computeUser: function(loggedin, wait) {
-          if (wait) {
-            // console.log('waiting for user');
-            return;
-          }
-          if (loggedin) {
-            // console.log('user found');
-            return this._user;
-          }
-          // console.log('no user');
-          return {
-            guest: {
-              address: []
-            }
+          this.newCard.createdAt = {
+            ".sv": "timestamp"
           };
+
+          this.$.catalogUser.save_card(this.newCard);
+          this.cancel(true);
         },
 
-        _computeCardLoccation: function(user, loggedin) {
-          // console.log(user.uid, loggedin);
-          if (loggedin) {
-            return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid + '/cards';
-          } else {
-            console.log(user);
-          }
-        },
+
 
       });
     })();
