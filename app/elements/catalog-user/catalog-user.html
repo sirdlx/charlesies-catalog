@@ -3,10 +3,8 @@
     <firebase-auth id="firebaseLogin" user="{{_user}}" status-known="{{statusKnown}}" location="https://charlesiesbeta.firebaseio.com" provider="{{provider}}" on-error="errorHandler" on-user-created="userSuccessHandler" on-password-changed="userSuccessHandler"
     on-password-reset="userSuccessHandler" on-user-removed="userSuccessHandler"></firebase-auth>
     <!-- <firebase-document id="firebaseFavorites" location$="{{_favLocation(user)}}" data="{{_favs}}"></firebase-document> -->
-
     <firebase-collection id="fbCard" location$="[[_computeCardLocation(user, loggedin)]]" data="{{card}}" order-by-child="createdAt"></firebase-collection>
     <firebase-collection id="fbAddress" location$="[[_computeAddressLocation(user, loggedin)]]" data="{{address}}" order-by-child="createdAt"></firebase-collection>
-
   </template>
   <script>
     (function() {
@@ -54,7 +52,6 @@
         return true;
       };
 
-
       var _updateAll = function() {
         _instances.forEach(function(instance) {
           instance.address = _instances[0].address;
@@ -63,8 +60,6 @@
           instance.card = _instances[0].card;
         });
       };
-
-
 
       Polymer({
         is: 'catalog-user',
@@ -166,11 +161,16 @@
         // User
 
         _computeUser: function(user) {
-          // console.log(user);
+          // console.log('user', user);
+          // if (!user) {
+          //   this.user = {};
+          //   this.user.uid = 'guest_' + Date.now();
+          //   return;
+          // };
+
           if (!user) {
-            this.user = {};
             return;
-          };
+          }
 
           if (typeof user.google === 'object') {
             user.profileImage = user.google.profileImageURL;
@@ -191,33 +191,45 @@
             user.profileImage = user.password.profileImageURL;
             user.displayName = user.password.email;
           }
+
+          if (typeof user.anonymous === 'object') {
+            // user.profileImage = user.anonymous.profileImageURL;
+            // user.displayName = user.anonymous.email;
+            user.loggedin = false;
+          }
           this.user = user;
         },
 
         login: function(provider, email, password) {
           console.log(provider, email, password);
           // this.wait = true;
-          var params; // = {email: email, password: password};
+          var params={}; // = {email: email, password: password};
           // try {
           //   params = JSON.parse(this.params);
           // } catch (e) {
           //   params = null;
           // }
           if (provider == 'password') {
-            params = params || {};
+            // params = params || {};
             params.email = email;
             params.password = password;
           }
-          console.log('login: ', provider, params);
+          if (provider == 'anonymous') {
+            params.createdAt = Date.now();
+          }
+          // console.log('login: ', provider, params);
           this.$.firebaseLogin.provider = provider;
           this.$.firebaseLogin.login(params);
         },
         logout: function() {
           this.$.firebaseLogin.logout();
-          this.user = null;
+          this._computeUser();
           this.loggedin = false;
           this.wait = false;
-          console.log('logout!');
+          // console.log('logout!');
+          this.fire('toast', {
+            text: "Logged out!"
+          })
         },
         errorHandler: function(e) {
           this.fire('toast', {
@@ -252,7 +264,7 @@
 
         checkstatus: function(statusKnown, user) {
           // console.log(statusKnown);
-          // console.log(user, statusKnown);
+          // console.log('statusKnown: ', user, statusKnown);
           if (statusKnown && user) {
 
             // console.log('logged in');
@@ -262,8 +274,12 @@
           }
           if (statusKnown) {
             // console.log('NOT logged in');
-            this.loggedin = false;
-            this.wait = false;
+
+            // login annonomusly
+
+            this.login('anonymous');
+            // this.loggedin = false;
+            // this.wait = false;
             return false;
           }
           // console.log('Unknown (checking status...)');

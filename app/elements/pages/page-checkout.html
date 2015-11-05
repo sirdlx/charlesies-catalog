@@ -70,8 +70,8 @@
     </style>
 
     <catalog-cart id="catalogCart" items="{{cart}}" count={{count}}></catalog-cart>
-    <catalog-user id="catalogUser" loggedin="{{loggedin}}" wait="{{wait}}" user="{{_user}}" card="{{card}}" address="{{address}}"></catalog-user>
-    <catalog-data id="catalogData"></catalog-data>
+    <catalog-user id="catalogUser" loggedin="{{loggedin}}" wait="{{wait}}" user="{{user}}" card="{{card}}" address="{{address}}"></catalog-user>
+    <catalog-data id="catalogData" on-checkout-response="_handleCheckoutResponse"></catalog-data>
 
     <!-- <h2>Checkout</h2>
     <paper-slider disabledx id="checkoutSteps" pin snaps max="2" step="1" value="{{checkoutProgress}}"></paper-slider> -->
@@ -196,13 +196,19 @@
             </p>
           </div>
 
+          <div class="layout vertical center-center">
+
+
+
+          </div>
+
           <div class="finished-dialog layout vertical center-center">
             <p>Thank the plug for purchase</p>
           </div>
 
         </iron-pages>
 
-        <div class="actions section layout vertical center-center">
+        <div class="actions section layout vertical center-center" hidden="{{submitting}}">
           <paper-button class="step_left" raised on-tap="_clickBack" hidden="{{hideBackButton}}">{{stepLeftText}}</paper-button>
           <paper-button class="step_right" autofocus on-tap="_clickNext">{{stepRightText}}</paper-button>
         </div>
@@ -277,7 +283,7 @@
           user: {
             type: Object,
             notify: true,
-            computed: '_computeUser(loggedin, wait)'
+            // computed: '_computeUser(loggedin, wait)'
           },
 
           card: {
@@ -311,6 +317,10 @@
           },
 
           hideBackButton: {
+            type: Boolean,
+            notify: true,
+          },
+          submitting: {
             type: Boolean,
             notify: true,
           },
@@ -349,6 +359,7 @@
         observers: [
           '_cardChange(selectedCard)',
           '_addressChange(selectedAddress)',
+          '_computeUser(loggedin, wait)'
         ],
 
         attached: function(argument) {
@@ -457,19 +468,16 @@
           }
           if (loggedin) {
             // console.log('user found');
-            return this._user;
+            // return this._user;
           }
-          // console.log('no user');
-          return {
-            guest: {
-              address: []
-            }
-          };
+          // console.log(this.user);
+
         },
 
 
         _submitCheckout: function() {
           // console.log(this.order);
+          this.hideBackButton = true;
           this.$.catalogData.checkout(this.order);
         },
 
@@ -512,7 +520,6 @@
 
           if (this.checkoutProgress === 1) {
             this._submitCheckout();
-            return;
           }
 
           if (this.checkoutProgress === 3) {
@@ -529,10 +536,17 @@
 
           if (checkoutProgress < 2) {
             this.hideBackButton = false;
+            this.submitting = false;
             return 'Cancel';
           }
           if (checkoutProgress === 2) {
             this.hideBackButton = true;
+            this.submitting = true;
+            return 'FinishXXX';
+          }
+          if (checkoutProgress === 3) {
+            this.hideBackButton = true;
+            this.submitting = false;
             return 'Finish';
           }
 
@@ -549,6 +563,35 @@
           }
 
           return 'Continue';
+        },
+
+        _handleCheckoutResponse: function(_, res) {
+          console.log('_handleCheckoutResponse: ', res);
+
+          if (res.err) {
+            console.error(res.err);
+            this.fire('toast', {
+              text: res.err.message
+            });
+            this.hideBackButton = false;
+            return;
+          }
+
+          var oRef = new Firebase('https://charlesiesbeta.firebaseio.com/orders');
+          var oURef = new Firebase('https://charlesiesbeta.firebaseio.com/users/' + this.user.uid + '/orders');
+
+          var newOrder = oRef.push(res);
+
+          newOrder.child('user_id').set(this.user.uid);
+
+          oURef.child(newOrder.key()).set(true);
+
+          this.debounce('checkoutComplete', function() {
+            // this.checkoutProgress++;
+            this.checkoutProgress--;
+          }, 100);
+
+
         },
 
 
