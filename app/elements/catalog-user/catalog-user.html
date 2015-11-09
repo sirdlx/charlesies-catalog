@@ -3,8 +3,10 @@
     <firebase-auth id="firebaseLogin" user="{{_user}}" status-known="{{statusKnown}}" location="https://charlesiesbeta.firebaseio.com" provider="{{provider}}" on-error="errorHandler" on-user-created="userSuccessHandler" on-password-changed="userSuccessHandler"
     on-password-reset="userSuccessHandler" on-user-removed="userSuccessHandler"></firebase-auth>
     <!-- <firebase-document id="firebaseFavorites" location$="{{_favLocation(user)}}" data="{{_favs}}"></firebase-document> -->
-    <firebase-collection id="fbCard" location$="[[_computeCardLocation(user, loggedin)]]" data="{{card}}" order-by-child="createdAt"></firebase-collection>
-    <firebase-collection id="fbAddress" location$="[[_computeAddressLocation(user, loggedin)]]" data="{{address}}" order-by-child="createdAt"></firebase-collection>
+    <firebase-document id="fbUserSettings" location$="{{_userSettingLocation(user, id)}}" data="{{userSetting}}"></firebase-document>
+    <!-- <firebase-collection id="fbCard" location$="[[_computeCardLocation(user, loggedin, userSetting)]]" data="{{card}}" order-by-childFFFF="default_card" onFFFF-firebase-value="newCardValue"></firebase-collection> -->
+    <firebase-collection id="fbAddress" location$="[[_computeAddressLocation(user, loggedin)]]" data="{{_address}}" order-by-childFFFF="createdAt" on-firebase-value="_computeAddress"></firebase-collection>
+
   </template>
   <script>
     (function() {
@@ -25,7 +27,6 @@
             return;
           }
           instance.splice(type, insertAt, 0, item);
-
         });
         // _updateAll();
         return item;
@@ -122,6 +123,15 @@
             type: Array,
             notify: true,
           },
+          defaultAddress: {
+            type: Object,
+            notify: true,
+            // computed: '_computeDefaultAddress(userSetting, address)'
+          },
+          selectedCard: {
+            type: Object,
+            notify: true,
+          },
 
         },
         observers: [
@@ -161,49 +171,37 @@
         // User
 
         _computeUser: function(user) {
-          // console.log('user', user);
-          // if (!user) {
-          //   this.user = {};
-          //   this.user.uid = 'guest_' + Date.now();
-          //   return;
-          // };
 
           if (!user) {
             return;
           }
 
           if (typeof user.google === 'object') {
-            user.profileImage = user.google.profileImageURL;
-            user.displayName = user.google.displayName;
+            user.profile = user.google;
           }
 
           if (typeof user.facebook === 'object') {
-            user.profileImage = user.facebook.profileImageURL;
-            user.displayName = user.facebook.displayName;
+            user.profile = user.facebook;
           }
 
           if (typeof user.twitter === 'object') {
-            user.profileImage = user.twitter.profileImageURL;
-            user.displayName = user.twitter.displayName;
+            user.profile = user.twitter;
           }
 
           if (typeof user.password === 'object') {
-            user.profileImage = user.password.profileImageURL;
-            user.displayName = user.password.email;
+            user.profile = user.password;
           }
 
-          if (typeof user.anonymous === 'object') {
-            // user.profileImage = user.anonymous.profileImageURL;
-            // user.displayName = user.anonymous.email;
-            user.loggedin = false;
-          }
+          // if (typeof user.anonymous === 'object') {
+          //   user.profile = user.anonymous;
+          // }
           this.user = user;
         },
 
         login: function(provider, email, password) {
-          console.log(provider, email, password);
+          // console.log(provider, email, password);
           // this.wait = true;
-          var params={}; // = {email: email, password: password};
+          var params = {}; // = {email: email, password: password};
           // try {
           //   params = JSON.parse(this.params);
           // } catch (e) {
@@ -214,9 +212,9 @@
             params.email = email;
             params.password = password;
           }
-          if (provider == 'anonymous') {
-            params.createdAt = Date.now();
-          }
+          // if (provider == 'anonymous') {
+          //   params.createdAt = Date.now();
+          // }
           // console.log('login: ', provider, params);
           this.$.firebaseLogin.provider = provider;
           this.$.firebaseLogin.login(params);
@@ -277,9 +275,15 @@
 
             // login annonomusly
 
-            this.login('anonymous');
-            // this.loggedin = false;
-            // this.wait = false;
+            // this.login('anonymous');
+            this.loggedin = false;
+            this.wait = false;
+
+            if (!user) {
+              this.user = {};
+              this.user.uid = 'guest_' + Date.now();
+            };
+
             return false;
           }
           // console.log('Unknown (checking status...)');
@@ -288,9 +292,9 @@
           // return 'Unknown (checking status...)';
         },
 
-        _computeCardLocation: function(user, loggedin) {
+        _computeCardLocation: function(loggedin) {
           if (loggedin) {
-            return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid + '/cards';
+            return 'https://charlesiesbeta.firebaseio.com/users/' + this.user.uid + '/cards';
           }
         },
 
@@ -300,7 +304,38 @@
             return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid + '/address';
           }
         },
+        _userSettingLocation: function(user, id) {
+          return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid + '/settings/';
+        },
 
+        _computeAddress: function(_, userSetting) {
+          // console.log(userSetting, this.userSetting);
+          // console.log(this._address.length);
+          // if (this._address.length > 0) {
+          //   for (var i = 0; i < this._address.length; i++) {
+          //     // console.log(this._address[i].__firebaseKey__ === this.userSetting.default_address );
+          //     if (this._address[i].__firebaseKey__ === this.userSetting.default_address) {
+          //       // console.log(this._address[i]);
+          //       this._address[i].isDefault = true;
+          //     }
+          //   }
+          // }
+          this.address = this._address;
+        },
+
+        _computeDefaultAddress: function(userSetting, address) {
+          // console.log(userSetting, address);
+          if (this._address.length > 0) {
+            for (var i = 0; i < this._address.length; i++) {
+              // console.log(this._address[i].__firebaseKey__ === this.userSetting.default_address );
+              if (this._address[i].__firebaseKey__ === this.userSetting.default_address) {
+                // console.log(this._address[i]);
+                return this._address[i];
+              }
+            }
+          }
+
+        },
 
         // Save Address
 
@@ -308,13 +343,21 @@
           // If logged in, add to database
           if (!this.loggedin) {
             _add('address', newAddress);
-            return;
+            return true;
           }
 
-          var key = this.$.fbAddress.add(newAddress).key();
+          var key;
+          if (!newAddress.id) {
+            console.log(newAddress.id);
+            // console.dir(this.$.fbAddress);
+          } else {
+            var key = this.$.fbAddress.add(newAddress).key();
+          }
+
           this.fire('toast', {
-            text: 'New address saved!'
+            text: 'New address added!'
           });
+          return true;
           // console.log(this.$.fbAddress.add(this.newAddress).key());
         },
 
@@ -325,16 +368,33 @@
           if (!this.loggedin) {
             // If guest, add to guest card array
             _add('card', newCard);
-            return;
+            return true;
           }
 
           // console.log('loggedin, saved to db');
           var key = this.$.fbCard.add(newCard).key();
+
           this.fire('toast', {
-            text: 'New card saved!'
+            text: 'New card added!'
           });
+          return true;
           // console.log(this.$.fbAddress.add(this.newAddress).key());
 
+        },
+
+        newCardValue: function(_, cardRef) {
+          // console.log(cardRef.val());
+          // console.log(this.card);
+          var card = cardRef.val();
+          if (card.length === 0) return;
+          for (var i = 0; i < this.card.length; i++) {
+            // console.log(this.card[i].default_card);
+            if (this.card[i].default_card) {
+              this.selectedCard = this.card[i];
+              console.log(this.selectedCard.cc_name);
+              return;
+            }
+          }
         },
 
 

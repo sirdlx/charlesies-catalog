@@ -10,6 +10,12 @@
       }
     };
 
+    var _clear = function() {
+      if (_instances.length) {
+        localStorage['catalog.cart'] = [];
+      }
+    };
+
     var _retrieve = function() {
       try {
         return JSON.parse(localStorage['catalog.cart'] || '[]');
@@ -22,6 +28,14 @@
     var _add = function(product) {
       var check = _instances[0];
       var insertAt = 0;
+      
+      // var el = document.createElement('catalog-product');
+      // el.id = _product.__firebaseKey__;
+      // console.dir(_product);
+      // if (!el.data) {
+      //   return;
+      // }
+      // var product = el.data;
 
       for (var i = 0; i < check.items.length; i++) {
         // console.log(check.items[i].__firebaseKey__);
@@ -99,6 +113,11 @@
       observers: [
         '_save(items.*)'
       ],
+
+      clear: function() {
+        _clear();
+        _updateAll();
+      },
 
       created: function() {
         _instances.push(this);

@@ -2,185 +2,147 @@
   <template>
 
     <style media="screen" is="custom-style">
-      .profile {
+      :host {
+        display: block;
+      }
+
+      paper-material {
+        padding-top: 8px;
+        padding-bottom: 16px;
         background-color: white;
-        margin: 16px;
-        /*padding: 16px 16px 32px 16px;*/
+        overflow: hidden;
+      }
+
+      paper-toolbar {
+        --paper-toolbar-background: white;
+      }
+
+      .user {
+        padding-top: 26px;
+      }
+
+      .body {
         padding: 16px;
       }
 
-
       .profile .userIcon {
         border-radius: 50%;
+        width: 100px;
+        height: 100px;
       }
 
       .info {
         margin: 8px;
         /*padding: 16px 16px 32px 16px;*/
         padding-left: 8px;
-      }
-
-      .address {
-        margin: 8px;
-        padding: 16px 16px 32px 16px;
-        /*padding-left: 8px;*/
-        border-bottom: 1px solid;
-      }
-
-      .address h3 {
-        font-size: 16px;
-      }
-
-      .address iron-icon {
-        padding-right: 4px;
-      }
-
-      .cards {
-        margin: 8px;
-        padding: 16px 16px 32px 16px;
-        /*padding-left: 8px;*/
-      }
-
-      .cards table,
-      .address table {
-        width: 100%;
-      }
-
-      h3,
-      p {
-        margin: 0;
-      }
-
-      paper-icon-button.cardsEdit {
-        width: 10px;
-        height: 10px;
-        --paper-icon-button-ink-color: var(--paper-indigo-500);
-      }
-
-      th {
-        text-align: left;
+        text-align: center;
       }
 
       .headerIcon {
-        width: 34px;
-        height: 34px;
+        position: absolute;
+        width: 86px;
+        height: 85px;
+        right: -38px;
+        bottom: -16px;
+        color: rgba(0, 0, 0, 0.05);
+        transform: rotateY( 180deg);
+      }
+
+      .cc_type {
+        height: 100%;
+        width: 70px;
+      }
+
+      .cc_end {
+        height: 100%;
+        font-size: 26px;
+        line-height: 42px;
+      }
+
+      .margin-right-16 {
+        margin-right: 16px;
+      }
+
+      .address {
+        /*background-image: url('http://maps.google.com/maps/api/staticmap?center=5353+Cleveland+Ave+Columbus+Ohio+43231&zoom=15&amp&size=300x100');*/
+        background-repeat: no-repeat;
+        background-size: cover;
+      }
+
+      .line1 {
+        font-size: 18px;
+      }
+
+      .card {
+        padding-bottom: 16px
       }
     </style>
 
-    <catalog-user id="catalogUser" loggedin="{{loggedin}}" wait="{{wait}}" user="{{user}}"></catalog-user>
+    <catalog-user id="catalogUser" loggedin="{{loggedin}}" wait="{{wait}}" user="{{user}}" card="{{card}}" defaultCard="{{selectedCard}}" defaultAddress="{{selectedAddress}}"></catalog-user>
 
     <paper-material class="profile layout vertical">
 
-      <div class="user layout horizontal">
-        <iron-image class="userIcon" src="{{user.profileImage}}" alt="user image" width="100" height="100" fade sizing="contain">
+      <div class="user layout vertical center-center">
+
+        <iron-image class="userIcon" src="[[user.profile.profileImageURL]]" alt="user image" fade sizing="cover">
         </iron-image>
 
-
         <div class="info">
-          <h3>{{user.displayName}}</h3>
-          <span>{{user.displayName}}</span>
+          <h3>[[user.profile.displayName]]</h3>
+          <span>[[user.profile.displayName]]</span>
         </div>
-
       </div>
 
+    </paper-material>
 
-      <div class="address">
-        <h2>
-          <iron-icon class="headerIcon" icon="maps:local-shipping"></iron-icon>
+    <paper-material class="address layout vertical">
+
+      <iron-icon class="headerIcon" icon="maps:local-shipping"></iron-icon>
+
+      <paper-toolbar>
+        <div>
           Address
-        </h2>
+        </div>
+        <span class="flex"></span>
+        <paper-icon-button icon="editor:mode-edit" on-tap="_navAddressList"></paper-icon-button>
+      </paper-toolbar>
 
-        <table>
-          <tbody>
+      <paper-item>
+        <paper-item-body two-line>
+          <div class="line1">
+            <span>[[selectedAddress.add_street]]</span>
+          </div>
+          <div secondary>
+            <span>[[selectedAddress.add_city]]</span>,
+            <span>[[selectedAddress.add_state]]</span>,
+            <span>[[selectedAddress.add_zip]]</span>
+          </div>
+        </paper-item-body>
+      </paper-item>
 
-            <tr>
-              <th>
-                Address
-              </th>
-              <th>
-                DEFAULT
-              </th>
-              <th>
-                EDIT
-              </th>
-            </tr>
+    </paper-material>
 
-            <tr>
-              <td rowspan="2">
-                5353 Cleveland Ave
-                <br> Columbus, Ohio, 43231
-              </td>
-              <td rowspan="2">
-                <paper-radio-button name="def2"></paper-radio-button>
-              </td>
-              <td>
-                <paper-icon-button icon="editor:mode-edit"></paper-icon-button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-
-      </div>
-
-      <div class="cards">
-        <h2>
-          <iron-icon class="headerIcon" icon="icons:credit-card"></iron-icon>
+    <paper-material class="card layout vertical">
+      <iron-icon class="headerIcon" icon="icons:credit-card"></iron-icon>
+      <paper-toolbar>
+        <div>
           Cards
-        </h2>
+        </div>
+        <span class="flex"></span>
+        <paper-icon-button icon="editor:mode-edit" on-tap="_navCardList"></paper-icon-button>
 
-        <table>
-          <tbody>
-            <tr>
-              <th>
-                TYPE
-              </th>
-              <th>
-                ENDING
-              </th>
-              <th>
-                DEFAULT
-              </th>
+      </paper-toolbar>
 
-              <th>
-                EDIT
-              </th>
-            </tr>
-
-            <tr>
-              <td>
-                VISA
-              </td>
-              <td>
-                5555
-              </td>
-              <td>
-                <paper-radio-button name="def"></paper-radio-button>
-              </td>
-              <td>
-                <paper-icon-button class="cardsEdit" icon="editor:mode-edit"></paper-icon-button>
-              </td>
-            </tr>
-
-            <tr>
-              <td>
-                VISA
-              </td>
-              <td>
-                5555
-              </td>
-              <td>
-                <paper-radio-button name="def2"></paper-radio-button>
-              </td>
-              <td>
-                <paper-icon-button class="cardsEdit" icon="editor:mode-edit"></paper-icon-button>
-              </td>
-            </tr>
-
-          </tbody>
-        </table>
+      <paper-item>
+        <paper-item-body>
+          <div class="layout horizontal">
+            <iron-icon class="cc_type margin-right-16" src$="[[_computeTypeIcon(selectedCard.cc_type)]]"></iron-icon>
+            <div class="cc_end">{{selectedCard.cc_end}}</div>
+          </div>
+        </paper-item-body>
+      </paper-item>
 
       </div>
-
     </paper-material>
 
 
@@ -217,21 +179,41 @@
           provider: {
             type: String,
             value: 'password'
-          }
+          },
+
+          noCard: {
+            type: Boolean,
+            notify: true,
+          },
+          noAddress: {
+            type: Boolean,
+            notify: true,
+          },
+
+          selectedAddress: {
+            type: Object,
+            notify: true,
+          },
+
+          selectedCard: {
+            type: Object,
+            notify: true,
+          },
+
         },
 
         observers: [
-          '_checkLoggedin(loggedin, wait)',
+          // '_checkLoggedin(loggedin, wait, user)',
+          // 'newCardValue(card.*)',
+          // 'newAddressValue(address.*)'
         ],
 
+        _selectedAddress: function(selectedAddress) {
+          console.log(selectedAddress);
+        },
 
-        _checkLoggedin: function(loggedin, wait) {
-          // console.log(loggedin, wait);
-
-
-
-
-
+        _checkLoggedin: function(loggedin, wait, user) {
+          console.log(loggedin, wait, user);
 
           if (!loggedin && !wait) {
             // console.log('not logged in!');
@@ -251,6 +233,53 @@
           }
 
         },
+
+        _computeTypeIcon: function(type) {
+          return 'bower_components/gold-cc-input/images/' + type + '.png';
+        },
+
+        newCardValue: function(card) {
+          // console.log(cardRef.val());
+          // console.log(card);
+          if (card.length === 0) {
+            this.noCard = true;
+            return;
+          };
+          for (var i = 0; i < this.card.length; i++) {
+            // console.log(this.card[i].default_card);
+            if (this.card[i].default_card) {
+              this.selectedCard = this.card[i];
+              // console.log(this.selectedCard.cc_name);
+              return;
+            }
+          }
+        },
+
+        newAddressValue: function(address) {
+          // console.log(cardRef.val());
+          // console.log(this.card);
+          if (address.length === 0) {
+            this.noAddress = true;
+            return;
+          };
+          for (var i = 0; i < this.address.length; i++) {
+            // console.log(this.card[i].default_card);
+            if (this.address[i].default_address) {
+              this.selectedAddress = this.address[i];
+              // console.log(this.selectedAddress.add_street);
+              return;
+            }
+          }
+        },
+
+        _navCardList: function() {
+          this.fire('nav', {path:"/account/cards"});
+        },
+
+        _navAddressList: function() {
+          // this.showAddressList = !this.showAddressList;
+          this.fire('nav', {path:"/account/address"});
+        }
 
 
       });

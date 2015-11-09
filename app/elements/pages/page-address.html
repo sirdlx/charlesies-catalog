@@ -1,0 +1,500 @@
+<dom-module id="page-address">
+  <template>
+    <style is="custom-style">
+      :host {
+        display: block;
+        height: 100%;
+      }
+
+      paper-item {
+        --paper-item: {
+          cursor: default;
+          padding: 8px;
+          -webkit-box-shadow: 0px 0px 4px -2px rgba(0, 0, 0, 0.43);
+          -moz-box-shadow: 0px 0px 4px -2px rgba(0, 0, 0, 0.43);
+          box-shadow: 0px 0px 4px -2px rgba(0, 0, 0, 0.43);
+        }
+        --paper-item-focused-before: {
+          background-color: white;
+        }
+      }
+
+      .paper-font-title {
+        @apply(--paper-font-title);
+      }
+
+      paper-material {
+        min-width: 320px;
+        background-color: white;
+        overflow: hidden;
+      }
+
+      paper-material[wide] {
+        margin: 16px;
+        padding: 0;
+      }
+
+      paper-toolbar {
+        --paper-toolbar-background: white;
+      }
+
+      .headerIcon {
+        position: absolute;
+        width: 64px;
+        height: 100%;
+        right: 6px;
+        bottom: 0;
+        color: rgba(0, 0, 0, 0.05);
+        transform: rotateY( 180deg);
+      }
+
+      .address {
+        /*background-image: url('http://maps.google.com/maps/api/staticmap?center=5353+Cleveland+Ave+Columbus+Ohio+43231&zoom=15&amp&size=300x100');*/
+        background-repeat: no-repeat;
+        background-size: cover;
+      }
+
+      .line1 {
+        font-size: 18px;
+      }
+
+      .dialog_backdrop {
+        background-color: white;
+        display: block;
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        background: rgba(0, 0, 0, 0.7);
+      }
+
+      .defaultBadge {
+        background-color: var(--paper-red-500);
+        @apply(--paper-font-caption);
+        padding: 0 8px;
+        color: white;
+        margin-right: 16px;
+      }
+
+      form {
+        margin-bottom: 32px;
+      }
+
+      .save_button {
+        background-color: var(--paper-green-a700);
+        color: white;
+        --paper-button-ink-color: white;
+      }
+
+      .body {
+        padding: 16px;
+        margin: 0;
+      }
+
+      .addFab {
+        position: fixed;
+        bottom: 16px;
+        right: 16px;
+        color: #fff;
+        will-change: transform;
+        transition: -webkit-transform .2s ease-in-out;
+        transition: transform .2s ease-in-out;
+      }
+    </style>
+
+    <!-- // General -->
+    <google-maps-api id="maps" libraries="places" on-api-load="on_api_load"></google-maps-api>
+    <catalog-user id="catalogUser" loggedin="{{loggedin}}" wait="{{wait}}" user="{{user}}" addressFFFF="{{address}}"></catalog-user>
+    <firebase-document id="fbUserSettings" location$="{{_userSettingLocation(user)}}" on-firebase-value="_computeUserSetting" data="{{userSetting}}"></firebase-document>
+    <!-- // Collection -->
+    <firebase-collection id="fbAddress" location$="[[_computeAddressLocation(user, loggedin)]]" data="{{_address}}" on-firebase-value="_computeAddressList"></firebase-collection>
+    <!-- // Single -->
+    <firebase-document id="fbUserAddress" location$="{{_addressLocation(user, id)}}" on-firebase-value="_computeAddressByID"></firebase-document>
+
+    <paper-fab hidden="{{id}}" class="addFab" icon="add" on-tap="_navAddAddress"></paper-fab>
+    <iron-media-query query="(min-width: 600px)" query-matches="{{wide}}"></iron-media-query>
+
+    <paper-toolbar>
+      <div class="paper-font-title">[[_computePageTitle(selectedPage)]]</div>
+      <span class="flex"></span>
+      <iron-icon class="headerIcon" icon="maps:local-shipping"></iron-icon>
+    </paper-toolbar>
+
+    <iron-pages selected="{{selectedPage}}">
+
+      <paper-material class="address layout vertical" wide$="{{wide}}" elevation="0">
+
+        <template is="dom-repeat" items="{{address}}">
+          <paper-item>
+            <paper-item-body two-line>
+              <div class="line1">
+                <span>[[item.add_street]]</span>
+              </div>
+              <div secondary>
+                <span>[[item.add_city]]</span>,
+                <span>[[item.add_state]]</span>,
+                <span>[[item.add_zip]]</span>
+              </div>
+            </paper-item-body>
+
+            <template is="dom-if" if="{{item.isDefault}}">
+              <div class="defaultBadge">default</div>
+            </template>
+
+            <paper-icon-button on-tap="_navEditAddress" icon="editor:mode-edit"></paper-icon-button>
+          </paper-item>
+        </template>
+
+      </paper-material>
+
+      <paper-material wide$="{{wide}}">
+        <div class="body">
+          <form class="new-address-form" is="iron-form" id="addAddressForm" method="post" action="/" on-iron-form-submit="_addthis">
+            <paper-input value="{{add_street}}" label="Street Address" class="field" id="street_number" required></paper-input>
+            <paper-input value="{{add_suite}}" label="Apt/Suite" class="field" id="route"></paper-input>
+            <paper-input value="{{add_city}}" label="City" class="field" id="locality" required></paper-input>
+            <paper-input value="{{add_state}}" label="State" class="field" id="administrative_area_level_1" required></paper-input>
+            <gold-zip-input value="{{add_zip}}" id="postal_code" required></gold-zip-input>
+            <br>
+            <paper-checkbox checked="{{isDefault}}">Default</paper-checkbox>
+          </form>
+          <div class="buttons layout horizontal">
+            <paper-button raised class="layout end" on-tap="cancel">Cancel</paper-button>
+            <paper-button class="save_button layout end" on-tap="_saveAddress">Save</paper-button>
+          </div>
+        </div>
+      </paper-material>
+    </iron-pages>
+
+  </template>
+  <script>
+    (function() {
+
+      var componentForm = {
+        street_number: 'short_name',
+        route: 'long_name',
+        locality: 'long_name',
+        administrative_area_level_1: 'short_name',
+        country: 'long_name',
+        postal_code: 'short_name'
+      };
+
+      Polymer({
+        is: 'page-address',
+        enableCustomStyleProperties: true,
+        properties: {
+          add_street: {
+            type: String,
+            notify: true,
+          },
+          add_suite: {
+            type: String,
+            notify: true,
+          },
+          add_city: {
+            type: String,
+            notify: true,
+          },
+          add_state: {
+            type: String,
+            notify: true,
+          },
+          add_zip: {
+            type: String,
+            notify: true,
+          },
+
+          user: {
+            type: Object,
+            notify: true,
+          },
+
+          place: {
+            type: Object,
+            notify: true,
+            value: {}
+          },
+          id: {
+            type: String,
+            notify: true,
+          },
+          selectedAddress: {
+            type: Object,
+            notify: true,
+          },
+          selectedPage: {
+            type: Number,
+            notify: true,
+            value: 0
+          },
+
+
+          isDefault: {
+            type: Boolean,
+            notify: true,
+            value: false
+          },
+
+          userSetting: {
+            type: Object,
+            notify: true,
+          },
+
+
+
+        },
+
+        _saveDefault: function(key) {
+          // console.log(!this.isDefault && key === this.userSetting);
+
+          if (this.isDefault) {
+            // console.dir(this.userSetting);
+            this.set('userSetting', {
+              'default_address': key
+            });
+            return true;
+          }
+
+          if (!this.isDefault && key === this.userSetting) {
+            this.set('userSetting', {
+              'default_address': null
+            });
+            return true;
+          }
+
+          if (!this.userSetting.default_address) {
+            this.set('userSetting', {
+              'default_address': key
+            });
+            return true;
+          }
+
+          return 'unable to to save ' + key + ' to default_address setting';
+
+        },
+
+        _computeAddressByID: function(_, ref) {
+          // console.log(ref.val());
+          var selectedAddress = ref.val();
+          if (selectedAddress) {
+            this.selectedAddress = selectedAddress;
+            this.add_street = selectedAddress.add_street;
+            this.add_suite = selectedAddress.add_suite;
+            this.add_city = selectedAddress.add_city;
+            this.add_state = selectedAddress.add_state;
+            this.add_zip = selectedAddress.add_zip;
+            // this.place = selectedAddress.place;
+          }
+        },
+
+        _computeUserSetting: function(_, snapshot) {
+
+          if (!snapshot.val()) return;
+          // console.log(snapshot.val().default_address, this.id);
+          // console.log(this.id === snapshot.val().default_address);
+          if (this.id === snapshot.val().default_address) {
+            this.isDefault = true;
+          }
+        },
+
+        _userSettingLocation: function(user) {
+          return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid + '/settings/';
+        },
+
+        _computeAddressLocation: function(user, loggedin) {
+          // console.log(user.uid, loggedin);
+          if (loggedin) {
+            return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid + '/address';
+          }
+        },
+
+        _addressLocation: function(user, id) {
+          // console.log(user.uid, id);
+          if (user.uid) {
+            this.selectedPage = 1;
+            return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid + '/address/' + id;
+          }
+
+          if (id === true) {
+            this.selectedPage = 1;
+            return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid + '/address/';
+          }
+
+        },
+
+
+        _computeAddressList: function(argument) {
+
+          // set isDefault to item.key matching to settings.default_address
+          this.debounce('isDefaultCheck', function(argument) {
+            if (this._address.length > 0) {
+              for (var i = 0; i < this._address.length; i++) {
+                // console.log(this._address[i].__firebaseKey__ === this.userSetting.default_address );
+                if (this._address[i].__firebaseKey__ === this.userSetting.default_address) {
+                  // console.log(this._address[i]);
+                  this._address[i].isDefault = true;
+                }
+              }
+            }
+          }, 0)
+
+          // Get List (Array) firebase sets to this._address
+          this.set('address', this._address);
+
+        },
+
+        _navEditAddress: function(item) {
+          // console.dir(item.model.item.__firebaseKey__);
+          this.debounce('editnav', function(argument) {
+            this.fire('nav', {
+              path: '/account/address/' + item.model.item.__firebaseKey__
+            });
+          }, 50);
+
+        },
+
+        _navAddAddress: function(item) {
+          // console.dir(item.model.item.__firebaseKey__);
+          this.debounce('newnav', function(argument) {
+            this.fire('open-address-dialog', {
+              new: true,
+              after: 'current'
+            });
+          }, 50);
+
+        },
+
+        _computePageTitle: function(selectedPage) {
+          if (selectedPage === 0) {
+            return 'Address';
+          }
+          if (selectedPage === 1) {
+
+            if (this.id) {
+              return 'Edit: ' + this.id;
+            }
+            return 'Add Address';
+          }
+        },
+
+        cancel: function function_name(_replace) {
+          this.selectedAddress = {};
+          // console.log(window.location.pathname);
+          var replace = _replace || false;
+          // console.log(replace);
+          this.fire('nav', {
+            path: "/account/address",
+            // params: "?&selectedAddress=0",
+            replace: replace
+          });
+        },
+
+        _saveAddress: function() {
+          // console.log(this.$.address);
+          // console.log(!this.place.address_components);
+
+          if (!this.$.addAddressForm.validate()) {
+            this.fire('toast', {
+              text: 'Address is not complete, please try again'
+            });
+            console.log('Address is not complete, please try again');
+            return;
+          }
+
+          var selectedAddress = {};
+          selectedAddress.add_street = this.add_street;
+          selectedAddress.add_suite = this.add_suite || false;
+          selectedAddress.add_city = this.add_city;
+          selectedAddress.add_state = this.add_state;
+          selectedAddress.add_zip = this.add_zip;
+          selectedAddress.createdAt = {
+            ".sv": "timestamp"
+          };
+          // console.log(this.place.geometry.location.lat());
+          if (this.place) {
+            if (this.place.geometry) {
+              if (typeof this.place.geometry.location.lat === 'function') {
+                this.place.geometry.location.lat = this.place.geometry.location.lat();
+              }
+              if (typeof this.place.geometry.location.lng === 'function') {
+                this.place.geometry.location.lng = this.place.geometry.location.lng();
+              }
+            }
+          }
+          selectedAddress.place = this.place || false;
+          var key;
+          if (this.id) {
+            this.$.fbUserAddress.query.ref().set(selectedAddress);
+            key = this.$.fbUserAddress.query.ref().key()
+          } else {
+            key = this.$.fbUserAddress.query.ref().push(selectedAddress).key();
+          }
+
+          var done = this._saveDefault(key);
+
+          if (!done) {
+            this.fire('toast', {
+              text: done
+            });
+            return;
+          }
+
+          this.cancel(true);
+        },
+
+        on_api_load: function() {
+          this.autocomplete = new google.maps.places.Autocomplete(this.$.street_number, this.options);
+          google.maps.event.addListener(this.autocomplete, 'place_changed', this.on_change_place.bind(this));
+        },
+
+        on_change_place: function() {
+          this.place = this.autocomplete.getPlace();
+          if (!this.place.address_components) {
+            return;
+          }
+          // this.value = this.place.formatted_address;
+
+          // console.log(this.place);
+
+          for (var i = 0; i < this.place.address_components.length; i++) {
+            var addressType = this.place.address_components[i].types[0];
+            // console.log(componentForm[addressType]);
+            if (componentForm[addressType]) {
+
+              var val = this.place.address_components[i][componentForm[addressType]];
+              // console.log(addressType, val);
+              if (addressType === 'street_number') {
+                // this.formatted_address_1 = val;
+                this.add_street = val;
+              }
+
+              if (addressType === 'route') {
+                // this.formatted_address_1 += ' ' + val;
+                // console.log(this.formatted_address_1);
+                this.add_street += ' ' + val;
+
+              }
+
+              if (addressType === 'locality') {
+                // this.formatted_address_2 = val;
+                this.add_city = val;
+              }
+
+              if (addressType === 'administrative_area_level_1') {
+                // this.formatted_address_2 += ', ' + val;
+                this.add_state = val;
+              }
+
+              if (addressType === 'postal_code') {
+                // this.formatted_address_2 += ', ' + val;
+                // console.log(this.formatted_address_2);
+                this.add_zip = val;
+              }
+
+              // document.getElementById(addressType).value = val;
+            }
+          }
+        }
+
+      });
+    })();
+  </script>
+</dom-module>

@@ -4,11 +4,10 @@
     :host {
       transition: box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       transition-delay: 0.2s;
-      box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
     }
 
     :host:hover {
-      box-shadow: 0 8px 17px 0 rgba(0, 0, 0, 0.2);
+      box-shadow: 2px 8px 17px 0 rgba(0, 0, 0, 0.2);
       transition-delay: 0s;
     }
 
@@ -35,8 +34,9 @@
       text-overflow: ellipsis;
     }
 
-    img {
+    .image {
       width: 100%;
+      height: 264px;
     }
 
     [in-fav] {
@@ -46,29 +46,38 @@
     [in-cart] {
       color: #f44336;
     }
+
+    .inCart,
+    .inFav {
+      transition: color 0.2s cubic-bezier(.02, .82, 1, .33);
+    }
   </style>
 
   <template>
-
+    <!-- <catalog-product idx="catalogProduct" id="{{id}}" data="{{product}}"></catalog-product> -->
     <firebase-collection id="imagesREF" location="https://charlesiesbeta.firebaseio.com/images" data="{{images}}" order-by-child="rel" equal-to="[[product.__firebaseKey__]]" on-firebase-value="_computeImages"></firebase-collection>
     <firebase-document id="fbfav" location$="[[_favLocation(user, product)]]" data="{{_fav}}" on-firebase-value="_updateFavIcon"></firebase-document>
     <catalog-user id="catalogUser" loggedin="{{loggedin}}" wait="{{wait}}" user="{{user}}"></catalog-user>
     <catalog-cart id="catalogCart" items="{{cart}}"></catalog-cart>
 
-    <paper-card animated-shadow="true" elevation="1">
+    <paper-card animated-shadow="true" elevation="0">
 
       <a href$="{{_computeLink(product)}}" is="pushstate-anchor">
-        <img src="[[firstImageURL]]">
+        <img class="image" src="[[firstImageURL]]">
+        <!-- <iron-image class="image" src="[[firstImageURL]]" sizing="contain"></iron-image> -->
       </a>
 
       <div class="card-content">
+        <div class="product_title">
+          <span>{{product.name}}</span>
+        </div>
         <span>[[product.description]]</span>
       </div>
 
       <div class="card-actions">
 
-        <paper-icon-button icon="favorite" on-tap="_favTap" in-fav$="[[inFav]]" disabled$="[[!loggedin]]"></paper-icon-button>
-        <paper-icon-button icon="shopping-cart" on-tap="_cartTap" in-cart$="[[inCart]]"></paper-icon-button>
+        <paper-icon-button class="inFav" icon="favorite" on-tap="_favTap" in-fav$="[[inFav]]" disabled$="[[!loggedin]]"></paper-icon-button>
+        <paper-icon-button class="inCart" icon="shopping-cart" on-tap="_cartTap" in-cart$="[[inCart]]"></paper-icon-button>
 
         <h4 class="itemPrice">$
           <span class="red">[[product.default_price]]</span>
@@ -87,7 +96,14 @@
         product: Object,
         images: Object,
         firstImageURL: String,
-        user: Object,
+        user: {
+          type: Object,
+          notify: true
+        },
+        loggedin: {
+          type: Boolean,
+          notify: true,
+        },
         cart: Array,
         inCart: {
           type: Boolean,
@@ -97,7 +113,7 @@
         inFav: {
           type: Boolean,
           value: false,
-          notify: true
+          notify: true,
         },
         _fav: {
           type: Object,
@@ -105,8 +121,9 @@
         },
       },
       observers: [
-        '_updateCartIcon(cart, product)'
+        '_updateCartIcon(cart, product)',
       ],
+
       // Product
 
       _computeLink: function(item) {
@@ -120,8 +137,8 @@
         // console.log('_computeImages: ', ref.val());
         var key = Object.keys(ref.val())[0];
         this.images = ref.val()[key].images;
-        // this.firstImageURL = this.images[0];
-        this.firstImageURL = "http://lorempixel.com/400/400/fashion/";
+        this.firstImageURL = this.images[0];
+        // this.firstImageURL = "http://lorempixel.com/400/400/fashion/";
         // console.log(this.images[0]);
       },
 
@@ -156,18 +173,17 @@
         this.fire('add-to-fav', {
           product: this.product
         });
-        // this.$.catalogUser.addFav(this.product);
+        // this.user.addFav(this.product);
       },
 
       _favLocation: function(user, product) {
-        // console.log(user);
         if (user.uid) {
           return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid + '/favorites/' + product.__firebaseKey__;
         }
       },
 
       _updateFavIcon: function(e, ref) {
-        // console.log(ref.val());
+        // console.log('fav');
         if (ref.val()) {
           this.inFav = true;
         } else {

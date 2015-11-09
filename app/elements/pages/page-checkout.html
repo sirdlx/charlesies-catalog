@@ -67,6 +67,17 @@
         --iron-icon-height: 24px;
         --iron-icon-width: 38px;
       }
+
+      .ordering {
+        min-height: 300px;
+      }
+
+      paper-spinner.logo {
+        --paper-spinner-layer-1-color: var(--paper-red-500);
+        --paper-spinner-layer-2-color: var(--paper-red-500);
+        --paper-spinner-layer-3-color: var(--paper-red-500);
+        --paper-spinner-layer-4-color: var(--paper-red-500);
+      }
     </style>
 
     <catalog-cart id="catalogCart" items="{{cart}}" count={{count}}></catalog-cart>
@@ -196,14 +207,30 @@
             </p>
           </div>
 
-          <div class="layout vertical center-center">
+          <div class="ordering layout vertical center-center">
 
+            <h2>Ordering...</h2>
 
+            <paper-spinner class="logo" active></paper-spinner>
 
           </div>
 
           <div class="finished-dialog layout vertical center-center">
-            <p>Thank the plug for purchase</p>
+            <h2>Order #
+              <span>[[checkoutResponse.order_id]]</span> is complete.
+            </h2>
+            <p hidden="{{loggedin}}">
+              A copy of the order has been e-mailed to you.
+            </p>
+
+            <p hidden="{{!loggedin}}">
+              A copy of the order has been e-mailed to you. You can also view all of your orders
+              <paper-icon-button icon="inbox" on-tap="_navToInbox"></paper-icon-button>
+
+
+            </p>
+
+            <h3>Thank you!</h3>
           </div>
 
         </iron-pages>
@@ -236,9 +263,7 @@
         enableCustomStyleProperties: true,
         properties: {
           router: Object,
-
           cart: Array,
-
           cartTotalNumber: {
             type: String,
             notify: true,
@@ -283,7 +308,6 @@
           user: {
             type: Object,
             notify: true,
-            // computed: '_computeUser(loggedin, wait)'
           },
 
           card: {
@@ -354,12 +378,16 @@
             computed: '_computeOrder(selectedAddress, selectedCard, selectedShippingOption)'
           },
 
+          checkoutResponse: {
+            type: Object,
+            notify: true,
+          },
+
         },
 
         observers: [
           '_cardChange(selectedCard)',
           '_addressChange(selectedAddress)',
-          '_computeUser(loggedin, wait)'
         ],
 
         attached: function(argument) {
@@ -384,7 +412,10 @@
         _computeSelectedAddressText: function(num) {
           // console.log(item.add_city + ', ' + item.add_state + ', ' + item.add_zip);
 
-          if (!this.address) {
+          if (this.address.length === 0 && num === "0") {
+
+            this.selectedAddress = -1;
+
             return;
           }
 
@@ -405,10 +436,15 @@
           // console.log(this.$.selectedCardMenu.items.length-1);
           if (selectedCard === this.$.selectedCardMenu.items.length - 1) {
             // Show new card dialog
-            this.fire('open-card-dialog');
-            this.debounce('doSomething', function() {
+            this.debounce('open-card-nav', function() {
+              this.fire('open-card-dialog', {
+                new: true,
+                after: 'current'
+              });
+
               this.$.selectedCardMenu.selected = -1;
             }, 0);
+
           }
 
           if (typeof this.card[selectedCard] === 'object') {
@@ -418,11 +454,14 @@
 
         },
         _addressChange: function(selectedAddress) {
-          // console.log(selectedCard);
+          // console.log(selectedAddress);
           // console.log(this.$.selectedAddressMenu.items.length-1);
           if (selectedAddress === this.$.selectedAddressMenu.items.length - 1) {
             // Show new card dialog
-            this.fire('open-address-dialog');
+            this.fire('open-card-dialog', {
+              new: true,
+              after: 'current'
+            });
             this.debounce('doSomething', function() {
               this.$.selectedAddressMenu.selected = -1;
             }, 0);
@@ -458,19 +497,6 @@
           // console.log(+cartTotalNumber+ + absShipping);
 
           return String('$' + absTotal);
-
-        },
-
-        _computeUser: function(loggedin, wait) {
-          if (wait) {
-            // console.log('waiting for user');
-            return;
-          }
-          if (loggedin) {
-            // console.log('user found');
-            // return this._user;
-          }
-          // console.log(this.user);
 
         },
 
@@ -523,6 +549,8 @@
           }
 
           if (this.checkoutProgress === 3) {
+            // this.checkoutProgress === 0;
+            this.$.catalogCart.clear();
             this.router.go('/');
             return;
           }
@@ -566,7 +594,7 @@
         },
 
         _handleCheckoutResponse: function(_, res) {
-          console.log('_handleCheckoutResponse: ', res);
+          // console.log('_handleCheckoutResponse: ', res);
 
           if (res.err) {
             console.error(res.err);
@@ -580,15 +608,24 @@
           var oRef = new Firebase('https://charlesiesbeta.firebaseio.com/orders');
           var oURef = new Firebase('https://charlesiesbeta.firebaseio.com/users/' + this.user.uid + '/orders');
 
-          var newOrder = oRef.push(res);
+          var newOrder = oRef.push(res, function(ref) {
+            console.log('ref: ', ref);
+            // newOrder.once("value", function(snapshot) {
+            //     this.checkoutResponse = snapshot.val();
+            //     // data === "hello"
+            //   });
+            // body...
+          });
 
           newOrder.child('user_id').set(this.user.uid);
 
           oURef.child(newOrder.key()).set(true);
 
+          // this.checkoutResponse = newOrder.val();
+
           this.debounce('checkoutComplete', function() {
-            // this.checkoutProgress++;
-            this.checkoutProgress--;
+            this.checkoutProgress++;
+            // this.checkoutProgress--;
           }, 100);
 
 

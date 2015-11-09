@@ -1,42 +1,73 @@
 <dom-module id="catalog-product">
   <template>
     <!-- <catalog-data product-map="{{_products}}"></catalog-data> -->
-    <!-- <firebase-document id="prooduct" location$="[[_productLocation(id)]]" data="{{_product}}"></firebase-document> -->
+    <firebase-collection id="imagesREF" location="https://charlesiesbeta.firebaseio.com/images" data="{{images}}" order-by-child="rel" equal-to="[[product.__firebaseKey__]]" on-firebase-value="_computeImages"></firebase-collection>
+    <firebase-document id="prooduct" location$="[[_productLocation(id)]]" data="{{_product}}"></firebase-document>
   </template>
   <script>
     Polymer({
       is: 'catalog-product',
       properties: {
+
+        _product: Object,
+        product: {
+          type: Object,
+          notify: true,
+          computed: 'getProduct(_product)'
+        },
+
+        images: {
+          type: Array,
+          notify: true
+        },
+
         id: {
           type: String,
           notify: true
         },
-        _product: Object,
+
+        firstImageURL: {
+          type: String,
+          notify: true
+        },
+
         data: {
           type: Object,
           notify: true,
-          computed: 'getData(_product)'
+          computed: 'getData(_product, images, firstImageURL)'
         }
+
       },
 
       observers: [
-        '_productid(id)',
-      ],
 
-      _productid: function(productid, getPackage) {
-        // console.log('_productid',productid);
-      },
+      ],
 
       _productLocation: function(id) {
         // console.log('_productsLocation', "https://charlesiesbeta.firebaseio.com/products/" + id);
         return "https://charlesiesbeta.firebaseio.com/products/" + id;
       },
 
-      getData: function(_product) {
+      _computeImages: function(e, ref) {
+        // console.log('_computeImages: ', ref.val());
+        var key = Object.keys(ref.val())[0];
+        this.images = ref.val()[key].images;
+        this.firstImageURL = this.images[0];
+        // this.firstImageURL = "http://lorempixel.com/400/400/fashion/";
+        // console.log(this.images[0]);
+      },
+
+      getProduct: function(_product) {
+        return _product;
+      },
+
+      getData: function(_product, images, firstImageURL) {
         // console.log('getData', _product);
         // if (!_products) return;
+        _product.images = this.images;
+        _product.firstImageURL = this.firstImageURL;
+        // console.log('getData', _product);
         return _product;
-
       }
     });
   </script>

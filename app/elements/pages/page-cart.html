@@ -135,11 +135,9 @@
       <div class="no_items_container layout vertical center-center" style="height: 100%;">
         <div class="no_items layout vertical center-center">
           <h3>Your Cart is empty</h3>
-          <paper-button class="continue_button" on-tap="" hidden$="{{!_cartCount(count)}}">keep shopping</paper-button>
+          <paper-button class="continue_button" on-tap="_navHome" hidden$="{{!_cartCount(count)}}">keep shopping</paper-button>
         </div>
       </div>
-
-
 
     </div>
 
@@ -152,7 +150,7 @@
         <template is="dom-repeat" items="{{cart}}">
           <paper-icon-item class="cart-item">
             <div class="avatar" item-icon>
-              <img src="http://lorempixel.com/200/200/fashion/" width="72">
+              <img src="[[item.firstImageURL]]" width="72">
             </div>
             <paper-item-body two-line>
 
@@ -195,13 +193,15 @@
         <div class="cart_subtotal layout horizontal">
           <h3 class="cart_subtotal_text">Subtotal</h3>
           <span class="flex"></span>
-          <h3 class="cart_subtotal_text_price">{{_computeCartSubtotal(cartTotal)}}</h3>
+          <h3 class="cart_subtotal_text_price">{{_computeCartSubtotalText(cartTotal)}}</h3>
         </div>
 
-        <paper-button class="continue_button" on-tap="">keep shopping</paper-button>
+        <paper-button class="continue_button" on-tap="_navHome">keep shopping</paper-button>
 
         <paper-button class="checkout_button" on-tap="_clickCheckout">
-          <iron-icon icon="shopping-cart" style="width:20px;"></iron-icon>Checkout</paper-button>
+          <iron-icon icon="shopping-cart" style="width:20px;"></iron-icon>
+          Checkout
+        </paper-button>
 
       </div>
 
@@ -220,7 +220,11 @@
         enableCustomStyleProperties: true,
         properties: {
           router: Object,
-          cart: Array,
+          cart: {
+            type: Object,
+            notify: true,
+          },
+
           cartTotal: {
             type: Number,
             notify: true,
@@ -249,6 +253,12 @@
           return Number(0).toFixed(2);
         },
 
+        _navHome: function(e) {
+          this.fire('nav', {
+            path: '/'
+          });
+        },
+
         _removeFromCart: function(e) {
           // console.log(e.model.__data__.index);
           // this.$.catalogCart.removeFromCart(e.model.__data__.index);
@@ -260,16 +270,15 @@
         _cartCount: function(count) {
           // console.log(count);
           return count < 1;
-
         },
         _clickCheckout: function() {
           router.go('/cart/checkout');
         },
 
 
-        _computeCartSubtotal: function(total) {
+        _computeCartSubtotalText: function(cartTotal) {
           // console.log(total);
-          return '$' + total;
+          return '$' + cartTotal;
         }
 
 

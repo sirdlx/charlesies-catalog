@@ -1,6 +1,6 @@
 <dom-module id="catalog-data">
   <template>
-    <iron-ajax id="checkoutReq" url="http://localhost:8080/checkout" method="post" handle-as="json" on-response="_handleCheckoutPostsResponse" on-error="_handleCheckoutPostsError"></iron-ajax>
+    <iron-ajax id="checkoutReq" url="http://localhost:8080/checkout" method="post" handle-as="json" on-response="_handleCheckoutPostsResponse" on-error="_handleCheckoutPostsResponse"></iron-ajax>
   </template>
   <script>
     (function() {
@@ -11,13 +11,6 @@
       var _add = function(type, item) {
         var check = _instances[0];
         var insertAt = 0;
-
-
-
-
-
-
-
 
       };
 
@@ -95,11 +88,6 @@
         },
 
         _handleCheckoutPostsResponse: function(_, req) {
-          // console.log('_handleCheckoutPostsResponse: ', req.response);
-          // _add('checkout', req.response);
-          this.fire('checkout-response', req.response)
-        },
-        _handleCheckoutPostsError: function(_, req) {
           // console.log('_handleCheckoutPostsResponse: ', req.response);
           // _add('checkout', req.response);
           this.fire('checkout-response', req.response)
