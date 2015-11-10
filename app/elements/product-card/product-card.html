@@ -54,11 +54,11 @@
   </style>
 
   <template>
-    <!-- <catalog-product idx="catalogProduct" id="{{id}}" data="{{product}}"></catalog-product> -->
-    <firebase-collection id="imagesREF" location="https://charlesiesbeta.firebaseio.com/images" data="{{images}}" order-by-child="rel" equal-to="[[product.__firebaseKey__]]" on-firebase-value="_computeImages"></firebase-collection>
-    <firebase-document id="fbfav" location$="[[_favLocation(user, product)]]" data="{{_fav}}" on-firebase-value="_updateFavIcon"></firebase-document>
+    <catalog-product id="catalogProduct" byId="[[id]]" data="{{product}}"></catalog-product>
+
+    <!-- <firebase-document id="fbfav" location$="[[_favLocation(user, product)]]" data="{{_fav}}" on-firebase-value="_updateFavIcon"></firebase-document> -->
     <catalog-user id="catalogUser" loggedin="{{loggedin}}" wait="{{wait}}" user="{{user}}"></catalog-user>
-    <catalog-cart id="catalogCart" items="{{cart}}"></catalog-cart>
+    <!-- <catalog-cart id="catalogCart" items="{{cart}}"></catalog-cart> -->
 
     <paper-card animated-shadow="true" elevation="0">
 
@@ -93,9 +93,11 @@
       is: 'product-card',
       enableCustomStyleProperties: true,
       properties: {
-        product: Object,
-        images: Object,
-        firstImageURL: String,
+        product: {
+          type: Object,
+          notify: true
+        },
+        // images: Object,
         user: {
           type: Object,
           notify: true
@@ -155,7 +157,7 @@
       },
 
       _updateCartIcon: function(cart, product) {
-        // console.log(product);
+        console.log(product);
         for (var i = 0; i < cart.length; i++) {
           // console.log(cart[i].__firebaseKey__ === product.__firebaseKey__);
           if (cart[i].__firebaseKey__ === product.__firebaseKey__) {

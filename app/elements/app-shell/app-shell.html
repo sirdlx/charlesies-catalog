@@ -86,11 +86,11 @@
           <paper-menu-button vertical-align="top" horizontal-align="right">
 
             <paper-icon-button hidden={{loggedin}} icon="social:person" class="dropdown-trigger userIcon" alt="menu"></paper-icon-button>
-            <paper-icon-button hidden={{!loggedin}} src="{{user.profile.profileImageURL}}" class="dropdown-trigger userIcon" alt="menu"></paper-icon-button>
+            <paper-icon-button hidden={{!loggedin}} src="{{user.profileImageURL}}" class="dropdown-trigger userIcon" alt="menu"></paper-icon-button>
 
             <!-- <paper-button class="dropdown-trigger" hidden$="{{!narrow}}">
-              <iron-icon src="{{user.profile.profileImageURL}}"></iron-icon>
-              <span>{{user.profile.displayName}}</span>
+              <iron-icon src="{{user.profileImageURL}}"></iron-icon>
+              <span>{{user.displayName}}</span>
             </paper-button> -->
 
             <!-- account Dropdown Button / Items -->
@@ -99,7 +99,7 @@
                 <iron-icon icon="shopping-cart"></iron-icon>
                 <span>{{cartCount}}</span>
               </paper-item>
-              <paper-item hidden={{!loggedin}} href="/account" on-tap="_clickNav">{{user.profile.displayName}}</paper-item>
+              <paper-item hidden={{!loggedin}} href="/account" on-tap="_clickNav">{{user.displayName}}</paper-item>
               <paper-item hidden={{!loggedin}} on-tap="logout">logout</paper-item>
               <paper-item hidden={{loggedin}} href="/login" on-tap="_clickNav">login</paper-item>
             </paper-menu>
@@ -111,9 +111,9 @@
 
         <app-router id="router" class="flex" main mode="pushstate" on-activate-route-end="_routeEnd" on-state-change="_routerStateChange" on-before-data-binding="modifyModel">
 
-          <!-- <app-route path="/" element="page-cart" bindRouter onUrlChange="updateModel"></app-route> -->
+          <app-route path="/" element="page-product" bindRouter onUrlChange="updateModel"></app-route>
 
-          <app-route path="/" element="page-home" bindRouter></app-route>
+          <!-- <app-route path="/" element="page-home" bindRouter></app-route> -->
           <app-route path="/login" element="page-login" bindRouter onUrlChange="updateModel"></app-route>
 
           <app-route path="/category/:category" element="page-product-list" bindRouter onUrlChange="updateModel"></app-route>
@@ -228,14 +228,17 @@
 
         },
         listeners: {
+          'toast': 'showToast',
+          'content-scroll': 'firePageScroll',
+          'nav': 'nav',
+          //address
           'open-address-dialog': 'openAddressDialog',
           'open-card-dialog': 'openCardDialog',
-          'nav': 'nav',
+          //product
+          'open-product': 'openProduct',
           'add-to-fav': 'addFav',
           'add-to-cart': 'addCart',
-          'remove-from-cart': 'removeFromCart',
-          'toast': 'showToast',
-          'content-scroll': 'firePageScroll'
+          'remove-from-cart': 'removeFromCart'
         },
         observers: [
           'setApp(settings)'
@@ -256,7 +259,22 @@
           });
         },
 
-        openCardDialog: function(argument) {
+        openProduct: function(_, e) {
+          var path = '/product/new';
+
+          this.fire('nav', {
+            path: path
+          });
+
+        },
+
+        openCardDialog: function(_, e) {
+          if (e.new && e.after) {
+            this.fire('nav', {
+              path: '/account/cards/?new=true&after=' + e.after
+            });
+            return;
+          }
 
         },
 
@@ -288,7 +306,7 @@
 
         _computeNav: function(item) {
           // console.log(item);
-          return '/category/' + item.name.split(' ').join('_');
+          // return '/category/' + item.name.split(' ').join('_');
         },
 
         _clickNav: function function_name(e) {
@@ -314,21 +332,13 @@
         _routerStateChange: function(event) {
           // console.log(event.detail.path);
           // Select sidebar navigation item if possible
+
+          // console.log(event);
+          if (!event) return;
+
           if (event.detail.path === "/") {
             this.routeSelected = 0;
             return;
-          }
-
-          if (event.detail.path === "/account") {
-            if (this.loggedin === true) return;
-            event.preventDefault();
-            this.fire('toast', {
-              text: 'Have to be logged in to view page'
-            });
-            router.go('/login', {
-              replace: true
-            });
-            // return;
           }
 
           var items = this.$.menu.items;
@@ -357,9 +367,17 @@
         },
 
         _routeEnd: function(event) {
-          // console.log(event.detail.model.newaddress);
-          this.newaddress = event.detail.model.newaddress;
-          this.newcard = event.detail.model.newcard;
+          if (event.detail.path === "/account") {
+            if (!this.loggedin) {
+              event.preventDefault();
+              this.fire('toast', {
+                text: 'Have to be logged in to view page'
+              });
+              router.go('/login', {
+                replace: true
+              });
+            }
+          }
           this.$.content.scrollToTop(true);
         },
 

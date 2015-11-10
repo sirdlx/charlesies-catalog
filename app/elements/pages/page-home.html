@@ -28,18 +28,34 @@
           /*margin: 0 8px;*/
         }
       }
+
+      .addFab {
+        position: fixed;
+        bottom: 16px;
+        right: 16px;
+        color: #fff;
+        will-change: transform;
+        transition: -webkit-transform .2s ease-in-out;
+        transition: transform .2s ease-in-out;
+      }
     </style>
 
     <firebase-collection id="products" location="https://charlesiesbeta.firebaseio.com/products" data="{{products}}" order-by-child="priorty"></firebase-collection>
+    <catalog-user id="catalogUser" user="{{user}}"></catalog-user>
 
     <div class="grid-layout">
       <template is="dom-repeat" items="{{products}}">
         <!-- <a href$="[[_packageLink(item.name)]]" is="pushstate-anchor" class="grid-cell"> -->
         <!-- <package-tile package="[[item]]" name$="[[item.name]]"></package-tile> -->
         <!-- </a> -->
-        <product-card product="{{item}}" class="grid-cell"></product-card>
+        <product-card id="{{item.__firebaseKey__}}" class="grid-cell"></product-card>
       </template>
     </div>
+
+
+    <paper-fab hidden$="{{user.isAdmin}}" class="addFab" icon="add" on-tap="_navNewProduct"></paper-fab>
+
+
 
   </template>
 
@@ -51,11 +67,10 @@
         user: Object,
       },
 
-      newItemClick: function(e, f) {
-        // console.log('newItemClick', e, f);
-        // this.$.cdata.newPackage();
-        // var coll = this.$.packages;
-        // coll.add(this.$.cdata.newPackageObject);
+      _navNewProduct: function(e, f) {
+        this.fire('open-product', {
+          new: true
+        });
       },
 
       attached: function() {

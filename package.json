@@ -89,10 +89,12 @@
     "through2-map": "^1.4.0",
     "through2-reduce": "^0.3.0",
     "web-component-tester": "^2.2.3",
-    "writestreamp": "^0.1.0",
-    "firebase-tools": "^1.1.6"
+    "writestreamp": "^0.1.0"
   },
   "engines": {
     "node": ">=0.10.0"
+  },
+  "dependencies": {
+    "paper-chip": "git+https://github.com/bendavis78/paper-chip.git"
   }
 }

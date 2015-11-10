@@ -2,11 +2,11 @@
   "name": "charlesies-catalog",
   "version": "0.1.0",
   "authors": [
-    "Google"
+    "dev@dlxstudios.com"
   ],
   "description": "A catalog showcasing Google's Web Components",
   "main": "dist/index.html",
-  "license": "http://polymer.github.io/LICENSE.txt",
+  "license": "http://charlesies-catalog.github.io/LICENSE.txt",
   "ignore": [
     "**/.*",
     "node_modules",
@@ -28,5 +28,6 @@
     "pushstate-anchor": "~0.3.0",
     "color": "~2.5.0",
     "hydrolysis": "PolymerLabs/hydrolysis#^1.11.0",
+    "paper-chip": "https://github.com/bendavis78/paper-chip.git#~1.0.0"
   }
 }

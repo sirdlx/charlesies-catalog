@@ -4,9 +4,12 @@
     <style media="screen" is="custom-style">
       .login-form {
         background-color: white;
-        width: 420px;
-        margin: 32px auto;
         padding: 16px 16px 32px 16px;
+      }
+
+      .login-form[wide] {
+        width: 300px;
+        margin: 16px auto;
       }
 
       .form-submit {
@@ -33,14 +36,16 @@
       .blue2x {
         background: #3CF;
       }
+
       .blue2 {
         background: #55acee;
       }
     </style>
 
+    <iron-media-query query="(min-width: 600px)" query-matches="{{wide}}"></iron-media-query>
     <catalog-user id="catalogUser" loggedin="{{loggedin}}" wait="{{wait}}" user="{{user}}"></catalog-user>
 
-    <paper-material class="login-form layout vertical center-center">
+    <paper-material class="login-form layout vertical center-center" wide$="{{wide}}">
 
       <h2 class="form-title">Login</h2>
       <br>

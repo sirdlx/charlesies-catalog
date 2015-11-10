@@ -1,28 +1,37 @@
 <dom-module id="catalog-product">
   <template>
     <!-- <catalog-data product-map="{{_products}}"></catalog-data> -->
-    <firebase-collection id="imagesREF" location="https://charlesiesbeta.firebaseio.com/images" data="{{images}}" order-by-child="rel" equal-to="[[product.__firebaseKey__]]" on-firebase-value="_computeImages"></firebase-collection>
-    <firebase-document id="prooduct" location$="[[_productLocation(id)]]" data="{{_product}}"></firebase-document>
+    <firebase-collection id="fbImages" location$="[[_imagesLocation(byId)]]" data="{{_images}}" order-by-child="productById" equal-to="[[byId]]" on-firebase-value="_computeImages"></firebase-collection>
+    <firebase-collection id="fbCategories" location$="[[_categoriesLocation(byId)]]" data="{{_categories}}" on-firebase-value="_computeCategories"></firebase-collection>
+    <firebase-document id="fbProoduct" location$="[[_productLocation(byId)]]" data="{{_product}}" on-firebase-value="_computeProduct"></firebase-document>
+
   </template>
   <script>
     Polymer({
       is: 'catalog-product',
       properties: {
 
+        byId: {
+          type: String,
+          notify: true
+        },
+
         _product: Object,
+        _images: Array,
+        _categories: Array,
+
         product: {
           type: Object,
           notify: true,
-          computed: 'getProduct(_product)'
         },
 
         images: {
           type: Array,
-          notify: true
+          notify: true,
         },
 
-        id: {
-          type: String,
+        Categories: {
+          type: Array,
           notify: true
         },
 
@@ -34,7 +43,7 @@
         data: {
           type: Object,
           notify: true,
-          computed: 'getData(_product, images, firstImageURL)'
+          computed: 'getData(product, images, categories)'
         }
 
       },
@@ -45,29 +54,109 @@
 
       _productLocation: function(id) {
         // console.log('_productsLocation', "https://charlesiesbeta.firebaseio.com/products/" + id);
+        console.log('loading ' + id + ' details');
         return "https://charlesiesbeta.firebaseio.com/products/" + id;
       },
 
+      _categoriesLocation: function(id) {
+        console.log('loading ' + id + '\'s categories');
+        return "https://charlesiesbeta.firebaseio.com/categories";
+      },
+
+      _categoriesLocation: function(id) {
+        console.log('loading ' + id + '\'s images');
+        return "https://charlesiesbeta.firebaseio.com/images";
+      },
+
+
+      _computeCategories: function(e, ref) {
+        this.categories = this._categories;
+      },
+
       _computeImages: function(e, ref) {
-        // console.log('_computeImages: ', ref.val());
-        var key = Object.keys(ref.val())[0];
-        this.images = ref.val()[key].images;
-        this.firstImageURL = this.images[0];
-        // this.firstImageURL = "http://lorempixel.com/400/400/fashion/";
-        // console.log(this.images[0]);
+        this.images = this._images;
+        console.log(this._images);
+        // this.firstImageURL = this.images[0];
       },
 
-      getProduct: function(_product) {
-        return _product;
+      addImage: function(image) {
+        // console.log(image);
+        // var ImageKey = image.kind + image.id;
+        // console.log(ImageKey);
+
+        var img = {};
+        img.downloadUrl = image.downloadUrl;
+        img.id = image.id;
+        img.kind = image.kind;
+        img.thumbnailLink = image.thumbnailLink;
+        img.title = image.title;
+        img.webContentLink = image.webContentLink;
+
+
+        // console.log(this.product.id);
+        // return;
+
+        if (!this.product.id) {
+          // this.push('images', img);
+          // console.log(this.images);
+          if (!this.images) {
+            this.images = [img];
+            return;
+          }
+          // console.log('push');
+
+          for (var i = 0; i < this.images.length; i++) {
+            if (this.images[i].id === img.id) {
+              return;
+            }
+          }
+
+          this.push('images', img);
+
+          return;
+        }
+
+        var urlRef = 'https://charlesiesbeta.firebaseio.com/images/' + img.id;
+
+        var ref = new Firebase(urlRef);
+
+        ref.once('value', function(dataSnapshot) {
+          // var value = dataSnapshot.val();
+          // console.log('value: ', value);
+          if (dataSnapshot.val()) {
+            console.log('already exist');
+            // console.log(dataSnapshot.child('productById').val());
+
+            if (!dataSnapshot.child('productById.' + this.product.id).val()) {
+              var id = this.product.id
+              dataSnapshot.child('productById').set({
+                id: true
+              });
+            }
+          }
+
+          var key = ref.set(image);
+
+        }, function(err) {
+          console.error(err);
+        });
+
+
       },
 
-      getData: function(_product, images, firstImageURL) {
-        // console.log('getData', _product);
-        // if (!_products) return;
-        _product.images = this.images;
-        _product.firstImageURL = this.firstImageURL;
-        // console.log('getData', _product);
-        return _product;
+      _computeProduct: function(_, ref) {
+        // console.log(this._product.categories[0]);
+        this.product = this._product;
+      },
+
+      getData: function(_product, images, categories) {
+        // console.log('getData', _product, images, categories);
+        // var value ={product: this.product,images: this.images,categories: this.categories};
+        return {
+          product: this.product,
+          images: this.images,
+          categories: this.categories
+        };
       }
     });
   </script>

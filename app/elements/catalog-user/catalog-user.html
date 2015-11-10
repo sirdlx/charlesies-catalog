@@ -1,12 +1,11 @@
 <dom-module id="catalog-user">
   <template>
-    <firebase-auth id="firebaseLogin" user="{{_user}}" status-known="{{statusKnown}}" location="https://charlesiesbeta.firebaseio.com" provider="{{provider}}" on-error="errorHandler" on-user-created="userSuccessHandler" on-password-changed="userSuccessHandler"
+    <firebase-auth id="firebaseLogin" user="{{_userAuth}}" status-known="{{statusKnown}}" location="https://charlesiesbeta.firebaseio.com" provider="{{provider}}" on-error="errorHandler" on-user-created="userSuccessHandler" on-password-changed="userSuccessHandler"
     on-password-reset="userSuccessHandler" on-user-removed="userSuccessHandler"></firebase-auth>
     <!-- <firebase-document id="firebaseFavorites" location$="{{_favLocation(user)}}" data="{{_favs}}"></firebase-document> -->
-    <firebase-document id="fbUserSettings" location$="{{_userSettingLocation(user, id)}}" data="{{userSetting}}"></firebase-document>
+    <firebase-document id="fbUserProfile" location$="{{_userProfileLocation(_userAuth)}}" data="{{_user}}" on-firebase-value="_computeUser"></firebase-document>
     <!-- <firebase-collection id="fbCard" location$="[[_computeCardLocation(user, loggedin, userSetting)]]" data="{{card}}" order-by-childFFFF="default_card" onFFFF-firebase-value="newCardValue"></firebase-collection> -->
     <firebase-collection id="fbAddress" location$="[[_computeAddressLocation(user, loggedin)]]" data="{{_address}}" order-by-childFFFF="createdAt" on-firebase-value="_computeAddress"></firebase-collection>
-
   </template>
   <script>
     (function() {
@@ -75,6 +74,10 @@
             notify: true,
             value: ""
           },
+          _userAuth: {
+            type: Object,
+            notify: true,
+          },
           user: {
             type: Object,
             notify: true,
@@ -135,7 +138,7 @@
 
         },
         observers: [
-          '_computeUser(_user)',
+          // '_computeUser(_user)',
           'checkstatus(statusKnown, _user)',
           // 'check(user)',
         ],
@@ -152,6 +155,15 @@
         _favLocation: function(user) {
           // console.log(user.uid);
           return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid + '/favorites';
+        },
+        _userProfileLocation: function(user) {
+          // console.log(user.uid);
+          if (!user) {
+            this.set('user', null);
+            return;
+
+          }
+          return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid;
         },
 
         addFav: function(product) {
@@ -170,31 +182,15 @@
 
         // User
 
-        _computeUser: function(user) {
-
-          if (!user) {
-            return;
-          }
-
-          if (typeof user.google === 'object') {
-            user.profile = user.google;
-          }
-
-          if (typeof user.facebook === 'object') {
-            user.profile = user.facebook;
-          }
-
-          if (typeof user.twitter === 'object') {
-            user.profile = user.twitter;
-          }
-
-          if (typeof user.password === 'object') {
-            user.profile = user.password;
-          }
-
-          // if (typeof user.anonymous === 'object') {
-          //   user.profile = user.anonymous;
-          // }
+        _computeUser: function(_, ref) {
+          // console.log(ref);
+          if (!ref) return;
+          var user = ref.val() || {};
+          user = this._userAuth[this._userAuth.provider];
+          user.id = null;
+          // this.set('_user', user);
+          // user.uid = this._userAuth.auth.uid;
+          // console.log(this._userAuth.auth);
           this.user = user;
         },
 
@@ -207,7 +203,7 @@
           // } catch (e) {
           //   params = null;
           // }
-          if (provider == 'password') {
+          if (provider === 'password') {
             // params = params || {};
             params.email = email;
             params.password = password;
@@ -215,13 +211,20 @@
           // if (provider == 'anonymous') {
           //   params.createdAt = Date.now();
           // }
+
+          if (provider === 'google') {
+            var scope = ['https://www.googleapis.com/auth/photos', 'https://www.googleapis.com/auth/drive', 'email', 'profile'];
+            params.scope = scope;
+
+          }
           // console.log('login: ', provider, params);
           this.$.firebaseLogin.provider = provider;
           this.$.firebaseLogin.login(params);
         },
         logout: function() {
           this.$.firebaseLogin.logout();
-          this._computeUser();
+          // this._computeUser();
+          this.set('user', null);
           this.loggedin = false;
           this.wait = false;
           // console.log('logout!');
@@ -300,12 +303,9 @@
 
         _computeAddressLocation: function(user, loggedin) {
           // console.log(user.uid, loggedin);
-          if (loggedin) {
+          if (loggedin && user) {
             return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid + '/address';
           }
-        },
-        _userSettingLocation: function(user, id) {
-          return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid + '/settings/';
         },
 
         _computeAddress: function(_, userSetting) {

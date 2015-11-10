@@ -1,257 +1,717 @@
 <dom-module id="page-product">
   <template>
     <style media="screen" is="custom-style">
-      responsive-product[size=xs].layout {
-        flex-direction: column;
+      :host {
+        display: block;
+        padding-bottom: 80px;
       }
 
-      [size=xs] app-sidebar {
-        min-width: 100%;
-        height: auto;
+      paper-material {
+        background-color: white;
+        overflow: hidden;
       }
 
-      app-sidebar paper-toolbar {
+      paper-toolbar {
         --paper-toolbar-background: white;
-        --paper-toolbar: {
-          border-bottom: 1px solid;
-          border-bottom-color: var(--divider-color);
-          box-sizing: border-box;
-        }
+        overflow: hidden;
       }
 
-      [size=xs] app-sidebar paper-toolbar /deep/ #topBar {
-        padding: 0 16px;
+      paper-material[wide] {
+        margin: 16px auto;
+        width: 480px;
       }
 
-      #product-heading {
-        height: 48px;
-        line-height: 48px;
-        background: var(--paper-blue-grey-50);
-        border: solid;
-        border-color: var(--paper-blue-grey-100);
-        border-width: 1px 0;
-        cursor: pointer;
-        font-weight: 500;
+      .body {
+        padding: 16px;
       }
 
-      #product-heading iron-icon {
-        margin: 0 0 0 4px;
+      .small-body {
+        padding: 8px;
       }
 
-      #product-heading product-symbol {
-        margin: 0 8px 0 2px;
+      .productTags {
+        @apply(--paper-font-body1);
       }
 
-      #product-header {
-        position: relative;
-        padding: 8px 16px;
+      .fullwidth {
+        width: 100%;
       }
 
-      #product-header .version {
+      .headerIcon {
         position: absolute;
-        top: 24px;
-        right: 16px;
-        font-size: 14px;
-        color: var(--paper-grey-500);
+        width: 80px;
+        height: 80px;
+        right: -38px;
+        bottom: -14px;
+        color: rgba(0, 0, 0, 0.05);
+        transform: rotateY( 180deg);
       }
 
-      #product-header h2 {
-        margin: 0;
+      .section {
+        margin-bottom: 24px;
+        /*border-bottom: 1px solid red;*/
       }
 
-      #product-desc p {
-        margin-bottom: 0;
+      .sectionHeader {
+        height: 56px;
+        /*padding: 16px;*/
+        /*box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 1.16);*/
       }
 
-      #product-tags tag-link:last-of-type + span {
-        display: none;
-      }
-
-      [size=xs] .section {
-        display: none;
-      }
-
-      paper-item,
-      a.item {
-        display: block;
-        font-size: 14px;
-        padding: 4px 16px;
-        min-height: inherit;
-        cursor: pointer;
+      .sectionHeader .title {
+        font-size: 34px;
         font-weight: 400;
+        letter-spacing: -.01em;
+        line-height: 40px;
+      }
+      /*  View Product  */
+
+      [in-fav] {
+        color: #f44336;
       }
 
-      .nav {
-        display: block;
-        margin-top: 8px;
+      [in-cart] {
+        color: #f44336;
       }
 
-      .nav iron-icon {
-        width: 18px;
-        height: 18px;
-        margin-right: 8px;
+      .inCart,
+      .inFav {
+        transition: color 0.2s cubic-bezier(.02, .82, 1, .33);
       }
 
-      .nav [active] {
-        background: var(--paper-blue-grey-50);
+      .productPrice {
+        float: right;
+        display: inline-block;
+        position: relative;
+        padding: 8px;
+        outline: none;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
       }
 
-      .nav [active] iron-icon {
-        color: var(--paper-blue-a700);
+      .margin-right-16 {
+        margin-right: 16px;
+      }
+      /*  Product Images  */
+
+      #images {
+        margin: 16px auto;
       }
 
-      app-sidebar h4 {
-        font-size: 14px;
-        font-weight: 500;
-        margin: 12px 16px;
+      [wide] {
+
       }
 
-      app-sidebar section {
-        border-top: 1px solid #e5e5e5;
+      #images .iron-selected {}
+
+      .image-container {}
+
+      .image-list {
+        height: 100%;
+        overflow-x: scroll;
       }
 
-      section[main] {
-        background: #fafafa;
+      .image {
+        width: 200px;
+        height: 200px;
+        margin-right: 16px;
       }
 
-      [narrow] iron-component-page {
-        top: 56px;
+      .imagePlaceholder {
+        height: 200px;
       }
 
-      [paper-drawer-toggle] {
-        position: absolute;
-        top: 24px;
-        left: 24px;
-      }
+      .imagePlaceholder .placeholderBg {}
 
-      cart-icon {
-        position: absolute;
-        top: 24px;
-        right: 24px;
-      }
-
-      cart-item-icon {
-        --cart-item-icon-size: 18px;
-        --cart-item-icon-label: {
-          margin-left: 8px;
+      .thumb.add {
+        --paper-icon-button: {
+          color: green;
         }
-        ;
+      }
+      /*  Card Actions  */
+
+      .card-actions {
+        line-height: 36px;
       }
 
-      #other-products {
-        overflow: hidden;
-        -webkit-flex-shrink: 5;
-        flex-shrink: 5;
+      .card-actions[admin] .value {
+        width: 35px;
+      }
+      /*  Product Options  */
+
+      .productOptionLabelDefaultValue {
+        margin-top: 30px;
+        width: 100px;
       }
 
-      #other-products .list {
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
+      .productOptionPriceValue {
+        width: 72px;
       }
 
-      #product-header,
-      #product-heading,
-      #nav,
-      #cart-add {
-        -webkit-flex-shrink: 0;
-        flex-shrink: 0;
+      .productOptionPriceDefaultValue {
+        width: 72px;
+      }
+      /*  Product Tags  */
+
+      .tags .label {
+        width: 45px;
+      }
+      /*  Product Status  */
+
+      .productStatus {
+        line-height: 1px;
       }
 
-      .shrinkable {
-        overflow: hidden;
-        @apply(--layout);
-        @apply(--layout-vertical);
-      }
-
-      .shrinkable .nav,
-      .shrinkable .list {
-        overflow-x: hidden;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
+      .productStatusSelector {
+        width: 128px;
+        height: 24px;
       }
     </style>
-    <!-- <catalog-data id="cdata" app="charlesiesbeta" products="products" products="{{products}}" products="{{products}}" blog="{{blog}}" blogid="8038113399974572777"></catalog-data> -->
-    <!-- <catalog-product name="[[item]]" data="{{metadata}}"></catalog-product> -->
-    <!-- <catalog-product name="[[metadata.product]]" data="{{collection}}"></catalog-product> -->
-    <firebase-document id="fbproduct" location="{{_locProduct}}" data="{{product}}"></firebase-document>
-    <!-- <firebase-collection location="{{_locproducts}}" data="{{products}}"></firebase-collection> -->
 
+    <iron-media-query query="(min-width: 600px)" query-matches="{{wide}}"></iron-media-query>
+    <catalog-product id="catalogProduct" byId="[[id]]" product="{{product}}" images="{{images}}"></catalog-product>
+    <catalog-user id="catalogUser" user="{{user}}"></catalog-user>
+    <!-- <iron-ajax id="ajax" url="http://localhost:8080/checkout" method="post" handle-as="json" on-response="_handleAddImagesResponse" on-error="_handleAddImagesError"></iron-ajax> -->
+    <google-client-loader id="driveApi" name="drive" version="v2" on-google-api-loadx="driveApiLoaded"></google-client-loader>
 
-      <paper-material class="content layout vertical center-center">
+    <paper-toolbar>
+      <div class="paper-font-title">[[pageTitle]]</div>
+      <span class="flex"></span>
+      <iron-icon class="headerIcon" icon="maps:local-shipping"></iron-icon>
+    </paper-toolbar>
 
-        <div id="product-header">
-          <span class="version">[[product.default_price]]</span>
-          <h2 id="product-title">[[product.name]]</h2>
-          <div id="product-desc">
-            <p>[[product.description]]</p>
+    <form is="iron-form" class="productForm" action="index.html" method="post">
+
+      <paper-material id="images" wide$="{{wide}}" elevation="0">
+        <paper-toolbar>
+          <div class="paper-font-title">(2)</div>
+          <span class="flex"></span>
+          <paper-icon-button class="editImagesButton" icon="editor:mode-edit" on-tap="_openPicker"></paper-icon-button>
+          <paper-icon-button class="editImagesButton" icon="editor:mode-edit" on-tap="_editImages"></paper-icon-button>
+        </paper-toolbar>
+
+        <div class="image-container body">
+          <div class="image-list">
+            <iron-selector attr-for-selected="item" selected="{{imageSelected}}" class=" layout horizontal">
+              <template is="dom-repeat" items="[[images]]">
+                <div>
+                  <iron-image class="image" src="[[item.webContentLink]]" sizing="cover"></iron-image>
+                </div>
+              </template>
+            </iron-selector>
           </div>
         </div>
 
-        <section hidden$="[[_oneOrFewer(docproducts)]]" class="shrinkable">
-          <h4>Bundled products</h4>
+        <div class="imagePlaceholder layout horizontal center-center" hidden="{{images}}">
+          <iron-icon class="placeholderBg" icon="image"></iron-icon>
 
-          <nav id="elnav" class="nav">
-            <template is="dom-repeat" items="[[docproducts]]">
-              <a is="app-link" class="item" href$="[[_link(item.is,view)]]" active$="[[_isEqual(item.is,active)]]">[[item.is]]</a>
-            </template>
-          </nav>
-        </section>
+          <div class="margin-right-16">
+            <h2>Add Image
+              <paper-icon-button icon="add" on-tap="_openPicker">
+              </paper-icon-button>
+            </h2>
+          </div>
 
-        <section class="shrinkable" hidden$="[[_oneOrFewer(docBehaviors)]]">
-          <h4>Bundled Behaviors</h4>
-
-          <nav id="elnav" class="nav" attr-for-selected="name" selected="{{active}}">
-            <template is="dom-repeat" items="[[docBehaviors]]">
-              <a is="app-link" class="item" href$="[[_link(item.is,view)]]" active$="[[_isEqual(item.is,active)]]">[[item.is]]</a>
-            </template>
-          </nav>
-        </section>
+        </div>
       </paper-material>
 
+
+      <paper-material id="details" wide$="{{wide}}" elevation="0">
+        <div class="layout vertical center-center body">
+
+          <!-- Card Actions: If not loggedin -->
+
+          <template is="dom-if" if="{{user.isAdmin}}">
+
+            <div class="card-actions section layout horizontal">
+              <paper-icon-button class="inFav" icon="favorite" on-tap="_favTap" in-fav$="[[inFav]]" disabled$="[[!loggedin]]"></paper-icon-button>
+              <paper-icon-button class="inCart" icon="shopping-cart" on-tap="_cartTap" in-cart$="[[inCart]]"></paper-icon-button>
+              <h4 class="productPrice">
+                <span class="red">$990.99</span>
+              </h4>
+            </div>
+
+          </template>
+
+          <!-- Card Actions: If Admin -->
+
+          <template is="dom-if" if="{{!user.isAdmin}}">
+            <div class="card-actions admin section layout horizontal">
+
+              <div class="layout horizontal margin-right-16">
+                <paper-icon-button class="productFavorites" icon="favorite" in-fav></paper-icon-button>
+                <div>100k</div>
+              </div>
+
+              <div class="layout horizontal margin-right-16">
+                <paper-icon-button class="productOrders" icon="shopping-cart" in-cart></paper-icon-button>
+                <div>100k</div>
+              </div>
+
+            </div>
+          </template>
+
+
+          <!-- Product Name -->
+          <!-- <div class="paper-font-title section fullwidth">Name of product</div> -->
+
+          <div class="section productTags fullwidth layout vertical">
+            <div class="sectionHeader fullwidth">
+              <div class="title">
+                Description
+              </div>
+            </div>
+
+            <paper-input class="editTitleValue fullwidth" valuex="{{product.title}}" value="Some Product Title" label="Title" type="text" hidden$="{{!edit}}">
+            </paper-input>
+
+            <!-- Product Description -->
+            <paper-textarea hidden$="{{!edit}}" class="fullwidth " label="description" rows="2" max-rows="2" valuex="{{product.description}}" value="blah blah blahhhhhh blah blah "></paper-textarea>
+
+          </div>
+
+
+          <!-- Product Price -->
+
+          <div class="section editPrice fullwidth">
+            <div class="sectionHeader fullwidth layout horizontal">
+              <div class="title">
+                Options
+              </div>
+
+              <span class="flex"></span>
+
+              <paper-button class="addTagsButton" in-fav>
+                <iron-icon icon="add"></iron-icon>
+                Add Option
+              </paper-button>
+
+            </div>
+
+            <div class="productOptions layout vertical">
+
+              <div class="fullwidth layout horizontal">
+                <div class="productOptionLabelDefaultValue layout start margin-right-16">
+                  Default:
+                </div>
+
+                <span class="flex"></span>
+
+                <paper-input class="productOptionPriceDefaultValue layout end" valuex="{{product.price}}" value="999.99" label="price" type="number" hidden$="{{!edit}}">
+                  <div prefix>$</div>
+                </paper-input>
+              </div>
+
+              <div class="fullwidth layout horizontal">
+                <paper-input class="productOptionLabelValue margin-right-16" valuex="{{productOption.label}}" value="Red w/stripes" label="Option Title" type="text" hidden$="{{!edit}}">
+                </paper-input>
+
+                <span class="flex"></span>
+
+                <paper-input class="productOptionPriceValue" valuex="{{productOption.price}}" value="999.99" label="price" type="number" hidden$="{{!edit}}">
+                  <div prefix>$</div>
+                </paper-input>
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <!-- Product Tags -->
+          <div class="section productTags fullwidth layout">
+            <div class="sectionHeader layout horizontal">
+
+              <div class="title">
+                Tags
+              </div>
+
+              <span class="flex"></span>
+
+              <paper-menu-button class="layout end" vertical-align="top" horizontal-align="right">
+                <paper-button class="dropdown-trigger" class="addTagsButton" in-fav>
+                  <iron-icon icon="add"></iron-icon>Add Tag</paper-button>
+
+                <paper-menu class="dropdown-content">
+                  <paper-item>Unpublished</paper-item>
+                  <paper-item>Active</paper-item>
+                  <paper-item>Sold Out</paper-item>
+                  <paper-item>Pre-Order</paper-item>
+                </paper-menu>
+              </paper-menu-button>
+
+            </div>
+            <paper-chip animated removable on-remove="_removeTag">
+              <h1>Peter Parker</h1>
+            </paper-chip>
+            <paper-chip animated removable on-remove="_removeTag">
+              <h1>Peter Parker</h1>
+            </paper-chip>
+            <paper-chip animated removable on-remove="_removeTag">
+              <h1>Peter Parker</h1>
+            </paper-chip>
+            <paper-chip animated removable on-remove="_removeTag">
+              <h1>Peter Parker</h1>
+            </paper-chip>
+            <paper-chip animated removable on-remove="_removeTag">
+              <h1>Peter Parker</h1>
+            </paper-chip>
+            <paper-chip animated removable on-remove="_removeTag">
+              <h1>Peter Parker</h1>
+            </paper-chip>
+            <paper-chip animated removable on-remove="_removeTag">
+              <h1>Peter Parker</h1>
+            </paper-chip>
+            <paper-chip animated removable on-remove="_removeTag">
+              <h1>Peter Parker</h1>
+            </paper-chip>
+          </div>
+
+
+          <!-- Product Status -->
+
+
+          <div class="section fullwidth productStatus">
+            <div class="sectionHeader layout horizontal">
+              <div class="title">
+                Status
+              </div>
+              <span class="flex"></span>
+              <paper-dropdown-menu class="productStatusSelector layout end" noLabelFloat="true" selected-Item="{{status}}">
+                <paper-menu class="dropdown-content">
+                  <paper-item>Unpublished</paper-item>
+                  <paper-item>Active</paper-item>
+                  <paper-item>Sold Out</paper-item>
+                  <paper-item>Pre-Order</paper-item>
+                </paper-menu>
+              </paper-dropdown-menu>
+            </div>
+          </div>
+        </div>
+
+        <div class="section buttons layout horizontal end-justified">
+          <paper-button raised class="cancel_button" on-tap="cancel">Cancel</paper-button>
+          <paper-button raised class="save_button" on-tap="_saveProduct">Done</paper-button>
+        </div>
+      </paper-material>
+
+
+
+
+    </form>
+    <script type="text/javascript" src="//apis.google.com/js/api.js?onload=onApiLoad" async></script>
   </template>
+
+
   <script>
+    var picker, pickerReady, thiss;
+
+    function onApiLoad() {
+      // console.log('apiload');
+      gapi.load('picker', {
+        'callback': function(argument) {
+          pickerReady = true;
+        }
+      });
+    }
+
+    function setupPicker(cb, developerKey, accessToken) {
+      if (!pickerReady) return;
+      var supportedMimeType = "image/png,image/jpeg,image/jpg"
+
+      var view1 = new google.picker.DocsView();
+      view1.setMimeTypes(supportedMimeType);
+      view1.setLabel("Image Files");
+
+      var view3 = new google.picker.View(google.picker.ViewId.PHOTOS);
+      view3.setLabel("Photos");
+
+      var view2 = new google.picker.View(google.picker.ViewId.RECENTLY_PICKED);
+      view2.setLabel("Recently Selected");
+
+      picker = new google.picker.PickerBuilder().
+      addView(view1).
+      addView(view3).
+      addView(view2).
+        // enableFeature(google.picker.Feature.NAV_HIDDEN).
+      enableFeature(google.picker.Feature.MULTISELECT_ENABLED).
+      setOAuthToken(accessToken).
+      setDeveloperKey(developerKey).
+      setCallback(cb).
+      build();
+
+    }
+
+    // var developerKey = 'AIzaSyAkeEajTtdn1qGL-UKCEq5uJNiRziLY3X4';
+    var developerKey = 'AIzaSyB2x_CG22tc1yosAWKz5hOfx6g6CF8d0Gw';
+
+
+    var decimalOnly = /^\s*-?[1-9]\d*(\.\d{1,2})?\s*$/;
+
+    _images = [{
+      url: 'http://lorempixel.com/500/600/abstract'
+    }, {
+      url: 'http://lorempixel.com/700/700/abstract'
+    }, {
+      url: 'http://lorempixel.com/200/400/abstract'
+    }, {
+      url: 'http://lorempixel.com/100/400/abstract'
+    }, {
+      url: 'http://lorempixel.com/400/200/abstract'
+    }, {
+      url: 'http://lorempixel.com/800/400/abstract'
+    }, {
+      url: 'http://lorempixel.com/400/400/abstract'
+    }, {
+      url: 'http://lorempixel.com/600/400/abstract'
+    }, {
+      url: 'http://lorempixel.com/900/900/abstract'
+    }, {
+      url: 'http://lorempixel.com/590/900/abstract'
+    }, {
+      url: 'http://lorempixel.com/500/500/abstract'
+    }, {
+      url: 'http://lorempixel.com/600/600/abstract'
+    }];
+
     Polymer({
       is: 'page-product',
       enableCustomStyleProperties: true,
       properties: {
-        productid: {
+
+        // page
+        byId: {
           type: String,
+          notify: true,
+        },
+
+        pageTitle: {
+          type: String,
+          notify: true,
+          value: 'New Product'
+        },
+
+        product: {
+          type: Object,
+          notify: true,
+          value: {}
+        },
+        addImages: {
+          type: Array,
+          notify: true,
+        },
+        images: {
+          type: Array,
+          notify: true,
+        },
+        user: {
+          type: Object,
           notify: true
         },
-        router: Object,
-        cart: Array,
-        _locproducts: {
-          type: String,
-          computed: '_locfbproduct(productid)'
-        }
+
+        editImages: {
+          type: Boolean,
+          notify: true,
+        },
+
+        edit: {
+          type: Boolean,
+          notify: true,
+          value: true
+        },
+
+        imageSelected: {
+          type: Number,
+          notify: true,
+        },
+
+        options: {
+          type: Array,
+          notify: true,
+          value: []
+        },
+
+        // cart: Array,
+        // inCart: {
+        //   type: Boolean,
+        //   value: false,
+        //   notify: true,
+        // },
+        // inFav: {
+        //   type: Boolean,
+        //   value: false,
+        //   notify: true,
+        // },
+        // _fav: {
+        //   type: Object,
+        //   notify: true
+        // },
       },
       observers: [
-        'updateMeta(productid)',
+        // '_updateCartIcon(cart, product)',
+        '_computePageTitle(byId)',
+        // 'check(images.*)',
+        '_computePicker(user)'
       ],
 
-      _locfbproduct: function(productid) {
-        // console.log('_locfbproduct', 'https://' + 'charlesiesbeta' + '.firebaseio.com/' + "products/" + productid);
-        return 'https://' + 'charlesiesbeta' + '.firebaseio.com/' + "products/" + productid;
+      ready: function() {
+        // console.log(_images);
+        // this.images = _images;
+      },
+      check: function(check) {
+        console.log('check', check.base);
       },
 
-      attached: function() {
-        // this.updateMeta();
+      // page
+
+      _computePageTitle: function() {
+        if (selectedPage === 0) {
+          return '';
+        }
+        if (selectedPage === 1) {
+
+          if (this.id) {
+            return 'Edit: ' + this.product.name;
+          }
+          return 'Add Product';
+        }
       },
-      updateMeta: function(product, active) {
-        // console.log('updateMeta', product, active);
-        this.fire('page-meta', {
-          title: this.product.name
+
+      // Product
+
+      // Cart
+
+      _cartTap: function(e) {
+        // e.stopPropagation();
+        // console.log('fire: add-to-cart');
+        this.fire('add-to-cart', {
+          product: this.product
         });
+        // this.$.catalogCart.addCart(this.product);
+        this.inCart = true;
       },
-      _productLink: function() {
-        return "/p/" + this.product.name;
+
+      _updateCartIcon: function(cart, product) {
+        // console.log(product);
+        for (var i = 0; i < cart.length; i++) {
+          // console.log(cart[i].__firebaseKey__ === product.__firebaseKey__);
+          if (cart[i].__firebaseKey__ === product.__firebaseKey__) {
+            this.inCart = true;
+            // return true;
+          }
+        }
       },
-      navToproduct: function(e) {
-        this.router.go("/products/" + e.currentTarget.getAttribute('name'));
+
+      // Favorites
+
+      _favTap: function(e) {
+        e.stopPropagation();
+        // console.log('add-to-fav', e);
+        this.fire('add-to-fav', {
+          product: this.product
+        });
+        // this.user.addFav(this.product);
       },
-      cartAdd: function() {
-        this.fire('cart-add', this.product);
+
+      _favLocation: function(user, product) {
+
+        if (user.uid) {
+          return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid + '/favorites/' + product.__firebaseKey__;
+        }
+      },
+
+      _updateFavIcon: function(e, ref) {
+        // console.log('fav');
+        if (ref.val()) {
+          this.inFav = true;
+        } else {
+          this.inFav = false;
+        }
+      },
+
+
+      // Drive
+
+      _getDriveFile: function(file) {
+        // console.log(file.id);
+
+        // console.dir(this.$.driveApi);
+        var request = this.$.driveApi.api.files.get({
+          'fileId': file.id,
+          access_token: this.user.accessToken
+            // 'api': developerKey
+        });
+
+        request.execute(function(resp) {
+          // console.log(resp);
+          thiss.$.catalogProduct.addImage(resp);
+        });
+
+      },
+
+
+      // Picker
+
+      _openPicker: function(argument) {
+        picker.setVisible(true);
+      },
+
+
+      google_api_load_error: function(argument) {
+        console.error(e);
+      },
+
+      _computePicker: function(user) {
+        if (!user) return;
+        // console.log(user);
+        // user.accessToken
+        thiss = this;
+        setupPicker(this._pickerCallback, developerKey, user.accessToken);
+      },
+
+      _pickerCallback: function(data) {
+
+        var url = 'nothing';
+        if (data[google.picker.Response.ACTION] == google.picker.Action.PICKED) {
+          var docs = data[google.picker.Response.DOCUMENTS];
+          // console.dir(data.docs);
+
+          for (var i = 0; i < docs.length; i++) {
+
+            thiss._getDriveFile(data.docs[i]);
+            // data.docs[i].id
+            // console.log('docs[i].id: ', docs[0]);
+            // thiss.$.ajax.url = "https://www.googleapis.com/drive/v2/files/" + docs[i].id + "?key=AIzaSyAkeEajTtdn1qGL-UKCEq5uJNiRziLY3X4";
+            // thiss.$.ajax.url = "http://localhost:8080/addPickerImages/?ac=" + thiss.user.accessToken;
+            // thiss.$.ajax.body = docs;
+            // thiss.$.ajax.generateRequest();
+            // console.dir(thiss.$.ajax);
+
+          }
+
+
+        }
+      },
+
+      _handleAddImagesResponse: function(_, e) {
+
+        console.log(this.$.ajax.lastResponse);
+        // var data = this.$.ajax.lastResponse;
+
+      },
+
+      _handleAddImagesError: function(_, e) {
+        this.fire('toast', {
+          text: 'Error, Images not loaded'
+        });
+
       }
+
+      // END SCRIPT
+
     });
   </script>
 </dom-module>
