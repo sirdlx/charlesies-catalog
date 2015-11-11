@@ -334,7 +334,7 @@
                 }
               }
             }
-          }, 0)
+          }, 0);
 
           // Get List (Array) firebase sets to this._address
           this.set('address', this._address);
@@ -423,7 +423,7 @@
           var key;
           if (this.id) {
             this.$.fbUserAddress.query.ref().set(selectedAddress);
-            key = this.$.fbUserAddress.query.ref().key()
+            key = this.$.fbUserAddress.query.ref().key();
           } else {
             key = this.$.fbUserAddress.query.ref().push(selectedAddress).key();
           }

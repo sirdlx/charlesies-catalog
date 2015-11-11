@@ -127,7 +127,7 @@
             // console.log(dataSnapshot.child('productById').val());
 
             if (!dataSnapshot.child('productById.' + this.product.id).val()) {
-              var id = this.product.id
+              var id = this.product.id;
               dataSnapshot.child('productById').set({
                 id: true
               });

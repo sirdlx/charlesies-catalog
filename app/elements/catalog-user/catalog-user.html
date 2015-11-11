@@ -232,7 +232,7 @@
           // console.log('logout!');
           this.fire('toast', {
             text: "Logged out!"
-          })
+          });
         },
         errorHandler: function(e) {
           this.fire('toast', {
@@ -287,7 +287,7 @@
             if (!user) {
               this.user = {};
               this.user.uid = 'guest_' + Date.now();
-            };
+            }
 
             return false;
           }
@@ -353,7 +353,7 @@
             console.log(newAddress.id);
             // console.dir(this.$.fbAddress);
           } else {
-            var key = this.$.fbAddress.add(newAddress).key();
+            key = this.$.fbAddress.add(newAddress).key();
           }
 
           this.fire('toast', {

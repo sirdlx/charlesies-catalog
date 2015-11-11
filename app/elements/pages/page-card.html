@@ -388,7 +388,7 @@
               path: '/account/card/' + item.model.item.__firebaseKey__
             });
             // +'?edit=true'
-          }, 200)
+          }, 200);
 
         },
 
@@ -399,7 +399,7 @@
               // path: '/account/card/new'
               path: '?byId=new'
             });
-          }, 200)
+          }, 200);
 
         },
 
@@ -426,7 +426,7 @@
           this.fire('nav', {
             path: "/account/card"
           });
-          
+
         },
 
         _validCardForm: function(argument) {
@@ -466,7 +466,7 @@
           var key;
           if (this.byId) {
             this.$.fbUserCard.query.ref().set(selectedCard);
-            key = this.$.fbUserCard.query.ref().key()
+            key = this.$.fbUserCard.query.ref().key();
           } else {
             key = this.$.fbUserCardList.query.ref().push(selectedCard).key();
           }
