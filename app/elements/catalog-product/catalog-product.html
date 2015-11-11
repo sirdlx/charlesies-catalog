@@ -63,7 +63,7 @@
         return "https://charlesiesbeta.firebaseio.com/categories";
       },
 
-      _categoriesLocation: function(id) {
+      _imagesLocation: function(id) {
         console.log('loading ' + id + '\'s images');
         return "https://charlesiesbeta.firebaseio.com/images";
       },
@@ -92,11 +92,10 @@
         img.title = image.title;
         img.webContentLink = image.webContentLink;
 
-
-        // console.log(this.product.id);
+        // console.log(this.product);
         // return;
 
-        if (!this.product.id) {
+        if (!this.product) {
           // this.push('images', img);
           // console.log(this.images);
           if (!this.images) {
@@ -141,7 +140,6 @@
           console.error(err);
         });
 
-
       },
 
       _computeProduct: function(_, ref) {
@@ -155,7 +153,8 @@
         return {
           product: this.product,
           images: this.images,
-          categories: this.categories
+          categories: this.categories,
+          // options: this.options
         };
       }
     });

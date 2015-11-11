@@ -101,9 +101,7 @@
         margin: 16px auto;
       }
 
-      [wide] {
-
-      }
+      [wide] {}
 
       #images .iron-selected {}
 
@@ -172,7 +170,7 @@
     </style>
 
     <iron-media-query query="(min-width: 600px)" query-matches="{{wide}}"></iron-media-query>
-    <catalog-product id="catalogProduct" byId="[[id]]" product="{{product}}" images="{{images}}"></catalog-product>
+    <catalog-product id="catalogProduct" byId="[[id]]" product="{{product}}" images="{{images}}" optionsx="{{optionsx}}" categoriesx="{{categoriesx}}"></catalog-product>
     <catalog-user id="catalogUser" user="{{user}}"></catalog-user>
     <!-- <iron-ajax id="ajax" url="http://localhost:8080/checkout" method="post" handle-as="json" on-response="_handleAddImagesResponse" on-error="_handleAddImagesError"></iron-ajax> -->
     <google-client-loader id="driveApi" name="drive" version="v2" on-google-api-loadx="driveApiLoaded"></google-client-loader>
@@ -206,7 +204,7 @@
         </div>
 
         <div class="imagePlaceholder layout horizontal center-center" hidden="{{images}}">
-          <iron-icon class="placeholderBg" icon="image"></iron-icon>
+          <iron-icon class="placeholderBg" icon="image:collections"></iron-icon>
 
           <div class="margin-right-16">
             <h2>Add Image
@@ -265,11 +263,11 @@
               </div>
             </div>
 
-            <paper-input class="editTitleValue fullwidth" valuex="{{product.title}}" value="Some Product Title" label="Title" type="text" hidden$="{{!edit}}">
+            <paper-input class="editTitleValue fullwidth" value="{{product.title}}" valuex="Some Product Title" label="Title" type="text" hidden$="{{!edit}}">
             </paper-input>
 
             <!-- Product Description -->
-            <paper-textarea hidden$="{{!edit}}" class="fullwidth " label="description" rows="2" max-rows="2" valuex="{{product.description}}" value="blah blah blahhhhhh blah blah "></paper-textarea>
+            <paper-textarea hidden$="{{!edit}}" class="fullwidth " label="description" rows="2" max-rows="2" value="{{product.description}}" valuex="blah blah blahhhhhh blah blah "></paper-textarea>
 
           </div>
 
@@ -497,7 +495,6 @@
         product: {
           type: Object,
           notify: true,
-          value: {}
         },
         addImages: {
           type: Array,
@@ -552,7 +549,7 @@
       },
       observers: [
         // '_updateCartIcon(cart, product)',
-        '_computePageTitle(byId)',
+        '_computePageTitle(product)',
         // 'check(images.*)',
         '_computePicker(user)'
       ],
@@ -561,23 +558,21 @@
         // console.log(_images);
         // this.images = _images;
       },
+
+
       check: function(check) {
         console.log('check', check.base);
       },
 
       // page
 
-      _computePageTitle: function() {
-        if (selectedPage === 0) {
-          return '';
+      _computePageTitle: function(product) {
+        console.log(product);
+        if (this.id) {
+          return 'Edit: ' + this.product.name;
         }
-        if (selectedPage === 1) {
+        return 'Add Product';
 
-          if (this.id) {
-            return 'Edit: ' + this.product.name;
-          }
-          return 'Add Product';
-        }
       },
 
       // Product

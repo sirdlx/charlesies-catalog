@@ -111,14 +111,13 @@
 
         <app-router id="router" class="flex" main mode="pushstate" on-activate-route-end="_routeEnd" on-state-change="_routerStateChange" on-before-data-binding="modifyModel">
 
-          <app-route path="/" element="page-product" bindRouter onUrlChange="updateModel"></app-route>
+          <app-route path="/" element="page-card" bindRouter onUrlChange="updateModel"></app-route>
 
           <!-- <app-route path="/" element="page-home" bindRouter></app-route> -->
           <app-route path="/login" element="page-login" bindRouter onUrlChange="updateModel"></app-route>
 
-          <app-route path="/category/:category" element="page-product-list" bindRouter onUrlChange="updateModel"></app-route>
-
-          <app-route path="/products/:itemid" element="page-product" bindRouter onUrlChange="updateModel"></app-route>
+          <app-route path="/category/:byId" element="page-product-list" bindRouter onUrlChange="updateModel"></app-route>
+          <app-route path="/products/:byId" element="page-product" bindRouter onUrlChange="updateModel"></app-route>
 
           <app-route path="/cart" element="page-cart" bindRouter onUrlChange="updateModel"></app-route>
           <app-route path="/cart/checkout" element="page-checkout" bindRouter onUrlChange="updateModel"></app-route>
@@ -260,7 +259,7 @@
         },
 
         openProduct: function(_, e) {
-          var path = '/product/new';
+          var path = '/products/new';
 
           this.fire('nav', {
             path: path

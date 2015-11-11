@@ -78,18 +78,18 @@
       }
     </style>
 
-    <catalog-user id="catalogUser" loggedin="{{loggedin}}" wait="{{wait}}" user="{{user}}" card="{{card}}" defaultCard="{{selectedCard}}" defaultAddress="{{selectedAddress}}"></catalog-user>
+    <catalog-user id="catalogUser" loggedin="{{loggedin}}" wait="{{wait}}" user="{{user}}" defaultCard="{{defaultCard}}" defaultAddress="{{defaultAddress}}"></catalog-user>
 
     <paper-material class="profile layout vertical">
 
       <div class="user layout vertical center-center">
 
-        <iron-image class="userIcon" src="[[user.profile.profileImageURL]]" alt="user image" fade sizing="cover">
+        <iron-image class="userIcon" src="[[user.profileImageURL]]" alt="user image" fade sizing="cover">
         </iron-image>
 
         <div class="info">
-          <h3>[[user.profile.displayName]]</h3>
-          <span>[[user.profile.displayName]]</span>
+          <h3>[[user.displayName]]</h3>
+          <span>[[user.displayName]]</span>
         </div>
       </div>
 
@@ -110,12 +110,12 @@
       <paper-item>
         <paper-item-body two-line>
           <div class="line1">
-            <span>[[selectedAddress.add_street]]</span>
+            <span>[[defaultAddress.add_street]]</span>
           </div>
           <div secondary>
-            <span>[[selectedAddress.add_city]]</span>,
-            <span>[[selectedAddress.add_state]]</span>,
-            <span>[[selectedAddress.add_zip]]</span>
+            <span>[[defaultAddress.add_city]]</span>,
+            <span>[[defaultAddress.add_state]]</span>,
+            <span>[[defaultAddress.add_zip]]</span>
           </div>
         </paper-item-body>
       </paper-item>
@@ -136,8 +136,8 @@
       <paper-item>
         <paper-item-body>
           <div class="layout horizontal">
-            <iron-icon class="cc_type margin-right-16" src$="[[_computeTypeIcon(selectedCard.cc_type)]]"></iron-icon>
-            <div class="cc_end">{{selectedCard.cc_end}}</div>
+            <iron-icon class="cc_type margin-right-16" src$="[[_computeTypeIcon(defaultCard.cc_type)]]"></iron-icon>
+            <div class="cc_end">{{defaultCard.cc_end}}</div>
           </div>
         </paper-item-body>
       </paper-item>
@@ -181,21 +181,12 @@
             value: 'password'
           },
 
-          noCard: {
-            type: Boolean,
-            notify: true,
-          },
-          noAddress: {
-            type: Boolean,
-            notify: true,
-          },
-
-          selectedAddress: {
+          defaultAddress: {
             type: Object,
             notify: true,
           },
 
-          selectedCard: {
+          defaultCard: {
             type: Object,
             notify: true,
           },
@@ -203,33 +194,38 @@
         },
 
         observers: [
-          // '_checkLoggedin(loggedin, wait, user)',
+          '_checkLoggedin(loggedin, wait, user)',
           // 'newCardValue(card.*)',
           // 'newAddressValue(address.*)'
+          '_defaultAddress(defaultAddress)',
+          '_defaultAddress(defaultCard)',
         ],
 
-        _selectedAddress: function(selectedAddress) {
-          console.log(selectedAddress);
+        _defaultAddress: function(defaultAddress) {
+          console.log(defaultAddress);
         },
 
         _checkLoggedin: function(loggedin, wait, user) {
-          console.log(loggedin, wait, user);
+          // console.log(loggedin, wait, user);
 
           if (!loggedin && !wait) {
-            // console.log('not logged in!');
+            console.log('not logged in!');
             this.fire('toast', {
               text: 'Have to be logged in to view page'
             });
-            router.go('/login', {
-              replace: true
-            });
+            this.debounce('nav_delay', function (argument) {
+              this.router.go('/login');
+            }, 0);
+
 
             return;
 
           }
 
-          if (loggedin && !wait) {
-            // console.log('is logged in!');
+          if (!user) {
+            this.debounce('nav_delay', function (argument) {
+              this.router.go('/login');
+            }, 0);
           }
 
         },
@@ -248,8 +244,8 @@
           for (var i = 0; i < this.card.length; i++) {
             // console.log(this.card[i].default_card);
             if (this.card[i].default_card) {
-              this.selectedCard = this.card[i];
-              // console.log(this.selectedCard.cc_name);
+              this.defaultCard = this.card[i];
+              // console.log(this.defaultCard.cc_name);
               return;
             }
           }
@@ -265,15 +261,15 @@
           for (var i = 0; i < this.address.length; i++) {
             // console.log(this.card[i].default_card);
             if (this.address[i].default_address) {
-              this.selectedAddress = this.address[i];
-              // console.log(this.selectedAddress.add_street);
+              this.defaultAddress = this.address[i];
+              // console.log(this.defaultAddress.add_street);
               return;
             }
           }
         },
 
         _navCardList: function() {
-          this.fire('nav', {path:"/account/cards"});
+          this.fire('nav', {path:"/account/card"});
         },
 
         _navAddressList: function() {

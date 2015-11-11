@@ -52,10 +52,9 @@
       </template>
     </div>
 
-
-    <paper-fab hidden$="{{user.isAdmin}}" class="addFab" icon="add" on-tap="_navNewProduct"></paper-fab>
-
-
+    <template is="dom-if" if="{{user.isAdmin}}">
+      <paper-fab class="addFab" icon="add" on-tap="_navNewProduct"></paper-fab>
+    </template>
 
   </template>
 
@@ -64,7 +63,18 @@
       is: 'page-home',
       enableCustomStyleProperties: true,
       properties: {
-        user: Object,
+        user: {
+          type: Object,
+          notify: true
+        }
+      },
+
+      observers:[
+        // 'check(user)'
+      ],
+
+      check: function (user) {
+        console.log(user);
       },
 
       _navNewProduct: function(e, f) {
@@ -75,9 +85,9 @@
 
       attached: function() {
         // reset page title since this is the default page
-        this.fire('page-meta', {
-          title: null
-        });
+        // this.fire('page-meta', {
+        //   title: null
+        // });
 
       }
     });

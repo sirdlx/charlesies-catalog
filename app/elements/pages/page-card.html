@@ -107,14 +107,13 @@
       }
     </style>
 
-    <catalog-user id="catalogUser" loggedin="{{loggedin}}" wait="{{wait}}" user="{{user}}"></catalog-user>
+    <catalog-user id="catalogUser" loggedin="{{loggedin}}" wait="{{wait}}" user="{{user}}" ></catalog-user>
+    <!-- card="{{card}}" defaultCard="{{defaultCard}}" -->
     <firebase-document id="fbUserSettings" location$="{{_userSettingLocation(user)}}" on-firebase-value="_computeUserSetting" data="{{userSetting}}"></firebase-document>
     <!-- // Collection -->
-    <firebase-collection id="fbUserCardList" location$="[[_computeCardLocation(user, loggedin)]]" data="{{_card}}" on-firebase-value="_computeCardList"></firebase-collection>
+    <!-- <firebase-collection id="fbUserCardList" location$="[[_computeCardLocation(user, loggedin)]]" data="{{_card}}" on-firebase-value="_computeCardList"></firebase-collection> -->
     <!-- // Single -->
-    <firebase-document id="fbUserCard" location$="{{_cardLocation(user, id)}}" on-firebase-value="_computeCardByID"></firebase-document>
-
-    <paper-fab hidden="{{id}}" class="addFab" icon="add" on-tap="_navAddCard"></paper-fab>
+    <firebase-document id="fbUserCard" location$="{{_cardLocation(user, byId)}}" on-firebase-value="_computeCardByID"></firebase-document>
 
 
     <iron-media-query query="(min-width: 600px)" query-matches="{{wide}}"></iron-media-query>
@@ -128,7 +127,19 @@
 
     <iron-pages selected="{{selectedPage}}">
 
-      <paper-material class="card layout vertical" wide$="{{wide}}">
+      <paper-material class="card layout vertical center-center" wide$="{{wide}}">
+
+        <paper-fab hidden="{{!user.isAdmin}}" class="addFab" icon="add" on-tap="_navAddCard"></paper-fab>
+
+        <div style="padding:100px 100px;">
+          No cards added
+        </div>
+        <template is="dom-if" if="{{!card}}">
+          <div class="">
+            No cards added
+          </div>
+        </template>
+
         <template is="dom-repeat" items="{{card}}">
           <paper-item on-tap="_navEditCard" default$="_computeDefault(item)" item="{{item}}">
             <paper-item-body>
@@ -194,7 +205,7 @@
             notify: true,
           },
 
-          id: {
+          byId: {
             type: String,
             notify: true,
           },
@@ -287,7 +298,15 @@
         },
 
         _computeCardByID: function(_, ref) {
-          // console.log(ref.val());
+          console.log(this.byId);
+
+          if (this.byId === 'new') {
+            console.log('NEW');
+            this.selectedPage = 1;
+            return;
+          }
+
+          console.log(ref.val());
           var selectedCard = ref.val();
           if (selectedCard) {
             this.cc_num = selectedCard.cc_num;
@@ -299,17 +318,23 @@
         },
 
         _computeUserSetting: function(_, snapshot) {
+          // console.log(this.userSetting);
 
           if (!snapshot.val()) return;
-          // console.log(snapshot.val().default_card, this.id);
-          // console.log(this.id === snapshot.val().default_card);
-          if (this.id === snapshot.val().default_card) {
+          // console.log(snapshot.val().default_card, this.byId);
+          console.log(this.byId === snapshot.val().default_card);
+          if (this.byId === snapshot.val().default_card) {
             this.isDefault = true;
           }
         },
 
         _userSettingLocation: function(user) {
-          return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid + '/settings/';
+          // console.log(user);
+          // console.log(this.user, this.byId);
+          if (user) {
+            return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid + '/settings/';
+          }
+
         },
 
         _computeCardLocation: function(user, loggedin) {
@@ -320,15 +345,18 @@
         },
 
         _cardLocation: function(user, id) {
-          // console.log(user.uid, id);
-          if (user.uid) {
+          // console.log(user, id);
+          // console.log(id !== "new" && loggedin);
+          if (id !== "new" && user) {
             this.selectedPage = 1;
-            return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid + '/cards/' + id;
+            return 'https://charlesiesbeta.firebaseio.com/users/' + this.user.uid + '/cards/' + id;
           }
 
-          if (id === true) {
+          if (id === "new" && user) {
             this.selectedPage = 1;
-            return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid + '/cards/';
+          }
+          if (!user) {
+
           }
 
         },
@@ -368,7 +396,8 @@
           // console.dir(item.model.item.__firebaseKey__);
           this.debounce('newnav', function(argument) {
             this.fire('nav', {
-              path: '/account/card/?new=true'
+              // path: '/account/card/new'
+              path: '?byId=new'
             });
           }, 200)
 
@@ -380,7 +409,7 @@
           }
           if (selectedPage === 1) {
 
-            if (this.id) {
+            if (this.byId) {
               return 'Edit Card: ' + this.type + " " + this.ending;
             }
             return 'Add Card';
@@ -395,9 +424,9 @@
           this.cc_zip = "";
 
           this.fire('nav', {
-            path: "/account/card",
-            replace: replace
+            path: "/account/card"
           });
+          
         },
 
         _validCardForm: function(argument) {
@@ -435,7 +464,7 @@
 
 
           var key;
-          if (this.id) {
+          if (this.byId) {
             this.$.fbUserCard.query.ref().set(selectedCard);
             key = this.$.fbUserCard.query.ref().key()
           } else {

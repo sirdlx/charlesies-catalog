@@ -4,8 +4,8 @@
     on-password-reset="userSuccessHandler" on-user-removed="userSuccessHandler"></firebase-auth>
     <!-- <firebase-document id="firebaseFavorites" location$="{{_favLocation(user)}}" data="{{_favs}}"></firebase-document> -->
     <firebase-document id="fbUserProfile" location$="{{_userProfileLocation(_userAuth)}}" data="{{_user}}" on-firebase-value="_computeUser"></firebase-document>
-    <!-- <firebase-collection id="fbCard" location$="[[_computeCardLocation(user, loggedin, userSetting)]]" data="{{card}}" order-by-childFFFF="default_card" onFFFF-firebase-value="newCardValue"></firebase-collection> -->
-    <firebase-collection id="fbAddress" location$="[[_computeAddressLocation(user, loggedin)]]" data="{{_address}}" order-by-childFFFF="createdAt" on-firebase-value="_computeAddress"></firebase-collection>
+    <firebase-collection id="fbCard" location$="[[_computeCardLocation(user, loggedin, _user)]]" data="{{_card}}" on-firebase-value="_computeCard"></firebase-collection>
+    <firebase-collection id="fbAddress" location$="[[_computeAddressLocation(user, loggedin, _user)]]" data="{{_address}}" on-firebase-value="_computeAddress"></firebase-collection>
   </template>
   <script>
     (function() {
@@ -131,7 +131,7 @@
             notify: true,
             // computed: '_computeDefaultAddress(userSetting, address)'
           },
-          selectedCard: {
+          defaultCard: {
             type: Object,
             notify: true,
           },
@@ -184,12 +184,14 @@
 
         _computeUser: function(_, ref) {
           // console.log(ref);
+          console.log(ref);
           if (!ref) return;
           var user = ref.val() || {};
           user = this._userAuth[this._userAuth.provider];
           user.id = null;
+          user.isAdmin = this._user.isAdmin;
           // this.set('_user', user);
-          // user.uid = this._userAuth.auth.uid;
+          user.uid = this._userAuth.auth.uid;
           // console.log(this._userAuth.auth);
           this.user = user;
         },
@@ -382,19 +384,28 @@
 
         },
 
-        newCardValue: function(_, cardRef) {
+        _computeCard: function(_, cardRef) {
           // console.log(cardRef.val());
-          // console.log(this.card);
-          var card = cardRef.val();
-          if (card.length === 0) return;
-          for (var i = 0; i < this.card.length; i++) {
-            // console.log(this.card[i].default_card);
-            if (this.card[i].default_card) {
-              this.selectedCard = this.card[i];
-              console.log(this.selectedCard.cc_name);
-              return;
-            }
+          // console.log(this._card);
+          // var card = cardRef.val();
+          if (this._card.length === 0) {
+            this.defaultCard = null;
+            return;
           }
+
+          console.log(this._user.default_card);
+
+          // for (var i = 0; i < this._card.length; i++) {
+          //   // console.log(this.card[i].default_card);
+          //   if (this._card[i].default_card) {
+          //     this._defaultCard = this._card[i];
+          //     console.log(this.defaultCard.cc_name);
+          //     return;
+          //   }
+          // }
+
+          this.card = this._card;
+
         },
 
 

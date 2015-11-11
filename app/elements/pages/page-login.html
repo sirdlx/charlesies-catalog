@@ -119,27 +119,18 @@
         },
 
         observers: [
-          '_checkLoggedin(loggedin, wait)'
+          '_checkLoggedin(loggedin, wait, user)'
         ],
 
-        _checkLoggedin: function(loggedin, wait) {
-          // console.log(loggedin, wait);
-          if (!loggedin && !wait) {
-            // console.log('not logged in!');
-            return;
-          }
+        _checkLoggedin: function(loggedin, wait, user) {
+          console.log(loggedin, wait, user);
 
           if (loggedin && !wait) {
-            // console.log('is logged in!');
-            if (!this.justloggedin) {
-              this.fire('toast', {
-                text: 'Already logged in!'
-              });
-            }
-            router.go('/account', {
-              replace: true
-            });
+            this.debounce('nav_delay', function() {
+              this.router.go('/account');
+            }, 0);
           }
+
         },
 
         _loginPassword: function() {
