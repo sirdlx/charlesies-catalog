@@ -105,11 +105,22 @@
       .cc_end {
         line-height: 31px;
       }
+
+      .isDefault {}
+
+      .addFab {
+        position: fixed;
+        bottom: 16px;
+        right: 16px;
+        color: #fff;
+        will-change: transform;
+        transition: -webkit-transform .2s ease-in-out;
+        transition: transform .2s ease-in-out;
+      }
     </style>
 
-    <catalog-user id="catalogUser" loggedin="{{loggedin}}" wait="{{wait}}" user="{{user}}" ></catalog-user>
+    <catalog-user id="catalogUser" loggedin="{{loggedin}}" wait="{{wait}}" user="{{user}}"></catalog-user>
     <!-- card="{{card}}" defaultCard="{{defaultCard}}" -->
-    <firebase-document id="fbUserSettings" location$="{{_userSettingLocation(user)}}" on-firebase-value="_computeUserSetting" data="{{userSetting}}"></firebase-document>
     <!-- // Collection -->
     <!-- <firebase-collection id="fbUserCardList" location$="[[_computeCardLocation(user, loggedin)]]" data="{{_card}}" on-firebase-value="_computeCardList"></firebase-collection> -->
     <!-- // Single -->
@@ -117,6 +128,7 @@
 
 
     <iron-media-query query="(min-width: 600px)" query-matches="{{wide}}"></iron-media-query>
+    <paper-fab hidden="{{byId}}" class="addFab" icon="add" on-tap="_navNewCard"></paper-fab>
 
     <paper-toolbar>
       <div class="paper-font-title">[[_computePageTitle(selectedPage)]]</div>
@@ -173,13 +185,17 @@
             <paper-input id="cc_name" label="Name on card" class="field" required value="{{cc_name}}" auto-validate></paper-input>
             <gold-zip-input id="cc_zip" value="{{cc_zip}}" required auto-validate></gold-zip-input>
             <br>
-            <paper-checkbox checked="{{isDefault}}">Default</paper-checkbox>
+            <div class="layout horizontal">
+              <span class="flex"></span>
+              <paper-checkbox class="isDefault layout end" checked="{{isDefault}}">Default</paper-checkbox>
+            </div>
 
           </form>
 
-          <div class="buttons">
-            <paper-button raised autofocus on-tap="cancel">Cancel</paper-button>
-            <paper-button raised disabledx$="[[_validCardForm()]]" on-tap="_saveCard" class="save_button">Save</paper-button>
+          <div class="buttons layout horizontal">
+            <span class="flex"></span>
+            <paper-button class="layout end" raised autofocus on-tap="cancel">Cancel</paper-button>
+            <paper-button class="save_button layout end" raised disabledx$="[[_validCardForm()]]" on-tap="_saveCard">Save</paper-button>
           </div>
 
         </div>
@@ -264,8 +280,24 @@
 
         },
 
+        // observers: ['_check(user)'],
+        // _check: function(user) {
+        //   console.log(user);
+        // },
+
         _computeTypeIcon: function(type) {
           return 'bower_components/gold-cc-input/images/' + type + '.png';
+        },
+
+        _navNewCard: function(item) {
+          // console.dir(item.model.item.__firebaseKey__);
+          this.debounce('newcardnav', function() {
+            this.fire('open-card-dialog', {
+              new: true,
+              after: 'current'
+            });
+          }, 50);
+
         },
 
         _saveDefault: function(key) {
@@ -298,7 +330,7 @@
         },
 
         _computeCardByID: function(_, ref) {
-          console.log(this.byId);
+          // console.log(this.byId);
 
           if (this.byId === 'new') {
             console.log('NEW');
@@ -306,7 +338,7 @@
             return;
           }
 
-          console.log(ref.val());
+          // console.log(ref.val());
           var selectedCard = ref.val();
           if (selectedCard) {
             this.cc_num = selectedCard.cc_num;
@@ -314,19 +346,21 @@
             this.cc_cvc = selectedCard.cc_cvc;
             this.cc_exp = selectedCard.cc_exp;
             this.cc_name = selectedCard.cc_name;
+            return;
+          }else {
+            if (this.byId === 'demo') {
+              this.cc_num = '4551720511780460';
+              this.cc_zip = '43000';
+              this.cc_cvc = '130';
+              this.cc_exp = '10/30';
+              this.cc_name = 'not yours';
+              return;
+            }
+            this.fire('toast', {text: 'Card id: ' + this.byId + ' was not found.'});
+            this._navAddCard(null, null, true);
           }
         },
 
-        _computeUserSetting: function(_, snapshot) {
-          // console.log(this.userSetting);
-
-          if (!snapshot.val()) return;
-          // console.log(snapshot.val().default_card, this.byId);
-          console.log(this.byId === snapshot.val().default_card);
-          if (this.byId === snapshot.val().default_card) {
-            this.isDefault = true;
-          }
-        },
 
         _userSettingLocation: function(user) {
           // console.log(user);
@@ -392,12 +426,15 @@
 
         },
 
-        _navAddCard: function(item) {
+        _navAddCard: function(e, t, replace) {
           // console.dir(item.model.item.__firebaseKey__);
-          this.debounce('newnav', function(argument) {
+          replace = replace || false;
+
+          this.debounce('newcardnav', function(argument) {
             this.fire('nav', {
               // path: '/account/card/new'
-              path: '?byId=new'
+              path: '?byId=new',
+              replace: replace
             });
           }, 200);
 
@@ -422,6 +459,7 @@
           this.cc_cvc = "";
           this.cc_name = "";
           this.cc_zip = "";
+          this.isDefault = false;
 
           this.fire('nav', {
             path: "/account/card"
@@ -445,33 +483,38 @@
 
           // Add card components
 
-          var selectedCard = {};
+          var newCard = {};
 
-          selectedCard.cc_num = this.cc_num;
-          selectedCard.cc_exp = this.cc_exp;
-          selectedCard.cc_cvc = this.cc_cvc;
-          selectedCard.cc_name = this.cc_name;
-          selectedCard.cc_type = this.cc_type;
-          selectedCard.cc_zip = this.cc_zip;
-          selectedCard.createdAt = {
+          newCard.cc_num = this.cc_num;
+          newCard.cc_exp = this.cc_exp;
+          newCard.cc_cvc = this.cc_cvc;
+          newCard.cc_name = this.cc_name;
+          newCard.cc_type = this.cc_type;
+          newCard.cc_zip = this.cc_zip;
+          newCard.createdAt = {
             ".sv": "timestamp"
           };
 
-          selectedCard.cc_end = this.cc_num.slice(-4);
-          this.createdAt = {
-            ".sv": "timestamp"
-          };
+          newCard.cc_end = this.cc_num.slice(-4);
+          // this.createdAt = {
+          //   ".sv": "timestamp"
+          // };
+
+          // 4551720511780460
+
+          // var key;
+          // if (this.byId) {
+          //   this.$.fbUserCard.query.ref().set(selectedCard);
+          //   key = this.$.fbUserCard.query.ref().key();
+          // } else {
+          //   key = this.$.fbUserCardList.query.ref().push(selectedCard).key();
+          // }
+
+          // var done = this._saveDefault(key);
+          var done = this.$.catalogUser.save_card(newCard);
 
 
-          var key;
-          if (this.byId) {
-            this.$.fbUserCard.query.ref().set(selectedCard);
-            key = this.$.fbUserCard.query.ref().key();
-          } else {
-            key = this.$.fbUserCardList.query.ref().push(selectedCard).key();
-          }
 
-          var done = this._saveDefault(key);
 
           if (!done) {
             this.fire('toast', {

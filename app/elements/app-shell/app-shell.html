@@ -99,7 +99,7 @@
                 <iron-icon icon="shopping-cart"></iron-icon>
                 <span>{{cartCount}}</span>
               </paper-item>
-              <paper-item hidden={{!loggedin}} href="/account" on-tap="_clickNav">{{user.displayName}}</paper-item>
+              <paper-item hiddenFFFF={{!loggedin}} href="/account" on-tap="_clickNav">[[_computeAccountText(loggedin, user)]]</paper-item>
               <paper-item hidden={{!loggedin}} on-tap="logout">logout</paper-item>
               <paper-item hidden={{loggedin}} href="/login" on-tap="_clickNav">login</paper-item>
             </paper-menu>
@@ -107,20 +107,21 @@
           </paper-menu-button>
 
           </div>
+
         </paper-toolbar>
 
         <app-router id="router" class="flex" main mode="pushstate" on-activate-route-end="_routeEnd" on-state-change="_routerStateChange" on-before-data-binding="modifyModel">
 
-          <app-route path="/" element="page-card" bindRouter onUrlChange="updateModel"></app-route>
+          <app-route path="/" element="page-product" bindRouter onUrlChange="updateModel"></app-route>
 
           <!-- <app-route path="/" element="page-home" bindRouter></app-route> -->
           <app-route path="/login" element="page-login" bindRouter onUrlChange="updateModel"></app-route>
 
-          <app-route path="/category/:byId" element="page-product-list" bindRouter onUrlChange="updateModel"></app-route>
-          <app-route path="/products/:byId" element="page-product" bindRouter onUrlChange="updateModel"></app-route>
+          <app-route path="/products" element="page-product-list" bindRouter onUrlChange="updateModel"></app-route>
+          <app-route path="/product/:byId" element="page-product" bindRouter onUrlChange="updateModel"></app-route>
 
           <app-route path="/cart" element="page-cart" bindRouter onUrlChange="updateModel"></app-route>
-          <app-route path="/cart/checkout" element="page-checkout" bindRouter onUrlChange="updateModel"></app-route>
+          <!-- <app-route path="/cart/checkout" element="page-checkout" bindRouter onUrlChange="updateModel"></app-route> -->
 
           <app-route path="/account" element="page-account" bindRouter onUrlChange="updateModel"></app-route>
 
@@ -210,6 +211,10 @@
           },
 
           // User
+          user: {
+            type: Object,
+            notify: true
+          },
           loggedin: {
             type: Boolean,
             notify: true,
@@ -243,14 +248,27 @@
           'setApp(settings)'
         ],
 
+        _computeAccountText: function(loggedin, user) {
+          // console.log(loggedin, user);
+          if (loggedin) {
+            // console.log(user);
+            return this.user.displayName;
+          }
+          return 'Account';
+        },
+
         nav: function(_, e) {
           if (!e) return;
           // console.log(e);
           var path = e.path || window.location.pathname;
           var params = e.params || null;
-
           if (params) {
-            path = path + params;
+            // path = path + '&';
+            for (var param in params) {
+              // console.log('key: ', param);
+              // console.log('value: ', params[param]);
+              path = path + '?' + param + '=' + params[param];
+            }
           }
 
           this.$.router.go(path, {
@@ -260,17 +278,15 @@
 
         openProduct: function(_, e) {
           var path = '/products/new';
-
           this.fire('nav', {
             path: path
           });
-
         },
 
         openCardDialog: function(_, e) {
           if (e.new && e.after) {
             this.fire('nav', {
-              path: '/account/cards/?new=true&after=' + e.after
+              path: '/account/card/?byId=new&after=' + e.after
             });
             return;
           }
@@ -279,18 +295,29 @@
 
         openAddressDialog: function(_, e) {
 
-          if (e.new && e.after) {
-            this.fire('nav', {
-              path: '/account/address/?new=true&after=' + e.after
-            });
-            return;
+          // if (e.new && e.after) {
+          //   this.fire('nav', {
+          //     path: '/account/address/?new=true&after=' + e.after
+          //   });
+          //   return;
+          // }
+          var params = {
+            addressEdit: true
+          };
+          if (e.after) {
+            params.after = e.after;
           }
+
+          this.fire('nav', {
+            params: params
+          });
+
 
         },
 
         addFav: function(e, item) {
           // console.log(item.product);
-          this.$.catalogUser.addFav(item.product, this.user);
+          this.$.catalogUser.addFav(item.product);
         },
         removeFromCart: function(e, item) {
           // console.log(item.index);
@@ -366,17 +393,17 @@
         },
 
         _routeEnd: function(event) {
-          if (event.detail.path === "/account") {
-            if (!this.loggedin) {
-              event.preventDefault();
-              this.fire('toast', {
-                text: 'Have to be logged in to view page'
-              });
-              router.go('/login', {
-                replace: true
-              });
-            }
-          }
+          // if (event.detail.path === "/account") {
+          //   if (!this.loggedin) {
+          //     event.preventDefault();
+          //     this.fire('toast', {
+          //       text: 'Have to be logged in to view page'
+          //     });
+          //     router.go('/login', {
+          //       replace: true
+          //     });
+          //   }
+          // }
           this.$.content.scrollToTop(true);
         },
 

@@ -11,6 +11,10 @@
       transition-delay: 0s;
     }
 
+    paper-card {
+      width: 100%;
+    }
+
     .card-actions .itemPrice {
       float: right;
       display: inline-block;
@@ -29,7 +33,7 @@
     }
 
     .card-content {
-      height: 1.5em;
+      height: 2em;
       overflow: hidden;
       text-overflow: ellipsis;
     }
@@ -54,33 +58,33 @@
   </style>
 
   <template>
-    <catalog-product id="catalogProduct" byId="[[id]]" data="{{product}}"></catalog-product>
+    <catalog-product id="catalogProducts" by-id="{{byId}}" data="{{product}}"></catalog-product>
 
     <!-- <firebase-document id="fbfav" location$="[[_favLocation(user, product)]]" data="{{_fav}}" on-firebase-value="_updateFavIcon"></firebase-document> -->
     <catalog-user id="catalogUser" loggedin="{{loggedin}}" wait="{{wait}}" user="{{user}}"></catalog-user>
-    <!-- <catalog-cart id="catalogCart" items="{{cart}}"></catalog-cart> -->
+    <catalog-cart id="catalogCart" items="{{cart}}"></catalog-cart>
 
     <paper-card animated-shadow="true" elevation="0">
 
       <a href$="{{_computeLink(product)}}" is="pushstate-anchor">
-        <img class="image" src="[[firstImageURL]]">
-        <!-- <iron-image class="image" src="[[firstImageURL]]" sizing="contain"></iron-image> -->
+        <!-- <img class="image" src="[[firstImageURL]]"> -->
+        <iron-image class="image" src="[[product.firstImageURL]]" sizing="cover" preload placeholder="data:image/gif;base64,R0lGODdhyADIAOMAAO7u/5aWlqGho9jY5OPj8cLCyqyssLe3vc3N1wAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAAyADIAAAE/hDISau9OOvNu/9gKI5kaZ5oqq5s675wLM90bd94ru987//AoHBILBqPyKRyyWw6n9CodEqtWq/YrHbL7Xq/4LB4TC6bz+i0es1uu9/wuHxOr9vv+Lx+z+/7/4CBgoOEhYaHiImKi4yNjo+QkZKTlJWWl5iZmpucnZ6foKGio6SlpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P0NHS06kB1tYqA9cUBQEFrgLWAgIqBOEBFNuu1gMs2ugT3d/rAe0r77bsFwMGAQLzEggc8AcQAIJwA+EBuKbQmgF+3iocDHBAXiZ9Fd6dAxhuo4R3/gwnGDgnkqE1BBM0XrN3CSOFgQYM+ouHEsFMAP1i2lQIAN8EhwS6kZPQ74BMnpZcTgiHkoA1AhKxAWDaU+pHqwvrVVVI1ScmpRIwYjxwTqo+r1vTafV6FmtSrRXEak0ooB+8tjzR4v251m0llwSgUnUaAOrJtFMDoESrty9XxYi/wk0sMEBMoRKo7iRK8SiFxu285vQMoIDR0qdNN+rmbxxJlRFLi7u22OG1mDjP4bYb2uFVf+r0CZ+cyOS1oRD/cUM4cN5EA3bDhszqWOHEhBLIZh+qHdnmaFABwIwm9BxLZxAtn6fGvr379/Djy59Pv779+/jz69/Pv7///wAGQyjggAQWaOCBCCao4IIMNujggxBGKOGEFFZo4YUYZqjhhhx26OGHIIYo4ogklmjiiSimqOKKLLbo4oswxijjjDRKEQEAOw=="></iron-image>
       </a>
 
       <div class="card-content">
-        <div class="product_title">
-          <span>{{product.name}}</span>
+        <div class="product_title paper-font-title">
+          <span>[[product.title]]</span>
         </div>
         <span>[[product.description]]</span>
       </div>
 
       <div class="card-actions">
 
-        <paper-icon-button class="inFav" icon="favorite" on-tap="_favTap" in-fav$="[[inFav]]" disabled$="[[!loggedin]]"></paper-icon-button>
+        <!-- <paper-icon-button class="inFav" icon="favorite" on-tap="_favTap" in-fav$="[[inFav]]" disabled$="[[!loggedin]]"></paper-icon-button> -->
         <paper-icon-button class="inCart" icon="shopping-cart" on-tap="_cartTap" in-cart$="[[inCart]]"></paper-icon-button>
 
-        <h4 class="itemPrice">$
-          <span class="red">[[product.default_price]]</span>
+        <h4 class="itemPrice">
+          <span>[[_computeProductPriceText(product)]]</span>
         </h4>
 
       </div>
@@ -89,10 +93,25 @@
 
   </template>
   <script>
+    Number.prototype.formatMoney = function(c, d, t) {
+      var n = this,
+        c = isNaN(c = Math.abs(c)) ? 2 : c,
+        d = d == undefined ? "." : d,
+        t = t == undefined ? "," : t,
+        s = n < 0 ? "-" : "",
+        i = parseInt(n = Math.abs(+n || 0).toFixed(c)) + "",
+        j = (j = i.length) > 3 ? j % 3 : 0;
+      return s + (j ? i.substr(0, j) + t : "") + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : "");
+    };
+
     Polymer({
       is: 'product-card',
       enableCustomStyleProperties: true,
       properties: {
+        byId: {
+          type: String,
+          notify: true
+        },
         product: {
           type: Object,
           notify: true
@@ -120,17 +139,28 @@
         _fav: {
           type: Object,
           notify: true
-        },
+        }
+
       },
       observers: [
-        '_updateCartIcon(cart, product)',
+        '_updateCartIcon(cart, product)'
       ],
 
       // Product
 
+      _computeProductPriceText: function(product) {
+        // console.log(product.price);
+        if (!product.price) {
+          return "$0.00";
+        }
+        var priceText = (product.price).formatMoney(2);
+        // console.log('$' + priceText);
+        return '$' + priceText;
+      },
+
       _computeLink: function(item) {
         // return '/products/' + item.name.split(' ').join('_');
-        return '/products/' + item.__firebaseKey__;
+        return '/product/' + this.byId;
       },
       _computeFirstImage: function(images) {
         console.log('_computeFirstImage: ', images);
@@ -147,7 +177,7 @@
       // Cart
 
       _cartTap: function(e) {
-        // e.stopPropagation();
+        e.stopPropagation();
         // console.log('fire: add-to-cart');
         this.fire('add-to-cart', {
           product: this.product
@@ -157,7 +187,7 @@
       },
 
       _updateCartIcon: function(cart, product) {
-        console.log(product);
+        // console.log(product.__firebaseKey__);
         for (var i = 0; i < cart.length; i++) {
           // console.log(cart[i].__firebaseKey__ === product.__firebaseKey__);
           if (cart[i].__firebaseKey__ === product.__firebaseKey__) {

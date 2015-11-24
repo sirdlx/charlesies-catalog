@@ -103,7 +103,7 @@
     <!-- // General -->
     <google-maps-api id="maps" libraries="places" on-api-load="on_api_load"></google-maps-api>
     <catalog-user id="catalogUser" loggedin="{{loggedin}}" wait="{{wait}}" user="{{user}}" addressFFFF="{{address}}"></catalog-user>
-    <firebase-document id="fbUserSettings" location$="{{_userSettingLocation(user)}}" on-firebase-value="_computeUserSetting" data="{{userSetting}}"></firebase-document>
+    <!-- <firebase-document id="fbUserSettings" location$="{{_userSettingLocation(user)}}" on-firebase-value="_computeUserSetting" data="{{userSetting}}"></firebase-document> -->
     <!-- // Collection -->
     <firebase-collection id="fbAddress" location$="[[_computeAddressLocation(user, loggedin)]]" data="{{_address}}" on-firebase-value="_computeAddressList"></firebase-collection>
     <!-- // Single -->
@@ -121,7 +121,6 @@
     <iron-pages selected="{{selectedPage}}">
 
       <paper-material class="address layout vertical" wide$="{{wide}}" elevation="0">
-
         <template is="dom-repeat" items="{{address}}">
           <paper-item>
             <paper-item-body two-line>
@@ -154,7 +153,10 @@
             <paper-input value="{{add_state}}" label="State" class="field" id="administrative_area_level_1" required></paper-input>
             <gold-zip-input value="{{add_zip}}" id="postal_code" required></gold-zip-input>
             <br>
-            <paper-checkbox checked="{{isDefault}}">Default</paper-checkbox>
+            <div class="layout horizontal">
+              <span class="flex"></span>
+              <paper-checkbox class="isDefault layout end" checked="{{isDefault}}">Default</paper-checkbox>
+            </div>
           </form>
           <div class="buttons layout horizontal">
             <paper-button raised class="layout end" on-tap="cancel">Cancel</paper-button>
@@ -324,17 +326,17 @@
         _computeAddressList: function(argument) {
 
           // set isDefault to item.key matching to settings.default_address
-          this.debounce('isDefaultCheck', function(argument) {
-            if (this._address.length > 0) {
-              for (var i = 0; i < this._address.length; i++) {
-                // console.log(this._address[i].__firebaseKey__ === this.userSetting.default_address );
-                if (this._address[i].__firebaseKey__ === this.userSetting.default_address) {
-                  // console.log(this._address[i]);
-                  this._address[i].isDefault = true;
-                }
-              }
-            }
-          }, 0);
+          // this.debounce('isDefaultCheck', function(argument) {
+          //   if (this._address.length > 0) {
+          //     for (var i = 0; i < this._address.length; i++) {
+          //       // console.log(this._address[i].__firebaseKey__ === this.userSetting.default_address );
+          //       if (this._address[i].__firebaseKey__ === this.userSetting.default_address) {
+          //         // console.log(this._address[i]);
+          //         this._address[i].isDefault = true;
+          //       }
+          //     }
+          //   }
+          // }, 0);
 
           // Get List (Array) firebase sets to this._address
           this.set('address', this._address);
@@ -383,7 +385,7 @@
           this.fire('nav', {
             path: "/account/address",
             // params: "?&selectedAddress=0",
-            replace: replace
+            // replace: replace
           });
         },
 

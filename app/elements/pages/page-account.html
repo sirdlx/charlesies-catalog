@@ -7,10 +7,16 @@
       }
 
       paper-material {
-        padding-top: 8px;
-        padding-bottom: 16px;
+        max-width: 320px;
+        margin: 0 auto;
         background-color: white;
         overflow: hidden;
+      }
+
+      paper-material[wide] {
+        max-width: initial;
+        margin: 16px;
+        padding: 0;
       }
 
       paper-toolbar {
@@ -25,7 +31,11 @@
         padding: 16px;
       }
 
-      .profile .userIcon {
+      .section {
+        margin-bottom: 16px;
+      }
+
+      .userIcon {
         border-radius: 50%;
         width: 100px;
         height: 100px;
@@ -36,6 +46,15 @@
         /*padding: 16px 16px 32px 16px;*/
         padding-left: 8px;
         text-align: center;
+      }
+
+      .info .header {
+        margin: 0;
+      }
+
+      .info .subheader {
+        margin: 0;
+        color: #9E9E9E;
       }
 
       .headerIcon {
@@ -63,86 +82,129 @@
         margin-right: 16px;
       }
 
+      .split {
+        @apply(--layout-vertical)
+      }
+
+      [wide] .split {
+        @apply(--layout-horizontal)
+      }
+
+      .card,
       .address {
-        /*background-image: url('http://maps.google.com/maps/api/staticmap?center=5353+Cleveland+Ave+Columbus+Ohio+43231&zoom=15&amp&size=300x100');*/
-        background-repeat: no-repeat;
-        background-size: cover;
+        padding: 16px;
+      }
+
+      .card .header,
+      .address .header {
+        padding-bottom: 16px;
+      }
+
+      [wide] .divider {
+        width: 1px;
+        -webkit-box-shadow: -1px 0px 1px 0px rgba(0, 0, 0, 0.17);
+        -moz-box-shadow: -1px 0px 1px 0px rgba(0, 0, 0, 0.17);
+        box-shadow: -1px 0px 1px 0px rgba(0, 0, 0, 0.17);
+      }
+
+      paper-item {
+        min-height: 72px;
+      }
+
+      .edit-action {
+        margin-left: 16px;
       }
 
       .line1 {
         font-size: 18px;
       }
-
-      .card {
-        padding-bottom: 16px
-      }
     </style>
 
-    <catalog-user id="catalogUser" loggedin="{{loggedin}}" wait="{{wait}}" user="{{user}}" defaultCard="{{defaultCard}}" defaultAddress="{{defaultAddress}}"></catalog-user>
+    <catalog-user id="catalogUser" loggedin="{{loggedin}}" wait="{{wait}}" user="{{user}}"></catalog-user>
+    <iron-media-query query="(min-width: 600px)" query-matches="{{wide}}"></iron-media-query>
 
-    <paper-material class="profile layout vertical">
 
-      <div class="user layout vertical center-center">
+    <paper-material wide$="{{wide}}">
 
+
+      <div class="section user layout vertical center-center">
         <iron-image class="userIcon" src="[[user.profileImageURL]]" alt="user image" fade sizing="cover">
         </iron-image>
 
         <div class="info">
-          <h3>[[user.displayName]]</h3>
-          <span>[[user.displayName]]</span>
+          <h3 class="header">[[user.displayName]]</h3>
+          <div class="subheader">
+            <span>[[user.provider]]</span>
+          </div>
         </div>
       </div>
 
-    </paper-material>
 
-    <paper-material class="address layout vertical">
+      <div class="split section layout">
 
-      <iron-icon class="headerIcon" icon="maps:local-shipping"></iron-icon>
+        <div class="address layout vertical flex">
 
-      <paper-toolbar>
-        <div>
-          Address
+          <div class="header layout vertical center-center">
+            Address
+          </div>
+
+          <template is="dom-if" if="{{!user.address}}" restamp="true">
+            <div class="body layout vertical center-center">
+              <paper-icon-button class="edit-action" icon="add" on-tap="_navAddressList"></paper-icon-button>
+            </div>
+          </template>
+
+
+          <template is="dom-if" if="{{user.address}}" restamp="true">
+            <paper-item>
+              <paper-item-body two-line>
+                <div class="line1">
+                  <span>[[user.address.add_street]]</span>
+                </div>
+                <div secondary>
+                  <span>[[user.address.add_city]]</span>,
+                  <span>[[user.address.add_state]]</span>,
+                  <span>[[user.address.add_zip]]</span>
+                </div>
+              </paper-item-body>
+              <paper-icon-button class="edit-action" icon="editor:mode-edit" on-tap="_navAddressList"></paper-icon-button>
+            </paper-item>
+          </template>
+
         </div>
-        <span class="flex"></span>
-        <paper-icon-button icon="editor:mode-edit" on-tap="_navAddressList"></paper-icon-button>
-      </paper-toolbar>
 
-      <paper-item>
-        <paper-item-body two-line>
-          <div class="line1">
-            <span>[[defaultAddress.add_street]]</span>
+        <div class="divider"></div>
+
+        <div class="card layout vertical flex">
+          <!-- <iron-icon class="headerIcon" icon="icons:credit-card"></iron-icon> -->
+          <div class="header layout vertical center-center">
+            Card
           </div>
-          <div secondary>
-            <span>[[defaultAddress.add_city]]</span>,
-            <span>[[defaultAddress.add_state]]</span>,
-            <span>[[defaultAddress.add_zip]]</span>
-          </div>
-        </paper-item-body>
-      </paper-item>
 
-    </paper-material>
 
-    <paper-material class="card layout vertical">
-      <iron-icon class="headerIcon" icon="icons:credit-card"></iron-icon>
-      <paper-toolbar>
-        <div>
-          Cards
+          <template is="dom-if" if="{{!user.card}}" restamp="true">
+            <div class="body layout vertical center-center">
+              <paper-icon-button class="edit-action" icon="add" on-tap="_navCardList"></paper-icon-button>
+            </div>
+          </template>
+
+
+          <template is="dom-if" if="{{user.card}}" restamp="true">
+            <paper-item>
+              <paper-item-body>
+                <div class="layout horizontal">
+                  <iron-icon class="cc_type margin-right-16" src$="[[_computeTypeIcon(user.card.cc_type)]]"></iron-icon>
+                  <div class="cc_end">{{user.card.cc_end}}</div>
+                </div>
+              </paper-item-body>
+              <paper-icon-button class="edit-action" icon="editor:mode-edit" on-tap="_navAddressList"></paper-icon-button>
+            </paper-item>
+          </template>
+
         </div>
-        <span class="flex"></span>
-        <paper-icon-button icon="editor:mode-edit" on-tap="_navCardList"></paper-icon-button>
-
-      </paper-toolbar>
-
-      <paper-item>
-        <paper-item-body>
-          <div class="layout horizontal">
-            <iron-icon class="cc_type margin-right-16" src$="[[_computeTypeIcon(defaultCard.cc_type)]]"></iron-icon>
-            <div class="cc_end">{{defaultCard.cc_end}}</div>
-          </div>
-        </paper-item-body>
-      </paper-item>
 
       </div>
+
     </paper-material>
 
 
@@ -154,16 +216,6 @@
         is: 'page-account',
         enableCustomStyleProperties: true,
         properties: {
-          email: {
-            type: String,
-            notify: true,
-            value: ""
-          },
-          password: {
-            type: String,
-            notify: true,
-            value: ""
-          },
           wait: {
             type: Boolean,
             notify: true,
@@ -176,17 +228,11 @@
             type: Object,
             notify: true,
           },
-          provider: {
-            type: String,
-            value: 'password'
-          },
-
-          defaultAddress: {
+          Address: {
             type: Object,
             notify: true,
           },
-
-          defaultCard: {
+          Card: {
             type: Object,
             notify: true,
           },
@@ -194,36 +240,41 @@
         },
 
         observers: [
-          '_checkLoggedin(loggedin, wait, user)',
+          // '_checkAuth(wait, user)',
           // 'newCardValue(card.*)',
           // 'newAddressValue(address.*)'
-          '_defaultAddress(defaultAddress)',
-          '_defaultAddress(defaultCard)',
+          '_check(Address)',
+          '_check(user)',
         ],
 
-        _defaultAddress: function(defaultAddress) {
-          console.log(defaultAddress);
+        _check: function(check) {
+          // console.info('check: ', check);
         },
 
-        _checkLoggedin: function(loggedin, wait, user) {
+        _computeAccountText: function(loggedin) {
+          if (loggedin) {
+            return this.user.displayName;
+          }
+          return 'Account';
+        },
+
+        _checkAuth: function(wait, user) {
           // console.log(loggedin, wait, user);
 
-          if (!loggedin && !wait) {
+          if (!user && !wait) {
             console.log('not logged in!');
             this.fire('toast', {
               text: 'Have to be logged in to view page'
             });
-            this.debounce('nav_delay', function (argument) {
+            this.debounce('nav_delay', function(argument) {
               this.router.go('/login');
             }, 0);
 
-
             return;
-
           }
 
           if (!user) {
-            this.debounce('nav_delay', function (argument) {
+            this.debounce('nav_delay', function(argument) {
               this.router.go('/login');
             }, 0);
           }
@@ -244,7 +295,7 @@
           for (var i = 0; i < this.card.length; i++) {
             // console.log(this.card[i].default_card);
             if (this.card[i].default_card) {
-              this.defaultCard = this.card[i];
+              this.user.card = this.card[i];
               // console.log(this.defaultCard.cc_name);
               return;
             }
@@ -258,6 +309,7 @@
             this.noAddress = true;
             return;
           }
+
           for (var i = 0; i < this.address.length; i++) {
             // console.log(this.card[i].default_card);
             if (this.address[i].default_address) {
@@ -269,12 +321,18 @@
         },
 
         _navCardList: function() {
-          this.fire('nav', {path:"/account/card"});
+          // this.fire('nav', {
+          //   path: "/account/card"
+          // });
+          this.fire('open-card-dialog');
         },
 
         _navAddressList: function() {
           // this.showAddressList = !this.showAddressList;
-          this.fire('nav', {path:"/account/address"});
+          // this.fire('nav', {
+          //   path: "/account/address"
+          // });
+          this.fire('open-address-dialog');
         }
 
 

@@ -95,6 +95,7 @@
     "node": ">=0.10.0"
   },
   "dependencies": {
+    "connect-history-api-fallback": "^1.1.0",
     "paper-chip": "git+https://github.com/bendavis78/paper-chip.git"
   }
 }

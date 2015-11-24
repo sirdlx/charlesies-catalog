@@ -4,15 +4,18 @@
     on-password-reset="userSuccessHandler" on-user-removed="userSuccessHandler"></firebase-auth>
     <!-- <firebase-document id="firebaseFavorites" location$="{{_favLocation(user)}}" data="{{_favs}}"></firebase-document> -->
     <firebase-document id="fbUserProfile" location$="{{_userProfileLocation(_userAuth)}}" data="{{_user}}" on-firebase-value="_computeUser"></firebase-document>
-    <firebase-collection id="fbCard" location$="[[_computeCardLocation(user, loggedin, _user)]]" data="{{_card}}" on-firebase-value="_computeCard"></firebase-collection>
-    <firebase-collection id="fbAddress" location$="[[_computeAddressLocation(user, loggedin, _user)]]" data="{{_address}}" on-firebase-value="_computeAddress"></firebase-collection>
+    <!-- <firebase-collection id="fbCard" location$="[[_computeCardLocation(user, loggedin)]]" data="{{_card}}" on-firebase-value="_computeCard"></firebase-collection> -->
+    <!-- <firebase-collection id="fbAddress" location$="[[_computeAddressLocation(user, loggedin, _user)]]" data="{{_address}}" on-firebase-value="_computeAddress"></firebase-collection> -->
   </template>
   <script>
     (function() {
 
       var _instances = [];
+      var _card = [];
 
       var _add = function(type, item) {
+        // console.log('_computeUser._add - ', 'type: ', type);
+        // console.log('_computeUser._add - ', 'item: ', item);
         var check = _instances[0];
         var insertAt = 0;
 
@@ -21,14 +24,21 @@
         //
         // }
 
+        check.splice(type, insertAt, 0, item);
+        // console.dir(check.card);
+        console.dir(_instances);
+
         _instances.forEach(function(instance) {
+
           if (!instance[type]) {
             return;
           }
-          instance.splice(type, insertAt, 0, item);
+
+          // instance.splice(type, insertAt, 0, item);
         });
         // _updateAll();
-        return item;
+        // return item;
+
       };
 
       var _remove = function(type, item_index) {
@@ -107,31 +117,33 @@
             notify: true
           },
 
+          // _card: {
+          //   type: Array,
+          //   notify: true,
+          // },
           _card: {
-            type: Array,
+            type: Object,
             notify: true,
           },
 
-          card: {
-            type: Array,
+          Card: {
+            type: Object,
             notify: true,
+            value: {
+              'cc_num': '5555 5555 5555 5559'
+            }
           },
 
+          // _address: {
+          //   type: Array,
+          //   notify: true,
+          // },
           _address: {
             type: Object,
             notify: true,
           },
 
-          address: {
-            type: Array,
-            notify: true,
-          },
-          defaultAddress: {
-            type: Object,
-            notify: true,
-            // computed: '_computeDefaultAddress(userSetting, address)'
-          },
-          defaultCard: {
+          Address: {
             type: Object,
             notify: true,
           },
@@ -139,7 +151,7 @@
         },
         observers: [
           // '_computeUser(_user)',
-          'checkstatus(statusKnown, _user)',
+          'checkstatus(statusKnown, _userAuth)',
           // 'check(user)',
         ],
 
@@ -161,13 +173,13 @@
           if (!user) {
             this.set('user', null);
             return;
-
           }
           return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid;
         },
 
         addFav: function(product) {
           // console.log(product.__firebaseKey__);
+          if (!product)return;
           var ref = new Firebase('https://charlesiesbeta.firebaseio.com/users/' + this.user.uid + '/favorites/' + product.__firebaseKey__);
           ref.once("value", function(snapshot) {
             // console.log(snapshot.val());
@@ -184,16 +196,25 @@
 
         _computeUser: function(_, ref) {
           // console.log(ref);
-          console.log(ref);
           if (!ref) return;
-          var user = ref.val() || {};
-          user = this._userAuth[this._userAuth.provider];
-          user.id = null;
-          user.isAdmin = this._user.isAdmin;
-          // this.set('_user', user);
+          // var user = ref.val() || {};
+          var user = this._user || {};
+          // user = this._userAuth[this._userAuth.provider];
+          user.accessToken = this._userAuth[this._userAuth.provider].accessToken;
+          user.cachedUserProfile = this._userAuth[this._userAuth.provider].cachedUserProfile;
+          user.displayName = this._userAuth[this._userAuth.provider].displayName;
+          user.id = this._userAuth[this._userAuth.provider].id;
+          user.profileImageURL = this._userAuth[this._userAuth.provider].profileImageURL;
+          user.token = this._userAuth[this._userAuth.provider].token;
+          user.provider = this._userAuth.provider;
+          user.isAdmin = this._user.isAdmin || false;
+          this.set('_user', user);
+
+          // local use properties
           user.uid = this._userAuth.auth.uid;
-          // console.log(this._userAuth.auth);
-          this.user = user;
+          user.token = this._userAuth.token;
+          // send it up
+          this.set('user', this._user);
         },
 
         login: function(provider, email, password) {
@@ -265,11 +286,11 @@
           });
         },
 
-        checkstatus: function(statusKnown, user) {
+        checkstatus: function(statusKnown, _user) {
           // console.log(statusKnown);
-          // console.log('statusKnown: ', user, statusKnown);
-          if (statusKnown && user) {
 
+          if (statusKnown && _user) {
+            // console.log('statusKnown: ', _user, statusKnown);
             // console.log('logged in');
             this.loggedin = true;
             this.wait = false;
@@ -284,9 +305,11 @@
             this.loggedin = false;
             this.wait = false;
 
-            if (!user) {
-              this.user = {};
-              this.user.uid = 'guest_' + Date.now();
+            if (!_user) {
+              _user = {};
+              _user.uid = 'guest_' + Date.now();
+              _user.displayName = 'Guest';
+              this.set('user', _user)
             }
 
             return false;
@@ -297,15 +320,16 @@
           // return 'Unknown (checking status...)';
         },
 
-        _computeCardLocation: function(loggedin) {
+        _computeCardLocation: function(user, loggedin) {
           if (loggedin) {
-            return 'https://charlesiesbeta.firebaseio.com/users/' + this.user.uid + '/cards';
+            return 'https://charlesiesbeta.firebaseio.com/users/' + this.user.uid + '/card';
           }
+          return;
         },
 
         _computeAddressLocation: function(user, loggedin) {
           // console.log(user.uid, loggedin);
-          if (loggedin && user) {
+          if (loggedin) {
             return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid + '/address';
           }
         },
@@ -366,6 +390,7 @@
         // Save Card
 
         save_card: function function_name(newCard) {
+          // console.log(this.loggedin);
           // If logged in, add to database
           if (!this.loggedin) {
             // If guest, add to guest card array
@@ -388,23 +413,24 @@
           // console.log(cardRef.val());
           // console.log(this._card);
           // var card = cardRef.val();
-          if (this._card.length === 0) {
-            this.defaultCard = null;
-            return;
-          }
+          // if (this._card.length === 0) {
+          //   this.Card = null;
+          //   return;
+          // }
 
-          console.log(this._user.default_card);
+          // console.log(this._user.default_card);
 
           // for (var i = 0; i < this._card.length; i++) {
           //   // console.log(this.card[i].default_card);
           //   if (this._card[i].default_card) {
-          //     this._defaultCard = this._card[i];
-          //     console.log(this.defaultCard.cc_name);
+          //     this._Card = this._card[i];
+          //     console.log(this.Card.cc_name);
           //     return;
           //   }
           // }
 
-          this.card = this._card;
+          // this.card = this._card;
+          this.Card = this._card;
 
         },
 

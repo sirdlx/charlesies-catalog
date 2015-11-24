@@ -8,6 +8,7 @@
       if (_instances.length) {
         localStorage['catalog.cart'] = JSON.stringify(_instances[0].items);
       }
+      // console.log(localStorage['catalog.cart']);
     };
 
     var _clear = function() {
@@ -28,7 +29,7 @@
     var _add = function(product) {
       var check = _instances[0];
       var insertAt = 0;
-      
+
       // var el = document.createElement('catalog-product');
       // el.id = _product.__firebaseKey__;
       // console.dir(_product);

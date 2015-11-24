@@ -2,6 +2,11 @@
   <template>
 
     <style is="custom-style" media="screen">
+      :host {
+        display: block;
+        padding-bottom: 96px;
+      }
+
       .grid-layout {
         padding-top: 16px;
         display: -ms-inline-flexbox;
@@ -49,18 +54,45 @@
           margin: 8px 16px;
         }
       }*/
+
+      .addFab {
+        position: fixed;
+        bottom: 16px;
+        right: 16px;
+        color: #fff;
+        will-change: transform;
+        transition: -webkit-transform .2s ease-in-out;
+        transition: transform .2s ease-in-out;
+      }
     </style>
 
-    <firebase-collection id="products" location="https://charlesiesbeta.firebaseio.com/products" data="{{products}}" order-by-child="[[_orderByChild]]" equal-to="[[_equalTo]]" limit-to-first="[[queryLimit]]"></firebase-collection>
+    <firebase-collection id="products" location="https://charlesiesbeta.firebaseio.com/products" data="{{products}}" order-by-child="[[_orderByChild]]" equal-to="[[category]]" limit-to-first="[[queryLimit]]" on-firebase-value="_computeProducts"></firebase-collection>
     <!-- <catalog-data products="[[products]]"></catalog-data> -->
     <!-- <iron-ajax id="firebaseProducts" params="{{_params()}}" url="https://charlesiesbeta.firebaseio.com/products.json" handle-as="json" loading="{{loading}}" last-response="{{_products}}" auto></iron-ajax> -->
+    <catalog-user id="catalogUser" user="{{user}}"></catalog-user>
 
     <div id="grid" class="grid-layout">
 
-      <paper-spinner active="true"></paper-spinner>
+      <paper-spinner active="[[loading]]"></paper-spinner>
 
       <template is="dom-repeat" items="[[products]]">
-        <product-card product="{{item}}" class="grid-cell"></product-card>
+        <product-card by-id="[[item.__firebaseKey__]]" class="grid-cell"></product-card>
+      </template>
+
+      <product-card by-id="101" class="grid-cell"></product-card>
+
+
+      <template is="dom-if" if="[[!products.length]]">
+        <div class="layout vertical center-center">
+          <div>No products</div>
+          <div>Create Product
+            <paper-icon-button icon="add" on-tap="_navAddProduct"></paper-icon-button>
+          </div>
+        </div>
+      </template>
+
+      <template is="dom-if" if="{{user.isAdmin}}">
+        <paper-fab class="addFab" icon="add" on-tap="_navAddProduct"></paper-fab>
       </template>
 
     </div>
@@ -75,6 +107,11 @@
         enableCustomStyleProperties: true,
         properties: {
           router: Object,
+          loading: {
+            type: Boolean,
+            notify: true,
+            value: true
+          },
           // Query Parameters
           search: {
             type: String,
@@ -84,7 +121,6 @@
           category: {
             type: String,
             notify: true,
-            value: null
           },
           products: {
             type: Array,
@@ -110,7 +146,6 @@
           _equalTo: {
             type: String,
             notify: true,
-            computed: '_computeEqualTo(category)'
           }
 
         },
@@ -124,8 +159,15 @@
           // 'page-fetch-more': '_fetchMore'
         },
 
-        _productTap: function(e) {
-          console.log(e);
+        _computeProducts: function(_, e) {
+          // console.log('_computeProducts: ', this.products[0].__firebaseKey__);
+          this.loading = false;
+        },
+
+        _navAddProduct: function() {
+          this.fire('nav', {
+            path: '/product/new'
+          });
         },
 
         _fetchMore: function(e) {
@@ -200,11 +242,6 @@
 
         },
 
-        _computeEqualTo: function(e) {
-          console.log('_computeEqualTo: ', e);
-          return e;
-
-        },
 
         _parseQueryString: function() {
           var query = window.location.search.substring(1);

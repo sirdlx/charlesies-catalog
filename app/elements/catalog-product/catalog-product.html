@@ -1,12 +1,15 @@
 <dom-module id="catalog-product">
   <template>
     <!-- <catalog-data product-map="{{_products}}"></catalog-data> -->
-    <firebase-collection id="fbImages" location$="[[_imagesLocation(byId)]]" data="{{_images}}" order-by-child="productById" equal-to="[[byId]]" on-firebase-value="_computeImages"></firebase-collection>
-    <firebase-collection id="fbCategories" location$="[[_categoriesLocation(byId)]]" data="{{_categories}}" on-firebase-value="_computeCategories"></firebase-collection>
-    <firebase-document id="fbProoduct" location$="[[_productLocation(byId)]]" data="{{_product}}" on-firebase-value="_computeProduct"></firebase-document>
+    <firebase-document id="catalogProoductDetails" location$="[[_productLocation(byId)]]" data="{{_productDetails}}" on-firebase-value="_computeProductDetails"></firebase-document>
 
   </template>
   <script>
+    var _defaultProduct = {};
+    _defaultProduct['/.sv/'] = "timestamp";
+    _defaultProduct['/status/'] = 0;
+    _defaultProduct['/tittle/'] = "New";
+
     Polymer({
       is: 'catalog-product',
       properties: {
@@ -16,146 +19,254 @@
           notify: true
         },
 
-        _product: Object,
-        _images: Array,
-        _categories: Array,
-
-        product: {
+        productDetails: {
           type: Object,
-          notify: true,
+          notify: true
         },
+
+        _productdetails: {
+          type: Object,
+          notify: true
+        },
+
 
         images: {
           type: Array,
           notify: true,
         },
 
-        Categories: {
+        categories: {
           type: Array,
-          notify: true
-        },
-
-        firstImageURL: {
-          type: String,
           notify: true
         },
 
         data: {
           type: Object,
           notify: true,
-          computed: 'getData(product, images, categories)'
+          // computed: 'getData(_images, _categories, _options)'
+        },
+        edit: {
+          type: Object,
+          notify: true
         }
 
       },
 
       observers: [
-
+        '_computeImages(productDetails)',
+        '_computeCategories(productDetails)',
+        '_computeProductOptions(productDetails)',
+        'getData(images, categories)',
+        '_edit(edit.*)',
       ],
 
-      _productLocation: function(id) {
-        // console.log('_productsLocation', "https://charlesiesbeta.firebaseio.com/products/" + id);
-        console.log('loading ' + id + ' details');
-        return "https://charlesiesbeta.firebaseio.com/products/" + id;
-      },
 
-      _categoriesLocation: function(id) {
-        console.log('loading ' + id + '\'s categories');
-        return "https://charlesiesbeta.firebaseio.com/categories";
-      },
+      // Categories
 
-      _imagesLocation: function(id) {
-        console.log('loading ' + id + '\'s images');
-        return "https://charlesiesbeta.firebaseio.com/images";
-      },
-
-
-      _computeCategories: function(e, ref) {
-        this.categories = this._categories;
-      },
-
-      _computeImages: function(e, ref) {
-        this.images = this._images;
-        console.log(this._images);
-        // this.firstImageURL = this.images[0];
-      },
-
-      addImage: function(image) {
-        // console.log(image);
-        // var ImageKey = image.kind + image.id;
-        // console.log(ImageKey);
-
-        var img = {};
-        img.downloadUrl = image.downloadUrl;
-        img.id = image.id;
-        img.kind = image.kind;
-        img.thumbnailLink = image.thumbnailLink;
-        img.title = image.title;
-        img.webContentLink = image.webContentLink;
-
-        // console.log(this.product);
-        // return;
-
-        if (!this.product) {
-          // this.push('images', img);
-          // console.log(this.images);
-          if (!this.images) {
-            this.images = [img];
-            return;
-          }
-          // console.log('push');
-
-          for (var i = 0; i < this.images.length; i++) {
-            if (this.images[i].id === img.id) {
-              return;
-            }
-          }
-
-          this.push('images', img);
-
+      _computeCategories: function(snap) {
+        // console.log('loading ' + snap.key() + '\'s categories');
+        if (this.saving) {
+          console.log('saving');
+          this.saving = false;
           return;
         }
 
-        var urlRef = 'https://charlesiesbeta.firebaseio.com/images/' + img.id;
+        var _productDetails = snap.val();
+        // console.log(this.addImage(_image));
 
+        this.set('categories', []);
+
+        if (!_productDetails.categoriesById) {
+          // this.images = this._images;
+          // this.firstImageURL = this.images[0];
+          this.set('categories', false);
+          return;
+        }
+        // var imageKeys = Object.keys(_productDetails.categoriesById).sort();
+        var categories = [];
+
+        for (var key in _productDetails.categoriesById) {
+          // console.log(key);
+          snap.ref().root().child('/categories/' + key).once('value', function(dataSnapshot) {
+            // console.log(dataSnapshot.val());
+            categories.push(dataSnapshot.val());
+          });
+        }
+
+        this.debounce('_computeCategoriesFFFF', function() {
+          this.set('categories', categories);
+          console.log(this.categories);
+        }, 600);
+
+      },
+
+      // Images
+
+      addImageAtomic: function(image) {
+        // this.push('images', image);
+        var byId = this.byId;
+        var urlRef = 'https://charlesiesbeta.firebaseio.com';
         var ref = new Firebase(urlRef);
+        var updates = {};
+        var imageId = image.id;
 
-        ref.once('value', function(dataSnapshot) {
-          // var value = dataSnapshot.val();
-          // console.log('value: ', value);
-          if (dataSnapshot.val()) {
-            console.log('already exist');
-            // console.log(dataSnapshot.child('productById').val());
-
-            if (!dataSnapshot.child('productById.' + this.product.id).val()) {
-              var id = this.product.id;
-              dataSnapshot.child('productById').set({
-                id: true
-              });
-            }
+        ref.child('/images/' + imageId).once('value', function(snapshot) {
+          // console.log(snapshot.exists());
+          if (!snapshot.exists()) {
+            // imageId = ref.push(image).key();
+            ref.child('/images/' + imageId).set(image);
           }
-
-          var key = ref.set(image);
-
-        }, function(err) {
-          console.error(err);
+          updates['/images/' + imageId + '/productById/' + byId] = true;
+          updates['/products/' + byId + '/imagesById/' + imageId] = true;
+          ref.update(updates);
+          return ref.child('images').child(imageId);
         });
 
       },
 
-      _computeProduct: function(_, ref) {
-        // console.log(this._product.categories[0]);
-        this.product = this._product;
+      addImage: function(image) {
+        return this.addImageAtomic(image);
       },
 
-      getData: function(_product, images, categories) {
-        // console.log('getData', _product, images, categories);
-        // var value ={product: this.product,images: this.images,categories: this.categories};
-        return {
-          product: this.product,
-          images: this.images,
-          categories: this.categories,
-          // options: this.options
-        };
+      removeImageAtomic: function(imageId) {
+        var byId = this.byId;
+        var urlRef = 'https://charlesiesbeta.firebaseio.com';
+        var ref = new Firebase(urlRef);
+        var updates = {};
+        updates['/images/' + imageId + '/productById/' + byId] = null;
+        updates['/products/' + byId + '/imagesById/' + imageId] = null;
+        ref.update(updates);
+        return true;
+      },
+
+      removeImage: function(imageId) {
+        return this.addImageAtomic(imageId);
+      },
+
+      _computeImages: function(snap) {
+        if (this.saving) {
+          // console.log('saving');
+          this.saving = false;
+          return;
+        }
+        // console.log('loading images for ', snap.key());
+        var _productDetails = snap.val();
+        // console.log(this.addImage(_image));
+        // console.log(_productDetails);
+        this.set('images', []);
+        if (!_productDetails.imagesById) {
+          // this.images = this._images;
+          // this.firstImageURL = this.images[0];
+          this.set('firstImageURL', false);
+          this.set('images', false);
+          return;
+        }
+        var imageKeys = Object.keys(_productDetails.imagesById).sort();
+        var images = [];
+        for (var i = 0; i < imageKeys.length; i++) {
+          // console.log(imageKeys[i]);
+          snap.ref().root().child('/images/' + imageKeys[i]).once('value', function(dataSnapshot) {
+            images.push(dataSnapshot.val());
+          });
+        }
+        // for (var key in _productDetails.imagesById) {
+        //   // console.log(key);
+        //   snap.ref().root().child('/images/' + key).once('value', function(dataSnapshot) {
+        //     // console.log(dataSnapshot.val());
+        //     images.push(dataSnapshot.val());
+        //   });
+        // }
+        //      Throttle
+        this.debounce('_computeImagesFFFF', function() {
+          this.set('images', images);
+          // console.log(this.images);
+        }, 600);
+        // this.set('images', images);
+      },
+
+      // Options
+
+      newOption: function() {
+        this.push('options', {label:'', price:0});
+        console.log(this.options);
+      },
+
+      _computeProductOptions: function(snap) {
+        if (this.saving) {
+          // console.log('saving');
+          this.saving = false;
+          return;
+        }
+        // console.log('loading options for ', this.productDetails.key());
+        // console.log(snap.child('/options').val());
+        if (!snap.child('/options').val()) {
+          this.set('options', []);
+          return;
+        }
+        var options = [], _options = snap.child('/options').val();
+        for (var option in _options) {
+          // console.log(_options[option]);
+          options.push(_options[option]);
+        }
+        this.set('options', options);
+        // console.log(this.options);
+      },
+
+      // Product Details
+
+      _productLocation: function(id) {
+        // console.log('_productsLocation', "https://charlesiesbeta.firebaseio.com/products/" + id);
+        // console.log('loading ' + id + ' details');
+        return "https://charlesiesbeta.firebaseio.com/products/" + id;
+      },
+
+
+      _edit: function(edit) {
+        // console.log('edit', edit.path);
+        // this.set('edit', check.base);
+        if (edit.path === 'edit') return;
+        this.saving = true;
+        this.productDetails.ref().update(edit.base);
+        // console.log(this.productDetails);
+      },
+
+
+      _computeProductDetails: function(e, snap) {
+        // console.log(snap.key());
+        // this.set('productDetails', this._productDetails);
+        if (snap.val()) {
+          this.set('productDetails', snap);
+        }
+
+      },
+
+      new: function() {
+        var urlRef = 'https://charlesiesbeta.firebaseio.com/products/';
+        var ref = new Firebase(urlRef);
+        var newProduct = ref.push({
+          _defaultProduct
+        }).key();
+        this.byId = newProduct;
+        // console.log(newProduct);
+        return this.byId;
+      },
+
+      getData: function(_images, _categories, _options) {
+
+        // console.log('getData', snap.key(), _images, _categories);
+        var _productDetails = this.productDetails.val();
+        if (!_productDetails) {
+          _productDetails = {};
+        }
+
+        _productDetails.images = _images;
+        _productDetails.categories = _categories;
+        _productDetails.options = _options;
+        // // console.log(_productDetails);
+        // this.set('firstImageURL', _productDetails.images[0]);
+        this.set('data', _productDetails);
+        this.set('edit', this._productDetails);
+        // return _productDetails;
       }
     });
   </script>
