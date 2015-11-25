@@ -69,6 +69,11 @@
         /*border-bottom: 1px solid red;*/
       }
 
+      #details {
+        padding-top: 8px;
+        padding-bottom: 16px;
+      }
+
       .sectionHeader {
         margin-bottom: 8px;
         height: 56px;
@@ -84,7 +89,7 @@
         text-overflow: ellipsis;
         font-size: 20px;
         font-weight: 500;
-        line-height: 54px;
+        line-height: normal;
       }
       /*  View Product  */
 
@@ -132,7 +137,11 @@
 
       #images .iron-selected {}
 
-      .image-container {}
+      .image-container {
+        margin-left: 16px;
+        padding-top: 1px;
+        padding-bottom: 1px;
+      }
 
       .image-list {
         height: 100%;
@@ -223,9 +232,6 @@
         <!-- <iron-icon class="headerIcon" icon="maps:local-shipping"></iron-icon> -->
       </paper-toolbar>
 
-
-
-
       <paper-material id="images" wide$="{{wide}}" elevation="0">
 
         <template is="dom-if" if="{{edit}}">
@@ -238,7 +244,7 @@
         </template>
 
         <!-- <template is="dom-if" if="{{product.images}}"> -->
-        <div class="image-container body">
+        <div class="image-container">
           <div class="image-list">
             <iron-selector attr-for-selected="item" selected="{{imageSelected}}" class=" layout horizontal">
 
@@ -288,135 +294,133 @@
 
 
       <paper-material id="details" wide$="{{wide}}" elevation="0">
-        <div class="layout vertical center-center body">
+        <div class="layout vertical body">
 
-          <!-- Card Actions: If not loggedin -->
-
-          <template is="dom-if" if="{{!edit}}">
-            <div class="card-actions layout horizontal">
-              <paper-icon-button class="inFav" icon="favorite" on-tap="_favTap" in-fav$="[[inFav]]" disabled$="[[!loggedin]]"></paper-icon-button>
-              <paper-icon-button class="inCart" icon="shopping-cart" on-tap="_cartTap" in-cart$="[[inCart]]"></paper-icon-button>
-              <template is="dom-if" if="{{!user.isAdmin}}">
-                <h4 class="productPrice">
-                  <span class="red">[[_computePrice(product.price)]]</span>
-                </h4>
-              </template>
-            </div>
-          </template>
 
           <!-- Card Actions: If Admin -->
 
-          <template is="dom-if" if="{{edit}}">
-            <div class="card-actions admin section layout horizontal">
 
-              <div class="layout horizontal margin-right-16">
-                <paper-icon-button class="productFavorites" icon="favorite" in-fav></paper-icon-button>
+          <div class="card-actions layout horizontal center-center">
+
+            <div class="layout horizontal margin-right-16">
+              <paper-icon-button class="inFav" icon="favorite" on-tap="_favTap" in-fav$="[[inFav]]" disabled$="[[!loggedin]]"></paper-icon-button>
+              <template is="dom-if" if="{{edit}}">
                 <div>100k</div>
-              </div>
-
-              <div class="layout horizontal margin-right-16">
-                <paper-icon-button class="productOrders" icon="shopping-cart" in-cart></paper-icon-button>
-                <div>100k</div>
-              </div>
-
+              </template>
             </div>
-          </template>
+
+            <div class="layout horizontal margin-right-16">
+              <paper-icon-button class="inCart" icon="shopping-cart" on-tap="_cartTap" in-cart$="[[inCart]]"></paper-icon-button>
+              <template is="dom-if" if="{{edit}}">
+                <div>100k</div>
+              </template>
+            </div>
+
+            <template is="dom-if" if="{{!user.isAdmin}}">
+              <h4 class="productPrice">
+                <span class="red">[[_computePrice(product.price)]]</span>
+              </h4>
+            </template>
+
+          </div>
+
 
 
           <!-- Product Name -->
           <!-- <div class="paper-font-title section fullwidth">Name of product</div> -->
 
-          <div class="section paper-font-body1 fullwidth layout vertical">
-            <div class="sectionHeader fullwidth">
-              <div class="title">
-                Description
-              </div>
+          <div class="layout vertical">
+
+            <div class="title paper-font-title ">
+              Description
             </div>
+
             <!-- Product Description -->
             <div hidden="{{edit}}">
-              <span>{{product.description}}</span>
+              <span class="paper-font-body1">{{product.description}}</span>
             </div>
             <template is="dom-if" if="{{edit}}">
               <!-- <paper-input class="editTitleValue fullwidth" value="{{_edit.title::input}}" label="Title" type="text">
               </paper-input> -->
 
               <!-- Product Description -->
-              <paper-textarea class="fullwidth" label="description" rows="1" max-rows="2" value="{{_edit.description}}"></paper-textarea>
+              <paper-textarea class="" label="description" rows="1" max-rows="2" value="{{_edit.description}}"></paper-textarea>
             </template>
           </div>
 
 
-          <!-- Product Price -->
+          <!-- Product Options -->
 
-          <div class="section editPrice fullwidth">
 
-            <div class="sectionHeader fullwidth layout horizontal">
-              <div class="title">
-                Options
+          <template is="dom-if" if="{{product.options.length}}">
+
+
+            <div class="section productOptions ">
+
+              <div class="sectionHeader layout horizontal">
+                <div class="title">
+                  Options
+                </div>
+                <span class="flex"></span>
+                <template is="dom-if" if="{{edit}}">
+                  <paper-button class="addTagsButton" in-fav on-tap="_tapAddOption">Add Option
+                    <iron-icon icon="add"></iron-icon>
+                  </paper-button>
+                </template>
               </div>
-              <span class="flex"></span>
-              <template is="dom-if" if="{{edit}}">
-                <paper-button class="addTagsButton" in-fav on-tap="_tapAddOption">Add Option
-                  <iron-icon icon="add"></iron-icon>
-                </paper-button>
-              </template>
-            </div>
 
-            <div class="productOptions layout vertical">
-              <!-- Options List -->
-
-              <!-- <template is="dom-repeat" items="[[product.options]]">
-                <div class="layout horizontal fullwidth">
-                  <div>[[item.title]]</div>
-                  <div>[[item.price]]</div>
-                </div>
-              </template> -->
-
-              <template is="dom-repeat" items="{{product.options}}">
-                <div class="layout horizontal fullwidth" hidden="{{edit}}">
-                  <div class="flex margin-right-16">[[item.title]]</div>
-                  <div class="">[[item.price]]</div>
-                </div>
-              </template>
-
-              <!-- Admin -->
-              <template is="dom-if" if="{{edit}}">
-
-                <div class="fullwidth layout horizontal">
-                  <div class="productOptionLabelDefaultValue layout start margin-right-16">
-                    Default:
-                  </div>
-
-                  <span class="flex"></span>
-
-                  <paper-input class="productOptionPriceDefaultValue layout end" value="{{_edit.price::change}}" label="price" type="number">
-                    <div prefix>$</div>
-                  </paper-input>
-                </div>
-
+              <div class="productOptions layout vertical">
+                <!-- Options List -->
 
                 <template is="dom-repeat" items="{{product.options}}">
-                  <div class="fullwidth layout horizontal">
-                    <paper-input class="productOptionLabelValue margin-right-16" value="{{item.label::change}}" label="Option Label" type="text">
-                    </paper-input>
-                    <span class="flex"></span>
-                    <paper-input class="productOptionPriceValue" valuex="{{item.price}}" value="{{item.price::change}}" label="price" type="number">
-                      <div prefix>$</div>
-                    </paper-input>
+                  <div class="layout horizontal " hidden="{{edit}}">
+                    <div class="flex margin-right-16">[[item.label]]</div>
+                    <div class="">[[item.price]]</div>
                   </div>
                 </template>
 
-              </template>
+                <!-- Admin -->
+                <template is="dom-if" if="{{edit}}">
 
+                  <div class=" layout horizontal">
+                    <div class="productOptionLabelDefaultValue layout start margin-right-16">
+                      Default:
+                    </div>
+
+                    <span class="flex"></span>
+
+                    <paper-input class="productOptionPriceDefaultValue layout end" value="{{_edit.price::change}}" label="price" type="number">
+                      <div prefix>$</div>
+                    </paper-input>
+                  </div>
+
+
+                  <template is="dom-repeat" items="{{product.options}}">
+                    <div class=" layout horizontal">
+                      <paper-input class="productOptionLabelValue margin-right-16" value="{{item.label::input}}" label="Option Label" type="text">
+                      </paper-input>
+                      <span class="flex"></span>
+                      <paper-input class="productOptionPriceValue" value="{{item.price::input}}" label="price" type="number">
+                        <div prefix>$</div>
+                      </paper-input>
+
+                      <paper-icon-button icon="clear" on-tap="_tapRemoveOption"></paper-icon-button>
+                    </div>
+                  </template>
+
+                </template>
+
+
+              </div>
 
             </div>
 
-          </div>
+          </template>
 
 
           <!-- Product Tags -->
           <template is="dom-if" if="{{edit}}">
-            <div class="section productTags fullwidth layout">
+            <div class="section productTags  layout">
               <div class="sectionHeader layout horizontal">
                 <div class="title">
                   Tags
@@ -462,7 +466,7 @@
           <!-- Product Status -->
           <template is="dom-if" if="{{edit}}">
 
-            <div class="section fullwidth productStatus">
+            <div class="section  productStatus">
               <div class="sectionHeader layout horizontal">
                 <div class="title">
                   Status
@@ -639,6 +643,11 @@
         this.$.catalogProduct.newOption();
       },
 
+      _tapRemoveOption: function(item) {
+        // console.log('tap remove option: ', item);
+        this.$.catalogProduct.removeOption(item.model.__data__.item);
+      },
+
       _toggleEditMode: function() {
         // console.log(_images);
         this.set('edit', !this.edit);
@@ -657,10 +666,18 @@
         if (byId === 'new') {
           // Add one
           key = this.$.catalogProduct.new();
-          this.fire('nav', {
-            path: '/product/' + key,
-            replace: true
-          });
+          console.log(key);
+          this.debounce('_computeNewProductDebounce', function(argument) {
+            // this.fire('nav', {
+            //   path: '/product/' + key,
+            //   replace: true
+            // });
+            var path = "?byId=" + key + "&edit=true";
+            // history.replaceState(key, null, path);
+            window.location.search = path;
+            // this.byId = key;
+          }, 10);
+
         }
       },
 
@@ -678,6 +695,13 @@
 
       _computePageTitle: function(product) {
         // console.log(product);
+
+        if (!product) {
+          return;
+
+        }
+
+
         if (this.byId) {
           this.pageTitle = this.product.title;
           return;
@@ -698,6 +722,7 @@
       _cartTap: function(e) {
         // e.stopPropagation();
         // console.log('fire: add-to-cart');
+        if (this.user.isAdmin) return;
         this.fire('add-to-cart', {
           product: this.product
         });
@@ -721,6 +746,7 @@
       _favTap: function(e) {
         e.stopPropagation();
         // console.log('add-to-fav', e);
+        if (this.user.isAdmin) return;
         this.fire('add-to-fav', {
           product: this.product
         });

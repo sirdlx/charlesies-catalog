@@ -5,10 +5,11 @@
 
   </template>
   <script>
-    var _defaultProduct = {};
-    _defaultProduct['/.sv/'] = "timestamp";
-    _defaultProduct['/status/'] = 0;
-    _defaultProduct['/tittle/'] = "New";
+    var _defaultProduct = {}; //= {
+    //   ".sv": "timestamp"
+    // };
+    _defaultProduct.status = 0;
+    _defaultProduct.title = "New";
 
     Polymer({
       is: 'catalog-product',
@@ -16,7 +17,8 @@
 
         byId: {
           type: String,
-          notify: true
+          notify: true,
+          reflectToAttribute: true
         },
 
         productDetails: {
@@ -31,6 +33,11 @@
 
 
         images: {
+          type: Array,
+          notify: true,
+        },
+
+        options: {
           type: Array,
           notify: true,
         },
@@ -56,8 +63,9 @@
         '_computeImages(productDetails)',
         '_computeCategories(productDetails)',
         '_computeProductOptions(productDetails)',
-        'getData(images, categories)',
+        'getData(images, categories, options)',
         '_edit(edit.*)',
+        '_options(data.options.*)',
       ],
 
 
@@ -71,17 +79,14 @@
           return;
         }
 
-        var _productDetails = snap.val();
-        // console.log(this.addImage(_image));
-
-        this.set('categories', []);
-
-        if (!_productDetails.categoriesById) {
-          // this.images = this._images;
-          // this.firstImageURL = this.images[0];
+        if (snap.err) {
           this.set('categories', false);
           return;
         }
+
+        var _productDetails = snap.val();
+        // console.log(this.addImage(_image));
+        this.set('categories', []);
         // var imageKeys = Object.keys(_productDetails.categoriesById).sort();
         var categories = [];
 
@@ -144,23 +149,22 @@
       },
 
       _computeImages: function(snap) {
+        // console.log('loading images for ', snap.key());
         if (this.saving) {
           // console.log('saving');
           this.saving = false;
           return;
         }
-        // console.log('loading images for ', snap.key());
-        var _productDetails = snap.val();
-        // console.log(this.addImage(_image));
-        // console.log(_productDetails);
-        this.set('images', []);
-        if (!_productDetails.imagesById) {
+
+        if (snap.err) {
           // this.images = this._images;
           // this.firstImageURL = this.images[0];
           this.set('firstImageURL', false);
           this.set('images', false);
           return;
         }
+        var _productDetails = snap.val();
+        // console.log(_productDetails);
         var imageKeys = Object.keys(_productDetails.imagesById).sort();
         var images = [];
         for (var i = 0; i < imageKeys.length; i++) {
@@ -179,16 +183,19 @@
         //      Throttle
         this.debounce('_computeImagesFFFF', function() {
           this.set('images', images);
+
           // console.log(this.images);
         }, 600);
-        // this.set('images', images);
       },
 
       // Options
 
       newOption: function() {
-        this.push('options', {label:'', price:0});
-        console.log(this.options);
+        var key = this.productDetails.child('options').ref().push({
+          'label': '',
+          'price': 0
+        }).key();
+        // console.log(key);
       },
 
       _computeProductOptions: function(snap) {
@@ -197,19 +204,41 @@
           this.saving = false;
           return;
         }
+        if (snap.err) {
+          this.set('options', []);
+          return;
+        }
         // console.log('loading options for ', this.productDetails.key());
         // console.log(snap.child('/options').val());
         if (!snap.child('/options').val()) {
           this.set('options', []);
           return;
         }
-        var options = [], _options = snap.child('/options').val();
+        var options = [],
+          _options = snap.child('/options').val();
         for (var option in _options) {
           // console.log(_options[option]);
+          _options[option].__firebaseKey__ = option;
           options.push(_options[option]);
         }
         this.set('options', options);
         // console.log(this.options);
+      },
+
+      _options: function(options) {
+        console.log('options', options.path);
+        if (options.path === 'data.options') return;
+        this.saving = true;
+        var optionKey = options.path.split('#')[1].split('.');
+        var option = options.base[optionKey[0]];
+        this.productDetails.child('/options/' + option.__firebaseKey__).ref().update(option);
+        // console.log(options.base);
+      },
+
+      removeOption: function(option) {
+        console.log('removeOption', option);
+        this.saving = true;
+        this.productDetails.child('/options/' + option.__firebaseKey__).ref().remove();
       },
 
       // Product Details
@@ -236,6 +265,11 @@
         // this.set('productDetails', this._productDetails);
         if (snap.val()) {
           this.set('productDetails', snap);
+        } else {
+          var text = 'no product with id: ' + snap.key();
+          this.set('productDetails', {
+            err: text
+          });
         }
 
       },
@@ -243,17 +277,25 @@
       new: function() {
         var urlRef = 'https://charlesiesbeta.firebaseio.com/products/';
         var ref = new Firebase(urlRef);
-        var newProduct = ref.push({
-          _defaultProduct
-        }).key();
-        this.byId = newProduct;
+        var newProduct = ref.push(_defaultProduct);
+        var key = newProduct.key();
+        this.byId = key;
         // console.log(newProduct);
-        return this.byId;
+        return key;
       },
 
       getData: function(_images, _categories, _options) {
 
-        // console.log('getData', snap.key(), _images, _categories);
+        if (_images === true) return;
+
+        // console.log('getData', this.productDetails.key(), _images, _categories, _options);
+
+        if (this.productDetails.err) {
+          this.set('data', false);
+          this.set('edit', false);
+          this.fire('error', this.productDetails.err);
+          return;
+        }
         var _productDetails = this.productDetails.val();
         if (!_productDetails) {
           _productDetails = {};
