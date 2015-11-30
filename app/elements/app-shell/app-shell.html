@@ -29,7 +29,7 @@
 
       #menu {
         /*box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.16);*/
-        height: 100%;
+        /*height: 100%;*/
         border-right: 1px solid #e7e7e7
       }
 
@@ -42,7 +42,7 @@
     <catalog-cart id="catalogCart" items="{{cart}}" count="{{cartCount}}"></catalog-cart>
 
     <iron-media-query query="(min-width: 705px)" query-matches="{{narrow}}"></iron-media-query>
-    <firebase-collection id="category" location="https://charlesiesbeta.firebaseio.com/category" data="{{category}}"></firebase-collection>
+    <firebase-collection id="category" location="https://charlesiesbeta.firebaseio.com/categories" data="{{categories}}" order-by-child="showInNav" equal-to="true" ></firebase-collection>
 
     <paper-drawer-panel responsive-width="704px">
 
@@ -54,9 +54,9 @@
 
         <paper-menu id="menu" selected="[[routeSelected]]">
           <paper-item href="/" on-tap="_clickNav">home</paper-item>
-          <template is="dom-repeat" items="[[category]]">
+          <template is="dom-repeat" items="[[categories]]">
             <!-- <a href$="{{_computeNav(item)}}" is="pushstate-anchor"> -->
-            <paper-item href$="{{_computeNav(item)}}" on-tap="_clickNav">{{item.name}}</paper-item>
+            <paper-item href$="{{_computeNav(item)}}" on-tap="_clickNav">{{item.title}}</paper-item>
             <!-- </a> -->
           </template>
         </paper-menu>
@@ -112,17 +112,19 @@
 
         <app-router id="router" class="flex" main mode="pushstate" on-activate-route-end="_routeEnd" on-state-change="_routerStateChange" on-before-data-binding="modifyModel">
 
-          <app-route path="/" element="page-product" bindRouter onUrlChange="updateModel"></app-route>
+          <app-route path="/" element="page-product-list" bindRouter onUrlChange="updateModel"></app-route>
 
           <!-- <app-route path="/" element="page-home" bindRouter></app-route> -->
-          <app-route path="/login" element="page-login" bindRouter onUrlChange="updateModel"></app-route>
 
           <app-route path="/products" element="page-product-list" bindRouter onUrlChange="updateModel"></app-route>
           <app-route path="/product/:byId" element="page-product" bindRouter onUrlChange="updateModel"></app-route>
+          <!-- <app-route path="/product/:byId/:edit" element="page-product" bindRouter onUrlChange="updateModel"></app-route> -->
 
           <app-route path="/cart" element="page-cart" bindRouter onUrlChange="updateModel"></app-route>
           <!-- <app-route path="/cart/checkout" element="page-checkout" bindRouter onUrlChange="updateModel"></app-route> -->
 
+
+          <app-route path="/login" element="page-account" bindRouter onUrlChange="updateModel"></app-route>
           <app-route path="/account" element="page-account" bindRouter onUrlChange="updateModel"></app-route>
 
           <app-route path="/account/address" element="page-address" bindRouter onUrlChange="updateModel"></app-route>
@@ -250,7 +252,7 @@
 
         _computeAccountText: function(loggedin, user) {
           // console.log(loggedin, user);
-          if (loggedin) {
+          if (user.displayName) {
             // console.log(user);
             return this.user.displayName;
           }
@@ -331,8 +333,8 @@
         // Navigation
 
         _computeNav: function(item) {
-          // console.log(item);
-          // return '/category/' + item.name.split(' ').join('_');
+          console.log(item);
+          return '/category/' + item.title.split(' ').join('_');
         },
 
         _clickNav: function function_name(e) {
@@ -376,17 +378,21 @@
               return;
             }
 
-            var _href = items[i].getAttribute('href').split('/')[2];
-            var routePath = event.detail.path.split('/')[2];
+            var _href = items[i].getAttribute('href');
+            var routePath = event.detail.path.split('/');
+            // console.log(routePath);
             // console.log(routePath, index);
             // console.log(routePath, _href, i);
 
-            if (_href === routePath) {
-              // console.log(entry.attributes.route.textContent);
-              // console.log(i);
-              this.routeSelected = i;
-              return;
+            if (routePath[2]) {
+              if (_href.split('/')[2] === routePath[2]) {
+                // console.log(entry.attributes.route.textContent);
+                // console.log(i);
+                this.routeSelected = i;
+                return;
+              }
             }
+
           }
           this.routeSelected = -1;
 

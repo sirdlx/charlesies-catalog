@@ -118,94 +118,174 @@
       .line1 {
         font-size: 18px;
       }
+
+      .login-form {
+        background-color: white;
+        padding: 16px 16px 32px 16px;
+      }
+
+      .login-form[wide] {
+        width: 300px;
+        margin: 16px auto;
+      }
+
+      .form-submit {
+        width: 100%;
+      }
+
+      paper-button {
+        transition: background-color 0.5s ease;
+      }
+
+      paper-button[disabled] {
+        background: #a8a8a8 !important;
+        color: black;
+      }
+
+      .blue {
+        background: #3B5998;
+      }
+
+      .red {
+        background: #DC4A38;
+      }
+
+      .blue2x {
+        background: #3CF;
+      }
+
+      .blue2 {
+        background: #55acee;
+      }
     </style>
 
     <catalog-user id="catalogUser" loggedin="{{loggedin}}" wait="{{wait}}" user="{{user}}"></catalog-user>
     <iron-media-query query="(min-width: 600px)" query-matches="{{wide}}"></iron-media-query>
 
+    <iron-pages selected="{{_page}}">
 
-    <paper-material wide$="{{wide}}">
+      <paper-material class="login-form layout vertical center-center" wide$="{{wide}}">
 
+        <h2 class="form-title">Login</h2>
+        <br>
 
-      <div class="section user layout vertical center-center">
-        <iron-image class="userIcon" src="[[user.profileImageURL]]" alt="user image" fade sizing="cover">
-        </iron-image>
-
-        <div class="info">
-          <h3 class="header">[[user.displayName]]</h3>
-          <div class="subheader">
-            <span>[[user.provider]]</span>
+        <div class="layout vertical">
+          <form is="iron-form" id="loginform" method="post">
+            <paper-input tabindex="0" no-label-float maxlength="25" required name="email" label="email" type="email" value="{{email}}" disabled$="{{wait}}"></paper-input>
+            <paper-input no-label-float maxlength="25" required name="password" label="password" type="password" value="{{password}}" disabled$="{{wait}}"></paper-input>
+            <br>
+            <paper-button raised class="form-submit" on-tap="_loginPassword" disabled$="{{wait}}">login</paper-button>
+          </form>
+          <br>
+          <br>
+          <div class="">
+            <paper-button disabled$="{{wait}}" class="blue" on-tap="_loginFacebook">
+              <iron-icon src="/images/facebook-24.png"></iron-icon>
+            </paper-button>
+            <paper-button disabled$="{{wait}}" class="red" on-tap="_loginGoogle">
+              <iron-icon src="/images/google-plus-24.png"></iron-icon>
+            </paper-button>
+            <paper-button disabled$="{{wait}}" class="blue2" on-tap="_loginTwitter">
+              <iron-icon src="/images/twitter-24.png"></iron-icon>
+            </paper-button>
           </div>
+          <br>
+          <paper-button on-click="forgotClick" disabled$="{{wait}}">forgot password?</paper-button>
         </div>
-      </div>
+      </paper-material>
 
 
-      <div class="split section layout">
 
-        <div class="address layout vertical flex">
 
-          <div class="header layout vertical center-center">
-            Address
-          </div>
+      <paper-material wide$="{{wide}}">
 
-          <template is="dom-if" if="{{!user.address}}" restamp="true">
-            <div class="body layout vertical center-center">
-              <paper-icon-button class="edit-action" icon="add" on-tap="_navAddressList"></paper-icon-button>
+        <div class="section user layout vertical center-center">
+          <iron-image class="userIcon" src="{{user.profileImageURL}}" alt="user image" fade sizing="cover">
+          </iron-image>
+
+          <div class="info">
+            <h3 class="header">[[user.displayName]]</h3>
+            <div class="subheader">
+              <span>[[user.provider]]</span>
             </div>
-          </template>
-
-
-          <template is="dom-if" if="{{user.address}}" restamp="true">
-            <paper-item>
-              <paper-item-body two-line>
-                <div class="line1">
-                  <span>[[user.address.add_street]]</span>
-                </div>
-                <div secondary>
-                  <span>[[user.address.add_city]]</span>,
-                  <span>[[user.address.add_state]]</span>,
-                  <span>[[user.address.add_zip]]</span>
-                </div>
-              </paper-item-body>
-              <paper-icon-button class="edit-action" icon="editor:mode-edit" on-tap="_navAddressList"></paper-icon-button>
-            </paper-item>
-          </template>
-
+          </div>
         </div>
 
-        <div class="divider"></div>
 
-        <div class="card layout vertical flex">
-          <!-- <iron-icon class="headerIcon" icon="icons:credit-card"></iron-icon> -->
-          <div class="header layout vertical center-center">
-            Card
+        <div class="split section layout">
+
+          <div class="address layout vertical flex">
+
+            <div class="header layout vertical center-center">
+              Address
+            </div>
+
+            <template is="dom-if" if="{{!user.address}}" restamp="true">
+              <div class="body layout vertical center-center">
+                <paper-icon-button class="edit-action" icon="add" on-tap="_navAddressList"></paper-icon-button>
+              </div>
+            </template>
+
+
+            <template is="dom-if" if="{{user.address}}" restamp="true">
+              <paper-item>
+                <paper-item-body two-line>
+                  <div class="line1">
+                    <span>[[user.address.add_street]]</span>
+                  </div>
+                  <div secondary>
+                    <span>[[user.address.add_city]]</span>,
+                    <span>[[user.address.add_state]]</span>,
+                    <span>[[user.address.add_zip]]</span>
+                  </div>
+                </paper-item-body>
+                <paper-icon-button class="edit-action" icon="editor:mode-edit" on-tap="_navAddressList"></paper-icon-button>
+              </paper-item>
+            </template>
+
           </div>
 
+          <div class="divider"></div>
 
-          <template is="dom-if" if="{{!user.card}}" restamp="true">
-            <div class="body layout vertical center-center">
-              <paper-icon-button class="edit-action" icon="add" on-tap="_navCardList"></paper-icon-button>
+          <div class="card layout vertical flex">
+            <!-- <iron-icon class="headerIcon" icon="icons:credit-card"></iron-icon> -->
+            <div class="header layout vertical center-center">
+              Card
             </div>
-          </template>
 
 
-          <template is="dom-if" if="{{user.card}}" restamp="true">
-            <paper-item>
-              <paper-item-body>
-                <div class="layout horizontal">
-                  <iron-icon class="cc_type margin-right-16" src$="[[_computeTypeIcon(user.card.cc_type)]]"></iron-icon>
-                  <div class="cc_end">{{user.card.cc_end}}</div>
-                </div>
-              </paper-item-body>
-              <paper-icon-button class="edit-action" icon="editor:mode-edit" on-tap="_navAddressList"></paper-icon-button>
-            </paper-item>
-          </template>
+            <template is="dom-if" if="{{!user.card}}" restamp="true">
+              <div class="body layout vertical center-center">
+                <paper-icon-button class="edit-action" icon="add" on-tap="_navCardList"></paper-icon-button>
+              </div>
+            </template>
+
+
+            <template is="dom-if" if="{{user.card}}" restamp="true">
+              <paper-item>
+                <paper-item-body>
+                  <div class="layout horizontal">
+                    <iron-icon class="cc_type margin-right-16" src$="[[_computeTypeIcon(user.card.cc_type)]]"></iron-icon>
+                    <div class="cc_end">{{user.card.cc_end}}</div>
+                  </div>
+                </paper-item-body>
+                <paper-icon-button class="edit-action" icon="editor:mode-edit" on-tap="_navAddressList"></paper-icon-button>
+              </paper-item>
+            </template>
+
+          </div>
 
         </div>
 
-      </div>
+      </paper-material>
 
-    </paper-material>
+    </iron-pages>
+
+
+
+
+
+
 
 
   </template>
@@ -216,6 +296,30 @@
         is: 'page-account',
         enableCustomStyleProperties: true,
         properties: {
+
+
+          // Page
+
+          _page: {
+            type: Number,
+            notify: true,
+            value: 0
+          },
+
+
+
+
+          // User
+          email: {
+            type: String,
+            notify: true,
+            value: ""
+          },
+          password: {
+            type: String,
+            notify: true,
+            value: ""
+          },
           wait: {
             type: Boolean,
             notify: true,
@@ -228,27 +332,29 @@
             type: Object,
             notify: true,
           },
-          Address: {
-            type: Object,
-            notify: true,
-          },
-          Card: {
-            type: Object,
-            notify: true,
-          },
+          provider: {
+            type: String,
+            value: 'password'
+          }
 
         },
 
         observers: [
-          // '_checkAuth(wait, user)',
+          // '_checkAuth(wait, loggedin)',
           // 'newCardValue(card.*)',
           // 'newAddressValue(address.*)'
-          '_check(Address)',
-          '_check(user)',
+          // '_check(Address)',
+          '_changePage(loggedin)',
         ],
 
-        _check: function(check) {
-          // console.info('check: ', check);
+        _changePage: function(loggedin) {
+          console.info('page: ', loggedin);
+          if (loggedin) {
+            this._page = 1;
+          } else {
+            this._page = 0;
+
+          }
         },
 
         _computeAccountText: function(loggedin) {
@@ -258,10 +364,10 @@
           return 'Account';
         },
 
-        _checkAuth: function(wait, user) {
-          // console.log(loggedin, wait, user);
+        _checkAuth: function(wait, loggedin) {
+          // console.log(wait, loggedin);
 
-          if (!user && !wait) {
+          if (!loggedin && !wait) {
             console.log('not logged in!');
             this.fire('toast', {
               text: 'Have to be logged in to view page'
@@ -273,11 +379,11 @@
             return;
           }
 
-          if (!user) {
-            this.debounce('nav_delay', function(argument) {
-              this.router.go('/login');
-            }, 0);
-          }
+          // if (!user) {
+          //   this.debounce('nav_delay', function(argument) {
+          //     this.router.go('/login');
+          //   }, 0);
+          // }
 
         },
 
@@ -333,6 +439,20 @@
           //   path: "/account/address"
           // });
           this.fire('open-address-dialog');
+        },
+
+        // Login
+        _loginPassword: function() {
+          this.$.catalogUser.login('password', this.email, this.password);
+        },
+        _loginGoogle: function() {
+          this.$.catalogUser.login('google');
+        },
+        _loginTwitter: function() {
+          this.$.catalogUser.login('twitter');
+        },
+        _loginFacebook: function() {
+          this.$.catalogUser.login('facebook');
         }
 
 

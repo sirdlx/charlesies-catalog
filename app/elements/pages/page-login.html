@@ -2,78 +2,13 @@
   <template>
 
     <style media="screen" is="custom-style">
-      .login-form {
-        background-color: white;
-        padding: 16px 16px 32px 16px;
-      }
 
-      .login-form[wide] {
-        width: 300px;
-        margin: 16px auto;
-      }
-
-      .form-submit {
-        width: 100%;
-      }
-
-      paper-button {
-        transition: background-color 0.5s ease;
-      }
-
-      paper-button[disabled] {
-        background: #a8a8a8 !important;
-        color: black;
-      }
-
-      .blue {
-        background: #3B5998;
-      }
-
-      .red {
-        background: #DC4A38;
-      }
-
-      .blue2x {
-        background: #3CF;
-      }
-
-      .blue2 {
-        background: #55acee;
-      }
     </style>
 
     <iron-media-query query="(min-width: 600px)" query-matches="{{wide}}"></iron-media-query>
     <catalog-user id="catalogUser" loggedin="{{loggedin}}" wait="{{wait}}" user="{{user}}"></catalog-user>
 
-    <paper-material class="login-form layout vertical center-center" wide$="{{wide}}">
 
-      <h2 class="form-title">Login</h2>
-      <br>
-
-      <div class="layout vertical">
-        <form is="iron-form" id="loginform" method="post">
-          <paper-input tabindex="0" no-label-float maxlength="25" required name="email" label="email" type="email" value="{{email}}" disabled$="{{wait}}"></paper-input>
-          <paper-input no-label-float maxlength="25" required name="password" label="password" type="password" value="{{password}}" disabled$="{{wait}}"></paper-input>
-          <br>
-          <paper-button raised class="form-submit" on-tap="_loginPassword" disabled$="{{wait}}">login</paper-button>
-        </form>
-        <br>
-        <br>
-        <div class="">
-          <paper-button disabled$="{{wait}}" class="blue" on-tap="_loginFacebook">
-            <iron-icon src="/images/facebook-24.png"></iron-icon>
-          </paper-button>
-          <paper-button disabled$="{{wait}}" class="red" on-tap="_loginGoogle">
-            <iron-icon src="/images/google-plus-24.png"></iron-icon>
-          </paper-button>
-          <paper-button disabled$="{{wait}}" class="blue2" on-tap="_loginTwitter">
-            <iron-icon src="/images/twitter-24.png"></iron-icon>
-          </paper-button>
-        </div>
-        <br>
-        <paper-button on-click="forgotClick" disabled$="{{wait}}">forgot password?</paper-button>
-      </div>
-    </paper-material>
 
   </template>
 
@@ -84,42 +19,10 @@
         enableCustomStyleProperties: true,
         properties: {
           router: Object,
-          email: {
-            type: String,
-            notify: true,
-            value: ""
-          },
-          password: {
-            type: String,
-            notify: true,
-            value: ""
-          },
-          wait: {
-            type: Boolean,
-            notify: true,
-            value: false
-          },
-          loggedin: {
-            type: Boolean,
-            notify: true
-          },
-          justloggedin: {
-            type: Boolean,
-            notify: true,
-            value: false
-          },
-          user: {
-            type: Object,
-            notify: true,
-          },
-          provider: {
-            type: String,
-            value: 'password'
-          }
         },
 
         observers: [
-          '_checkLoggedin(loggedin, wait, user)'
+          // '_checkLoggedin(loggedin, wait, user)'
         ],
 
         _checkLoggedin: function(loggedin, wait, user) {
@@ -133,22 +36,7 @@
 
         },
 
-        _loginPassword: function() {
-          this.justloggedin = true;
-          this.$.catalogUser.login('password', this.email, this.password);
-        },
-        _loginGoogle: function() {
-          this.justloggedin = true;
-          this.$.catalogUser.login('google');
-        },
-        _loginTwitter: function() {
-          this.justloggedin = true;
-          this.$.catalogUser.login('twitter');
-        },
-        _loginFacebook: function() {
-          this.justloggedin = true;
-          this.$.catalogUser.login('facebook');
-        }
+
 
       });
     })();

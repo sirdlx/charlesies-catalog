@@ -9,6 +9,7 @@
     //   ".sv": "timestamp"
     // };
     _defaultProduct.status = 0;
+    _defaultProduct.price = 0;
     _defaultProduct.title = "New";
 
     Polymer({
@@ -20,18 +21,17 @@
           notify: true,
           reflectToAttribute: true
         },
-
+        // Product Reference
         productDetails: {
           type: Object,
           notify: true
         },
-
         _productdetails: {
           type: Object,
           notify: true
         },
 
-
+        // Product References
         images: {
           type: Array,
           notify: true,
@@ -47,6 +47,7 @@
           notify: true
         },
 
+        // Final Product
         data: {
           type: Object,
           notify: true,
@@ -74,12 +75,12 @@
       _computeCategories: function(snap) {
         // console.log('loading ' + snap.key() + '\'s categories');
         if (this.saving) {
-          console.log('saving');
-          this.saving = false;
+          // console.log('saving');
+          // this.saving = false;
           return;
         }
 
-        if (snap.err) {
+        if (snap.err || typeof snap.val().categories === 'undefined') {
           this.set('categories', false);
           return;
         }
@@ -89,7 +90,6 @@
         this.set('categories', []);
         // var imageKeys = Object.keys(_productDetails.categoriesById).sort();
         var categories = [];
-
         for (var key in _productDetails.categoriesById) {
           // console.log(key);
           snap.ref().root().child('/categories/' + key).once('value', function(dataSnapshot) {
@@ -100,7 +100,7 @@
 
         this.debounce('_computeCategoriesFFFF', function() {
           this.set('categories', categories);
-          console.log(this.categories);
+          // console.log(this.categories);
         }, 600);
 
       },
@@ -156,15 +156,13 @@
           return;
         }
 
-        if (snap.err) {
+        if (snap.err || typeof snap.val().imagesById === 'undefined') {
           // this.images = this._images;
-          // this.firstImageURL = this.images[0];
-          this.set('firstImageURL', false);
           this.set('images', false);
           return;
         }
         var _productDetails = snap.val();
-        // console.log(_productDetails);
+        // console.log(typeof _productDetails.imagesById=== 'undefined');
         var imageKeys = Object.keys(_productDetails.imagesById).sort();
         var images = [];
         for (var i = 0; i < imageKeys.length; i++) {
@@ -183,7 +181,6 @@
         //      Throttle
         this.debounce('_computeImagesFFFF', function() {
           this.set('images', images);
-
           // console.log(this.images);
         }, 600);
       },
@@ -226,7 +223,7 @@
       },
 
       _options: function(options) {
-        console.log('options', options.path);
+        // console.log('options', options.path);
         if (options.path === 'data.options') return;
         this.saving = true;
         var optionKey = options.path.split('#')[1].split('.');
@@ -277,9 +274,10 @@
       new: function() {
         var urlRef = 'https://charlesiesbeta.firebaseio.com/products/';
         var ref = new Firebase(urlRef);
-        var newProduct = ref.push(_defaultProduct);
+        var newProduct = ref.push({});
+        newProduct.update(_defaultProduct);
         var key = newProduct.key();
-        this.byId = key;
+        // this.byId = key;
         // console.log(newProduct);
         return key;
       },
@@ -298,17 +296,20 @@
         }
         var _productDetails = this.productDetails.val();
         if (!_productDetails) {
-          _productDetails = {};
+          _productDetails = {
+            err: {
+              text: 'Product ' + this.btId + ' not found'
+            }
+          };
         }
 
+        _productDetails.__firebaseKey__ = this.productDetails.key();
         _productDetails.images = _images;
         _productDetails.categories = _categories;
         _productDetails.options = _options;
         // // console.log(_productDetails);
-        // this.set('firstImageURL', _productDetails.images[0]);
         this.set('data', _productDetails);
         this.set('edit', this._productDetails);
-        // return _productDetails;
       }
     });
   </script>

@@ -44,6 +44,7 @@
           // console.log('product match');
           check.items[i].quantity++;
           _store();
+          _updateAll();
           // console.log(check.items[i].quantity);
           // console.log(check);
           return;
@@ -89,8 +90,10 @@
 
     var _updateAll = function() {
       _instances.forEach(function(instance) {
-        instance.items = _instances[0].items;
+        // instance.items = _instances[0].items;
+        instance.Update();
       });
+
     };
 
 
@@ -112,7 +115,7 @@
       },
 
       observers: [
-        '_save(items.*)'
+        // '_save(items.*)'
       ],
 
       clear: function() {
@@ -123,7 +126,7 @@
       created: function() {
         _instances.push(this);
       },
-      update: function() {
+      Update: function() {
         this.items = _retrieve();
       },
       addCart: function(item) {
@@ -137,7 +140,7 @@
         return this.items.length;
       },
       _save: function(changes) {
-        // console.log(changes);
+        // console.log('_save: ', changes);
         // console.log(changes.path.split('.'));
         var path = changes.path.split('.');
         // console.log(path[2]); // = "quantity"

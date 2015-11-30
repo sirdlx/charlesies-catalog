@@ -3,43 +3,52 @@
     <style media="screen" is="custom-style">
       :host {
         display: block;
-        margin-bottom: 88px;
+        margin-bottom: 204px;
       }
 
-      .editFab {
-        position: fixed;
-        bottom: 16px;
-        right: 16px;
-        color: #fff;
-        /* Firefox */
-        -moz-transition: all 10s ease-in;
-        /* WebKit */
-        -webkit-transition: all 10s ease-in;
-        /* Opera */
-        -o-transition: all 10s ease-in;
-        /* Standard */
-        transition: all 10s ease-in;
-        z-index: 1;
+      .editToolbarTitle {
+        --paper-toolbar-background: white;
+        -webkit-transition: all 0.3s, -webkit-transform 0.3s, opacity 0.3s;
+        transition: all 0.3s, transform 0.3s, opacity 0.3s;
+        opacity: 0;
+        visibility: hidden;
+        -webkit-transform: translateY(-50px);
+        transform: translateY(-50px);
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          z-index: 1;
       }
 
-      [edit].editFab {
-        /*color: green;*/
-        background-color: var(--google-green-500);
+      [edit] .editToolbarTitle {
+        visibility: visible;
+        opacity: 1;
+        -webkit-transform: translateY(0px);
+        transform: translateY(0px);
       }
+
+      .productForm[wide] {}
 
       paper-material {
         background-color: white;
-        overflow: hidden;
+        margin: 16px;
+        -webkit-transition: all 0.3s, -webkit-transform 0.3s, opacity 0.3s;
+        transition: all 0.3s, transform 0.3s, opacity 0.3s;
       }
 
-      paper-toolbar {
-        --paper-toolbar-background: white;
-        overflow: hidden;
+      [edit] paper-material {
+        -webkit-transform: translateY(100px);
+        transform: translateY(100px);
       }
 
-      paper-material[wide] {
-        margin: 16px auto;
+      [wide] paper-material {
         width: 480px;
+      }
+
+      [wide] .page-container {
+        @apply(--layout-vertical);
+        @apply(--layout-center);
       }
 
       .body {
@@ -66,17 +75,13 @@
 
       .section {
         margin-bottom: 24px;
+        margin-top: 24px;
         /*border-bottom: 1px solid red;*/
-      }
-
-      #details {
-        padding-top: 8px;
-        padding-bottom: 16px;
       }
 
       .sectionHeader {
         margin-bottom: 8px;
-        height: 56px;
+        /*height: 56px;*/
         /*padding: 16px;*/
         /*box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 1.16);*/
       }
@@ -93,32 +98,7 @@
       }
       /*  View Product  */
 
-      [in-fav] {
-        color: #f44336;
-      }
-
-      [in-cart] {
-        color: #f44336;
-      }
-
-      .inCart,
-      .inFav {
-        transition: color 0.2s cubic-bezier(.02, .82, 1, .33);
-      }
-
-      .productPrice {
-        float: right;
-        display: inline-block;
-        position: relative;
-        padding: 8px;
-        margin: 0;
-        outline: none;
-        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-      }
+      .productPrice {}
 
       .margin-right-16 {
         margin-right: 16px;
@@ -130,33 +110,31 @@
       /*  Product Images  */
 
       #images {
-        margin: 16px auto;
+        position: relative;
       }
-
-      [wide] {}
 
       #images .iron-selected {}
-
-      .image-container {
-        margin-left: 16px;
-        padding-top: 1px;
-        padding-bottom: 1px;
-      }
 
       .image-list {
         height: 100%;
         overflow-x: scroll;
+        overflow-y: hidden;
       }
 
-      .image {
-        min-width: 200px;
-        height: 200px;
-        margin-right: 16px;
+      ::-webkit-scrollbar {
+        -webkit-appearance: none;
+        height: 4px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        border-radius: 1px;
+        background-color: #f44336;
+        /*box-shadow: 0 0 1px rgba(255, 255, 255, .5);*/
       }
 
       .imagePlaceholder {
         position: relative;
-        height: 200px;
+        height: 100%;
       }
 
       .imagePlaceholder .placeholderBg {
@@ -171,7 +149,64 @@
           color: green;
         }
       }
+
+      .images-container {
+        /*padding-bottom: 1px;*/
+        /*padding: 8px;*/
+        height: 325px;
+        border-bottom: 1px solid #e6e6e6;
+      }
+
+      .image-container {
+        --iron-image-height: 100%;
+        height: 320px;
+      }
+
+      .image {
+        /*width: 80vw;
+        height: 80vw;
+        margin-right: 8px;*/
+        background-color: white;
+      }
+      /* Details */
+
+      #details {
+        margin-top: 16px;
+      }
+
+      .line1 {
+        height: 64px;
+        margin-bottom: 8px;
+      }
+
+      .productDescription {}
       /*  Card Actions  */
+
+      [in-fav] {
+        color: #f44336;
+      }
+
+      [in-cart] {
+        color: #f44336;
+      }
+
+      [edit] .actionfab {
+        background-color: var(--google-green-500);
+        color: white;
+      }
+
+      .inCart,
+      .inFav,
+      .actionFab {
+        transition: all 2s cubic-bezier(.02, .82, 1, .33);
+      }
+
+      .actionFab {
+        position: absolute;
+        bottom: -24px;
+        right: 16px;
+        background-color: white;
+      }
 
       .card-actions {
         line-height: 40px;
@@ -194,6 +229,10 @@
       .productOptionPriceDefaultValue {
         width: 72px;
       }
+
+      .productOptionsRemoveContainer {
+        height: 100%;
+      }
       /*  Product Tags  */
 
       .tags .label {
@@ -211,47 +250,53 @@
       }
     </style>
 
-    <iron-media-query query="(min-width: 600px)" query-matches="{{wide}}"></iron-media-query>
+    <iron-media-query query="(min-width: 841px)" query-matches="{{wide}}"></iron-media-query>
     <catalog-product id="catalogProduct" by-id="{{byId}}" data="{{product}}" edit="{{_edit}}"></catalog-product>
     <catalog-user id="catalogUser" user="{{user}}"></catalog-user>
     <google-client-loader id="driveApi" name="drive" version="v2" on-google-api-loadx="driveApiLoaded"></google-client-loader>
+    <catalog-cart id="catalogCart" items="{{cart}}" count={{count}}></catalog-cart>
 
-    <template is="dom-if" if="{{user.isAdmin}}">
-      <paper-fab class="editFab" icon="{{editFab_icon}}" on-tap="_toggleEditMode" edit$="{{edit}}"></paper-fab>
-    </template>
+    <form is="iron-form" class="productForm" action="index.html" method="post" edit$="{{edit}}" wide$="{{wide}}">
 
-    <form is="iron-form" class="productForm" action="index.html" method="post" hidden="{{!byId}}">
 
-      <paper-toolbar>
-        <div class="paper-font-title" hidden="{{edit}}">[[pageTitle]]</div>
-        <template is="dom-if" if="{{edit}}">
-          <paper-input class="editTitleValue fullwidth" value="{{_edit.title::input}}" label="Title" type="text">
-          </paper-input>
-        </template>
-        <span class="flex"></span>
-        <!-- <iron-icon class="headerIcon" icon="maps:local-shipping"></iron-icon> -->
+      <!-- <template is="dom-if" if="{{edit}}">
+        <paper-toolbar class="editToolbarTitle" show$="{{edit}}">
+          <div class="paper-font-title" hidden="{{edit}}">[[pageTitle]]</div>
+          <template is="dom-if" if="{{edit}}">
+            <paper-input class="editTitleValue fullwidth" value="{{_edit.title::input}}" label="Title" type="text">
+            </paper-input>
+          </template>
+          <span class="flex"></span>
+          <iron-icon class="headerIcon" icon="maps:local-shipping"></iron-icon>
+        </paper-toolbar>
+      </template> -->
+      <paper-toolbar class="editToolbarTitle">
+        <paper-input class="editTitleValue flex" value="{{_edit.title::input}}" label="Title" type="text">
+        </paper-input>
+        <!-- <paper-icon-button class="editImagesButton" icon="editor:mode-edit" on-tap="_editImages"></paper-icon-button> -->
       </paper-toolbar>
 
-      <paper-material id="images" wide$="{{wide}}" elevation="0">
 
-        <template is="dom-if" if="{{edit}}">
-          <paper-toolbar class="">
-            <div class="paper-font-title">[[_computeImageCountText(product)]]</div>
-            <span class="flex"></span>
-            <paper-icon-button class="editImagesButton" icon="add" on-tap="_openPicker"></paper-icon-button>
-            <!-- <paper-icon-button class="editImagesButton" icon="editor:mode-edit" on-tap="_editImages"></paper-icon-button> -->
-          </paper-toolbar>
-        </template>
 
-        <!-- <template is="dom-if" if="{{product.images}}"> -->
-        <div class="image-container">
-          <div class="image-list">
-            <iron-selector attr-for-selected="item" selected="{{imageSelected}}" class=" layout horizontal">
+      <div class="page-container">
+        <paper-material elevation="1">
+          <!-- <template is="dom-if" if="{{product.images}}"> -->
+          <template is="dom-if" if="{{edit}}">
+            <paper-toolbar class="editToolbarTitle">
+              <div class="paper-font-title">[[_computeImageCountText(product)]]</div>
+              <span class="flex"></span>
+              <paper-icon-button class=" editImagesButton" icon="add" on-tap="_openPicker"></paper-icon-button>
+            </paper-toolbar>
+          </template>
 
-              <template is="dom-if" if="{{!product.images.length}}">
+
+          <div id="images" class="images-container">
+            <div class="image-list">
+
+              <template is="dom-if" if="{{!product.images}}">
                 <div class="imagePlaceholder fullwidth layout horizontal center-center">
 
-                  <iron-icon class="placeholderBg" icon="image:collections" hidden="{{!edit}}"></iron-icon>
+                  <iron-icon class="placeholderBg" icon="image:collections" hidden="{{edit}}"></iron-icon>
 
                   <div class="fit layout horizontal center-center">
                     <template is="dom-if" if="{{edit}}">
@@ -264,231 +309,235 @@
                 </div>
               </template>
 
-              <template is="dom-repeat" items="{{product.images}}">
-                <div>
-                  <iron-image class="image" src="{{item.webContentLink}}" sizing="cover"></iron-image>
-                </div>
-              </template>
-            </iron-selector>
-          </div>
-        </div>
-        <!-- </template> -->
+              <iron-selector attr-for-selected="item" selected="{{imageSelected}}" class=" layout horizontal">
+                <template is="dom-repeat" items="{{product.images}}">
+                  <div class="image-container">
+                    <!-- <iron-image class="image" src="{{item.webContentLink}}" fade preload sizing="contain"></iron-image> -->
+                    <img class="image" src="{{item.webContentLink}}" height="100%" />
+                  </div>
+                </template>
+              </iron-selector>
+            </div>
 
-        <!-- <template is="dom-if" if="{{!product.images.length}}">
-          <div class="imagePlaceholder layout horizontal center-center">
-            <template is="dom-if" if="{{product.images}}}">
-              <iron-icon class="placeholderBg" icon="image:collections" hidden="{{!edit}}"></iron-icon>
+            <paper-fab class="actionFab" in-cart$="[[inCart]]" icon$="[[_actionFabIcon(user, edit)]]" on-tap="_actionFabTap"></paper-fab>
+
+          </div>
+
+
+          <div id="details" class="layout vertical body">
+
+            <template is="dom-if" if="{{!edit}}">
+
+              <div class="layout horizontal margin-right-16">
+                <div class="paper-font-title">
+                  <span>[[product.title]]</span>
+                </div>
+
+                <span class="flex"></span>
+
+                <h3 class="productPrice">
+                  <span class="red">[[_computePrice(product.price)]]</span>
+                </h3>
+
+              </div>
+
+
             </template>
 
-            <div class="">
-              <template is="dom-if" if="{{edit}}">
-                <h2>Add Image
-                  <paper-icon-button icon="add" on-tap="_openPicker"></paper-icon-button>
-                </h2>
-              </template>
-            </div>
+            <!-- Card Actions -->
+            <div class="card-actions layout horizontal center-centerFFFF">
 
-          </div>
-        </template> -->
-      </paper-material>
+              <div class="layout horizontal margin-right-16">
+                <paper-icon-button class="inFav" icon="favorite" on-tap="_favTap" in-fav$="[[inFav]]" disabled$="[[!loggedin]]"></paper-icon-button>
+                <template is="dom-if" if="{{edit}}">
+                  <div>100k</div>
+                </template>
+              </div>
 
+              <div class="layout horizontal margin-right-16">
+                <paper-icon-button hidden$="{{!user.isAdmin}}" class="inCart" icon="shopping-cart" on-tap="_cartTap" in-cart$="[[inCart]]"></paper-icon-button>
+                <template is="dom-if" if="{{edit}}">
+                  <div>100k</div>
+                </template>
+              </div>
 
-      <paper-material id="details" wide$="{{wide}}" elevation="0">
-        <div class="layout vertical body">
-
-
-          <!-- Card Actions: If Admin -->
-
-
-          <div class="card-actions layout horizontal center-center">
-
-            <div class="layout horizontal margin-right-16">
-              <paper-icon-button class="inFav" icon="favorite" on-tap="_favTap" in-fav$="[[inFav]]" disabled$="[[!loggedin]]"></paper-icon-button>
-              <template is="dom-if" if="{{edit}}">
-                <div>100k</div>
-              </template>
-            </div>
-
-            <div class="layout horizontal margin-right-16">
-              <paper-icon-button class="inCart" icon="shopping-cart" on-tap="_cartTap" in-cart$="[[inCart]]"></paper-icon-button>
-              <template is="dom-if" if="{{edit}}">
-                <div>100k</div>
-              </template>
-            </div>
-
-            <template is="dom-if" if="{{!user.isAdmin}}">
+              <!-- <template is="dom-if" if="{{!user.isAdmin}}">
               <h4 class="productPrice">
                 <span class="red">[[_computePrice(product.price)]]</span>
               </h4>
-            </template>
+            </template> -->
 
-          </div>
-
-
-
-          <!-- Product Name -->
-          <!-- <div class="paper-font-title section fullwidth">Name of product</div> -->
-
-          <div class="layout vertical">
-
-            <div class="title paper-font-title ">
-              Description
             </div>
+
+
 
             <!-- Product Description -->
-            <div hidden="{{edit}}">
-              <span class="paper-font-body1">{{product.description}}</span>
-            </div>
-            <template is="dom-if" if="{{edit}}">
-              <!-- <paper-input class="editTitleValue fullwidth" value="{{_edit.title::input}}" label="Title" type="text">
-              </paper-input> -->
 
+            <div class="productDescription section layout vertical">
               <!-- Product Description -->
-              <paper-textarea class="" label="description" rows="1" max-rows="2" value="{{_edit.description}}"></paper-textarea>
-            </template>
-          </div>
-
-
-          <!-- Product Options -->
-
-
-          <template is="dom-if" if="{{product.options.length}}">
-
-
-            <div class="section productOptions ">
-
-              <div class="sectionHeader layout horizontal">
-                <div class="title">
-                  Options
+              <template is="dom-if" if="{{!edit}}">
+                <div hidden="{{!product.description}}">
+                  <span class="paper-font-body1">{{product.description}}</span>
                 </div>
-                <span class="flex"></span>
-                <template is="dom-if" if="{{edit}}">
-                  <paper-button class="addTagsButton" in-fav on-tap="_tapAddOption">Add Option
-                    <iron-icon icon="add"></iron-icon>
-                  </paper-button>
-                </template>
-              </div>
-
-              <div class="productOptions layout vertical">
-                <!-- Options List -->
-
-                <template is="dom-repeat" items="{{product.options}}">
-                  <div class="layout horizontal " hidden="{{edit}}">
-                    <div class="flex margin-right-16">[[item.label]]</div>
-                    <div class="">[[item.price]]</div>
-                  </div>
-                </template>
-
-                <!-- Admin -->
-                <template is="dom-if" if="{{edit}}">
-
-                  <div class=" layout horizontal">
-                    <div class="productOptionLabelDefaultValue layout start margin-right-16">
-                      Default:
-                    </div>
-
-                    <span class="flex"></span>
-
-                    <paper-input class="productOptionPriceDefaultValue layout end" value="{{_edit.price::change}}" label="price" type="number">
-                      <div prefix>$</div>
-                    </paper-input>
-                  </div>
-
-
-                  <template is="dom-repeat" items="{{product.options}}">
-                    <div class=" layout horizontal">
-                      <paper-input class="productOptionLabelValue margin-right-16" value="{{item.label::input}}" label="Option Label" type="text">
-                      </paper-input>
-                      <span class="flex"></span>
-                      <paper-input class="productOptionPriceValue" value="{{item.price::input}}" label="price" type="number">
-                        <div prefix>$</div>
-                      </paper-input>
-
-                      <paper-icon-button icon="clear" on-tap="_tapRemoveOption"></paper-icon-button>
-                    </div>
-                  </template>
-
-                </template>
-
-
-              </div>
-
-            </div>
-
-          </template>
-
-
-          <!-- Product Tags -->
-          <template is="dom-if" if="{{edit}}">
-            <div class="section productTags  layout">
-              <div class="sectionHeader layout horizontal">
-                <div class="title">
-                  Tags
-                </div>
-
-                <span class="flex"></span>
-
-                <paper-menu-button vertical-align="top" horizontal-align="right">
-                  <paper-button class="dropdown-trigger addTagsButton" in-fav>
-                    <iron-icon icon="add"></iron-icon>Add Tag</paper-button>
-                  <paper-menu class="dropdown-content">
-                    <paper-item>Unpublished</paper-item>
-                    <paper-item>Active</paper-item>
-                    <paper-item>Sold Out</paper-item>
-                    <paper-item>Pre-Order</paper-item>
-                  </paper-menu>
-                </paper-menu-button>
-              </div>
+              </template>
 
               <template is="dom-if" if="{{edit}}">
-                <template is="dom-repeat" items="[[product.tags]]">
-                  <paper-chip animated removable on-remove="_removeTag">
-                    <h1>[[item.title]]</h1>
-                  </paper-chip>
-                </template>
+                <!-- <paper-input class="editTitleValue fullwidth" value="{{_edit.title::input}}" label="Title" type="text">
+              </paper-input> -->
+                <paper-textarea class="" label="description" rows="1" max-rows="2" value="{{_edit.description}}"></paper-textarea>
               </template>
+            </div>
 
 
-              <template is="dom-if" if="{{!user.isAdmin}}">
-                <div class="layout horizontal wrap">
-                  <template is="dom-repeat" items="[[product.tags]]">
-                    <a href="" class="margin-right-16">
-                    r Parker
-                  </a>
+
+
+            <!-- Options List -->
+            <template is="dom-if" if="{{product.options}}">
+              <template is="dom-if" if="{{!edit}}">
+
+
+                <template is="dom-repeat" items="{{product.options}}">
+                  <div class="layout horizontal  " hidden="{{edit}}">
+                    <div class="margin-right-16">[[item.title]]</div>
+                    <div class="">+
+                      <span>[[item.price]]</span>
+                    </div>
+                  </div>
+                </template>
+
+
+
+              </template>
+            </template>
+
+
+            <!-- Option List EDIT -->
+            <template is="dom-if" if="{{edit}}">
+              <div class="section productOptions">
+                <div class="sectionHeader layout horizontal">
+                  <div class="title">
+                    Options
+                  </div>
+                  <template is="dom-if" if="{{edit}}">
+                    <span class="flex"></span>
+                    <paper-button class="addTagsButton" in-fav on-tap="_tapAddOption">Add Option
+                      <iron-icon icon="add"></iron-icon>
+                    </paper-button>
                   </template>
                 </div>
-              </template>
 
+                <div class="productOptions layout vertical">
+                  <!-- Admin -->
+                  <template is="dom-if" if="{{edit}}">
 
-            </div>
-          </template>
+                    <div class=" layout horizontal">
+                      <div class="productOptionLabelDefaultValue layout start margin-right-16">
+                        Default:
+                      </div>
 
-          <!-- Product Status -->
-          <template is="dom-if" if="{{edit}}">
+                      <span class="flex"></span>
 
-            <div class="section  productStatus">
-              <div class="sectionHeader layout horizontal">
-                <div class="title">
-                  Status
+                      <paper-input class="productOptionPriceDefaultValue layout end" value="{{_edit.price::change}}" label="price" type="number">
+                        <div prefix>$</div>
+                      </paper-input>
+                    </div>
+
+                    <template is="dom-repeat" items="{{product.options}}">
+                      <div class="layout horizontal">
+                        <paper-input class="productOptionLabelValue margin-right-16" value="{{item.title::input}}" label="Option Label" type="text">
+                        </paper-input>
+                        <span class="flex"></span>
+                        <paper-input class="productOptionPriceValue" value="{{item.price::input}}" label="price" type="number">
+                          <div prefix>$</div>
+                        </paper-input>
+
+                        <div class="productOptionsRemoveContainer">
+                          <paper-icon-button icon="clear" on-tap="_tapRemoveOption"></paper-icon-button>
+                        </div>
+
+                      </div>
+                    </template>
+
+                  </template>
                 </div>
-                <span class="flex"></span>
-                <paper-dropdown-menu class="productStatusSelector layout end" noLabelFloat="true">
-                  <paper-menu class="dropdown-content" selected="{{_edit.status}}">
-                    <paper-item>Unpublished</paper-item>
-                    <paper-item>Active</paper-item>
-                    <paper-item>Sold Out</paper-item>
-                    <paper-item>Pre-Order</paper-item>
-                  </paper-menu>
-                </paper-dropdown-menu>
               </div>
-            </div>
+            </template>
 
-          </template>
 
-        </div>
 
-      </paper-material>
 
+
+            <!-- Product Tags -->
+            <template is="dom-if" if="{{edit}}">
+              <div class="section productTags layout">
+                <div class="sectionHeader layout horizontal">
+                  <div class="title">
+                    Tags
+                  </div>
+
+                  <span class="flex"></span>
+
+                  <paper-menu-button vertical-align="top" horizontal-align="right">
+                    <paper-button class="dropdown-trigger addTagsButton" in-fav>
+                      <iron-icon icon="add"></iron-icon>Add Tag</paper-button>
+                    <paper-menu class="dropdown-content">
+                      <paper-item>Unpublished</paper-item>
+                      <paper-item>Active</paper-item>
+                      <paper-item>Sold Out</paper-item>
+                      <paper-item>Pre-Order</paper-item>
+                    </paper-menu>
+                  </paper-menu-button>
+                </div>
+
+                <template is="dom-if" if="{{edit}}">
+                  <template is="dom-repeat" items="[[product.tags]]">
+                    <paper-chip animated removable on-remove="_removeTag">
+                      <h1>[[item.title]]</h1>
+                    </paper-chip>
+                  </template>
+                </template>
+
+
+                <template is="dom-if" if="{{!user.isAdmin}}">
+                  <div class="layout horizontal wrap">
+                    <template is="dom-repeat" items="[[product.tags]]">
+                      <a href="" class="margin-right-16">
+                    r Parker
+                  </a>
+                    </template>
+                  </div>
+                </template>
+
+
+              </div>
+            </template>
+
+            <!-- Product Status -->
+            <template is="dom-if" if="{{edit}}">
+
+              <div class="section  productStatus">
+                <div class="sectionHeader layout horizontal">
+                  <div class="title">
+                    Status
+                  </div>
+                  <span class="flex"></span>
+                  <paper-dropdown-menu class="productStatusSelector layout end" noLabelFloat="true">
+                    <paper-menu class="dropdown-content" selected="{{_edit.status}}">
+                      <paper-item>Unpublished</paper-item>
+                      <paper-item>Active</paper-item>
+                      <paper-item>Sold Out</paper-item>
+                      <paper-item>Pre-Order</paper-item>
+                    </paper-menu>
+                  </paper-dropdown-menu>
+                </div>
+              </div>
+
+            </template>
+
+          </div>
+
+        </paper-material>
+      </div>
     </form>
     <script type="text/javascript" src="//apis.google.com/js/api.js?onload=onApiLoad" async></script>
   </template>
@@ -543,6 +592,7 @@
       is: 'page-product',
       enableCustomStyleProperties: true,
       properties: {
+        router: Object,
 
         // page
         byId: {
@@ -572,8 +622,9 @@
           notify: true
         },
 
-        editFab_icon: {
-          value: 'editor:mode-edit'
+        actionFabIcon: {
+          notify: true,
+          // value: 'shopping-cart'
         },
 
         editImages: {
@@ -589,7 +640,7 @@
         edit: {
           type: Boolean,
           notify: true,
-          // value: true
+          value: false
         },
 
         imageSelected: {
@@ -620,22 +671,30 @@
         // },
       },
       observers: [
-        // '_updateCartIcon(cart, product)',
+        '_updateCartIcon(cart, product)',
         '_computePageTitle(product)',
         // 'check(images.*)',
         '_computePicker(user)',
         '_computeNewProduct(byId)',
-        // 'check(_edit.*)',
       ],
 
-      check: function(check) {
-        console.log('check', check.base);
-        // this.set('_edit', check.base);
+      _actionFabIcon: function(user, edit) {
+        if (user.isAdmin && edit) {
+          return 'save';
+        } else if (user.isAdmin && !edit) {
+          return 'editor:mode-edit';
+        } else if (!user.isAdmin) {
+          return 'shopping-cart';
+        }
       },
 
       ready: function() {
         // console.log(_images);
         // this.images = _images;
+      },
+
+      dettached: function() {
+        console.dir(this.edit);
       },
 
       _tapAddOption: function() {
@@ -648,15 +707,19 @@
         this.$.catalogProduct.removeOption(item.model.__data__.item);
       },
 
-      _toggleEditMode: function() {
-        // console.log(_images);
-        this.set('edit', !this.edit);
-        if (this.edit) {
-          this.set('editFab_icon', 'save');
-        } else {
-          this.set('editFab_icon', 'editor:mode-edit');
+      _actionFabTap: function(e, _) {
+        e.stopPropagation();
+        // console.log('fire: add-to-cart');
+        if (!this.user.isAdmin) {
+          this.fire('add-to-cart', {
+            product: this.product
+          });
+          // this.$.catalogCart.addCart(this.product);
+          this.inCart = true;
+          return;
         }
-
+        this.set('edit', !this.edit);
+        return;
       },
 
       _computeNewProduct: function(byId) {
@@ -666,16 +729,20 @@
         if (byId === 'new') {
           // Add one
           key = this.$.catalogProduct.new();
-          console.log(key);
+          // console.log(key);
           this.debounce('_computeNewProductDebounce', function(argument) {
             // this.fire('nav', {
             //   path: '/product/' + key,
             //   replace: true
             // });
-            var path = "?byId=" + key + "&edit=true";
+            // var path = "/product/" + key + "&edit=true";
             // history.replaceState(key, null, path);
-            window.location.search = path;
-            // this.byId = key;
+            this.router.go("/product/" + key, {
+              replace: true
+            });
+            // window.location.search = path;
+            this.edit = true;
+            this.byId = key;
           }, 10);
 
         }
@@ -684,9 +751,12 @@
       _computeImageCountText: function(product) {
         // console.log(product.images);
         if (product.images) {
-          return product.images.length;
+          if (product.images.length > 1) {
+            return product.images.length + " Images";
+          }
+          return product.images.length + " Image";
         }
-        return 'None';
+        return 'None, add some!';
 
       },
 
@@ -695,20 +765,14 @@
 
       _computePageTitle: function(product) {
         // console.log(product);
-
         if (!product) {
           return;
-
         }
-
-
         if (this.byId) {
           this.pageTitle = this.product.title;
           return;
         }
-
         this.pageTitle = 'No Product Found';
-
       },
 
       // Product
@@ -719,16 +783,6 @@
 
       // Cart
 
-      _cartTap: function(e) {
-        // e.stopPropagation();
-        // console.log('fire: add-to-cart');
-        if (this.user.isAdmin) return;
-        this.fire('add-to-cart', {
-          product: this.product
-        });
-        // this.$.catalogCart.addCart(this.product);
-        this.inCart = true;
-      },
 
       _updateCartIcon: function(cart, product) {
         // console.log(product);
@@ -793,7 +847,7 @@
 
       _openPicker: function(e) {
         // console.log(picker);
-        console.log(picker);
+        // console.log(picker);
         if (!picker) {
           this.fire('toast', {
             text: 'have to be admin to add images'

@@ -171,7 +171,7 @@
         _userProfileLocation: function(user) {
           // console.log(user.uid);
           if (!user) {
-            this.set('user', null);
+            this.set('user', {});
             return;
           }
           return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid;
@@ -207,6 +207,7 @@
           user.profileImageURL = this._userAuth[this._userAuth.provider].profileImageURL;
           user.token = this._userAuth[this._userAuth.provider].token;
           user.provider = this._userAuth.provider;
+          // console.log(this._user);
           user.isAdmin = this._user.isAdmin || false;
           this.set('_user', user);
 
@@ -247,7 +248,7 @@
         logout: function() {
           this.$.firebaseLogin.logout();
           // this._computeUser();
-          this.set('user', null);
+          this.set('user', {});
           this.loggedin = false;
           this.wait = false;
           // console.log('logout!');
