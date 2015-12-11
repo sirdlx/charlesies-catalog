@@ -7,6 +7,16 @@
         padding-bottom: 96px;
       }
 
+      .addFab {
+        position: fixed;
+        bottom: 16px;
+        right: 16px;
+        color: #fff;
+        will-change: transform;
+        transition: -webkit-transform .2s ease-in-out;
+        transition: transform .2s ease-in-out;
+      }
+
       .grid-container {
         padding: 16px;
       }
@@ -21,7 +31,28 @@
         width: 100%;
       }
 
+
+      .grid-cell[wide]{
+        width: 446px;
+      }
+
       @media all and (min-width: 481px) {
+        .grid-container {
+          /*-ms-flex-pack: center;
+          -webkit-justify-content: center;
+          justify-content: center;
+          -ms-flex-direction: column;
+          -webkit-flex-direction: column;
+          flex-direction: column;
+          -ms-flex-align: center;
+           -webkit-align-items: center;
+           align-items: center;
+          display: -ms-flexbox;
+          display: -webkit-flex;
+          display: flex;*/
+          @apply(--layout-vertical);
+          @apply(--layout-center);
+        }
         .grid-cell {
           margin: 8px;
           width: 214px;
@@ -32,22 +63,23 @@
       }
 
       @media all and (min-width: 961px) and (orientation: landscape) {
-        .grid-cell {
-          width: 214px;
+        .grid-container {
+          padding-left: 0;
+          padding-right: 0;
         }
         .grid-layout {
-          width: 460px;
+          width: 690px;
         }
       }
 
-      .addFab {
-        position: fixed;
-        bottom: 16px;
-        right: 16px;
-        color: #fff;
-        will-change: transform;
-        transition: -webkit-transform .2s ease-in-out;
-        transition: transform .2s ease-in-out;
+      @media all and (min-width: 1281px) and (max-width: 1600px) {
+        .grid-cell {
+          margin: 8px;
+          width: 214px;
+        }
+        .grid-layout {
+          width: 920px;
+        }
       }
     </style>
 
@@ -56,15 +88,14 @@
     <!-- <iron-ajax id="firebaseProducts" params="{{_params()}}" url="https://charlesiesbeta.firebaseio.com/products.json" handle-as="json" loading="{{loading}}" last-response="{{_products}}" auto></iron-ajax> -->
     <catalog-user id="catalogUser" user="{{user}}"></catalog-user>
 
-
     <div id="grid" class="grid-container">
+
+      <paper-spinner active="[[loading]]" hidden="{{!loading}}"></paper-spinner>
 
       <div class="grid-layout">
 
-        <paper-spinner active="[[loading]]" hidden="{{!loading}}"></paper-spinner>
-
         <template is="dom-repeat" items="[[products]]">
-          <product-card by-id="[[item.__firebaseKey__]]" class="grid-cell"></product-card>
+          <product-card by-id="[[item.__firebaseKey__]]" class="grid-cell" wide$="{{item.wide}}"></product-card>
         </template>
 
 

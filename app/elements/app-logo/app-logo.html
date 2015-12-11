@@ -18,12 +18,12 @@
     }
 
     .color {
-      color: var(--app-logo-color);
+      color: var(--app-logo-text-color);
     }
 
     a {
       max-width: 125px;
-      color: black;
+      color: var(--app-logo-link-color);
       text-transform: none;
       text-decoration: none;
     }
@@ -47,6 +47,10 @@
       margin: 0;
     }
 
+    h1 span{
+      margin: -3px;
+    }
+
     img {
       min-width: 36px;
       /*padding: 2px;*/
@@ -59,11 +63,15 @@
       <!-- <img src="../../images/touch/chrome-touch-icon-192x192.png" width="36" alt="Logo"> -->
       <!-- <h1 class="logo" hidden$="[[!full]]">
         <span class="red">C</span>harlesie's.com Catalog</h1> -->
-      <h1 class="logo" hidden$="[[icon]]">
-        <span class="color">C</span><span hidden$="{{!full}}">harlesie's.com</span></h1>
-      </h1>
-
-      <h1 class="red" hidden="[[!icon]]">C</h1>
+      <template is="dom-if" if="{{full}}" restamp="false">
+        <h1>
+          <span class="color">C</span>
+          <span>harlesie's.com</span>
+        </h1>
+      </template>
+      <template is="dom-if" if="{{!full}}" restamp="false">
+        <h1 class="red">C</h1>
+      </template>
 
     </a>
   </template>
@@ -75,11 +83,13 @@
         full: {
           type: Boolean,
           value: false
-        },
-        icon: {
-          true: Boolean,
-          value: false
         }
+      },
+
+      // observers: ['_check(full)'],
+      _check: function(full) {
+        console.log('_check: ', full);
+        // body...
       }
     });
   </script>

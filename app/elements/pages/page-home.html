@@ -40,7 +40,7 @@
       }
     </style>
 
-    <firebase-collection id="products" location="https://charlesiesbeta.firebaseio.com/products" data="{{products}}" order-by-child="priorty"></firebase-collection>
+    <!-- <firebase-collection id="products" location="https://charlesiesbeta.firebaseio.com/products" data="{{products}}" order-by-child="priorty"></firebase-collection> -->
     <catalog-user id="catalogUser" user="{{user}}"></catalog-user>
 
     <div class="grid-layout">
@@ -63,17 +63,35 @@
       is: 'page-home',
       enableCustomStyleProperties: true,
       properties: {
+        router: Object,
         user: {
           type: Object,
           notify: true
         }
       },
 
-      observers:[
-        // 'check(user)'
+      observers: [
+        // 'check(user)',
+        '_auth(auth, user)',
+
       ],
 
-      check: function (user) {
+      _auth: function(auth, user) {
+        // console.log(auth);
+        if (auth === 'instagram') {
+          // console.log(window.location.hash.split('#access_token=')[1]);
+          var done = this.$.catalogUser.authInstagram(window.location.hash.split('#access_token=')[1]);
+          // console.log(done);
+          if (done) {
+            this.debounce('authInstagramFFFF', function(argument) {
+              window.close();
+            });
+          }
+        }
+
+      },
+
+      check: function(user) {
         console.log(user);
       },
 

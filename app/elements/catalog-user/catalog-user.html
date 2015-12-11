@@ -3,7 +3,7 @@
     <firebase-auth id="firebaseLogin" user="{{_userAuth}}" status-known="{{statusKnown}}" location="https://charlesiesbeta.firebaseio.com" provider="{{provider}}" on-error="errorHandler" on-user-created="userSuccessHandler" on-password-changed="userSuccessHandler"
     on-password-reset="userSuccessHandler" on-user-removed="userSuccessHandler"></firebase-auth>
     <!-- <firebase-document id="firebaseFavorites" location$="{{_favLocation(user)}}" data="{{_favs}}"></firebase-document> -->
-    <firebase-document id="fbUserProfile" location$="{{_userProfileLocation(_userAuth)}}" data="{{_user}}" on-firebase-value="_computeUser"></firebase-document>
+    <firebase-document id="fbUserProfile" location$="{{_userProfileLocation(_userAuth)}}" data="{{_userProfile}}"  on-firebase-value="_computeUser"></firebase-document>
     <!-- <firebase-collection id="fbCard" location$="[[_computeCardLocation(user, loggedin)]]" data="{{_card}}" on-firebase-value="_computeCard"></firebase-collection> -->
     <!-- <firebase-collection id="fbAddress" location$="[[_computeAddressLocation(user, loggedin, _user)]]" data="{{_address}}" on-firebase-value="_computeAddress"></firebase-collection> -->
   </template>
@@ -85,6 +85,10 @@
             value: ""
           },
           _userAuth: {
+            type: Object,
+            notify: true,
+          },
+          _userProfile: {
             type: Object,
             notify: true,
           },
@@ -179,7 +183,7 @@
 
         addFav: function(product) {
           // console.log(product.__firebaseKey__);
-          if (!product)return;
+          if (!product) return;
           var ref = new Firebase('https://charlesiesbeta.firebaseio.com/users/' + this.user.uid + '/favorites/' + product.__firebaseKey__);
           ref.once("value", function(snapshot) {
             // console.log(snapshot.val());
@@ -197,7 +201,7 @@
         _computeUser: function(_, ref) {
           // console.log(ref);
           if (!ref) return;
-          // var user = ref.val() || {};
+          var userDetails = ref.val() || {};
           var user = this._user || {};
           // user = this._userAuth[this._userAuth.provider];
           user.accessToken = this._userAuth[this._userAuth.provider].accessToken;
@@ -205,17 +209,18 @@
           user.displayName = this._userAuth[this._userAuth.provider].displayName;
           user.id = this._userAuth[this._userAuth.provider].id;
           user.profileImageURL = this._userAuth[this._userAuth.provider].profileImageURL;
-          user.token = this._userAuth[this._userAuth.provider].token;
+          // user.token = this._userAuth[this._userAuth.provider].token;
           user.provider = this._userAuth.provider;
-          // console.log(this._user);
-          user.isAdmin = this._user.isAdmin || false;
-          this.set('_user', user);
+          // console.log(userDetails);
+          user.isAdmin = userDetails.isAdmin || false;
+          user.instagram = userDetails.instagram || false;
+          this.set('_userProfile', user);
 
           // local use properties
           user.uid = this._userAuth.auth.uid;
           user.token = this._userAuth.token;
           // send it up
-          this.set('user', this._user);
+          this.set('user', user);
         },
 
         login: function(provider, email, password) {
@@ -437,6 +442,25 @@
 
 
 
+
+        // Instagram
+
+
+        authInstagram: function(authCode) {
+          console.log(authCode);
+
+          var _instagram = {
+            authCode: authCode
+          };
+
+          var urlRef = 'https://charlesiesbeta.firebaseio.com';
+          var ref = new Firebase(urlRef);
+          var updates = {};
+          var uid = this.user.uid;
+          updates['/users/' + uid + '/instagram/'] = _instagram;
+          ref.update(updates);
+          return true;
+        },
 
       });
     })();

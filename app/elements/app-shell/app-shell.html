@@ -19,6 +19,11 @@
         margin-top: 16px;
       }
 
+      .cartBadge{
+        --paper-badge-background: var(--accent-color);
+        --paper-badge-text-color: white;
+      }
+
       #appToolbar paper-icon-button[icon=menu] {
         margin-right: 8px;
       }
@@ -42,7 +47,7 @@
     <catalog-cart id="catalogCart" items="{{cart}}" count="{{cartCount}}"></catalog-cart>
 
     <iron-media-query query="(min-width: 705px)" query-matches="{{narrow}}"></iron-media-query>
-    <firebase-collection id="category" location="https://charlesiesbeta.firebaseio.com/categories" data="{{categories}}" order-by-child="showInNav" equal-to="true" ></firebase-collection>
+    <firebase-collection id="category" location="https://charlesiesbeta.firebaseio.com/categories" data="{{categories}}" order-by-child="showInNav" equal-to="true"></firebase-collection>
 
     <paper-drawer-panel responsive-width="704px">
 
@@ -53,7 +58,8 @@
         </paper-toolbar>
 
         <paper-menu id="menu" selected="[[routeSelected]]">
-          <paper-item href="/" on-tap="_clickNav">home</paper-item>
+          <paper-item link="" on-tap="_clickNav">Home</paper-item>
+          <paper-item link="products" on-tap="_clickNav">Browse</paper-item>
           <template is="dom-repeat" items="[[categories]]">
             <!-- <a href$="{{_computeNav(item)}}" is="pushstate-anchor"> -->
             <paper-item href$="{{_computeNav(item)}}" on-tap="_clickNav">{{item.title}}</paper-item>
@@ -95,13 +101,13 @@
 
             <!-- account Dropdown Button / Items -->
             <paper-menu class="dropdown-content">
-              <paper-item href="/cart" on-tap="_clickNav" hidden$="{{narrow}}">
+              <paper-item link="cart" on-tap="_clickNav" hidden$="{{narrow}}">
                 <iron-icon icon="shopping-cart"></iron-icon>
                 <span>{{cartCount}}</span>
               </paper-item>
-              <paper-item hiddenFFFF={{!loggedin}} href="/account" on-tap="_clickNav">[[_computeAccountText(loggedin, user)]]</paper-item>
+              <paper-item hidden={{!loggedin}} link="account" on-tap="_clickNav">[[_computeAccountText(loggedin, user)]]</paper-item>
               <paper-item hidden={{!loggedin}} on-tap="logout">logout</paper-item>
-              <paper-item hidden={{loggedin}} href="/login" on-tap="_clickNav">login</paper-item>
+              <paper-item hidden={{loggedin}} link="login" on-tap="_clickNav">login</paper-item>
             </paper-menu>
 
           </paper-menu-button>
@@ -110,28 +116,25 @@
 
         </paper-toolbar>
 
-        <app-router id="router" class="flex" main mode="pushstate" on-activate-route-end="_routeEnd" on-state-change="_routerStateChange" on-before-data-binding="modifyModel">
+        <app-router id="router" class="flex" main mode="[[_demo(demo)]]" on-activate-route-end="_routeEnd" on-activate-route-start="_routeStart" on-state-change="_routerStateChange" on-before-data-binding="modifyModel">
 
-          <app-route path="/" element="page-product-list" bindRouter onUrlChange="updateModel"></app-route>
+          <app-route path="/" element="page-home" bindRouter></app-route>
 
-          <!-- <app-route path="/" element="page-home" bindRouter></app-route> -->
+          <app-route path="/products" element="page-product-list" bindRouter onUrlChange="reload"></app-route>
+          <app-route path="/product/:byId" element="page-product" bindRouter onUrlChange="reload"></app-route>
+          <!-- <app-route path="/product/:byId/:edit" element="page-product" bindRouter onUrlChange="reload"></app-route> -->
 
-          <app-route path="/products" element="page-product-list" bindRouter onUrlChange="updateModel"></app-route>
-          <app-route path="/product/:byId" element="page-product" bindRouter onUrlChange="updateModel"></app-route>
-          <!-- <app-route path="/product/:byId/:edit" element="page-product" bindRouter onUrlChange="updateModel"></app-route> -->
+          <app-route path="/cart" element="page-cart" bindRouter onUrlChange="reload"></app-route>
+          <!-- <app-route path="/cart/checkout" element="page-checkout" bindRouter onUrlChange="reload"></app-route> -->
 
-          <app-route path="/cart" element="page-cart" bindRouter onUrlChange="updateModel"></app-route>
-          <!-- <app-route path="/cart/checkout" element="page-checkout" bindRouter onUrlChange="updateModel"></app-route> -->
+          <app-route path="/login" element="page-account" bindRouter onUrlChange="reload"></app-route>
+          <app-route path="/account" element="page-account" bindRouter onUrlChange="reload"></app-route>
 
+          <!-- <app-route path="/account/address" element="page-address" bindRouter onUrlChange="reload"></app-route>
+          <app-route path="/account/address/:id" element="page-address" bindRouter onUrlChange="reload"></app-route> -->
 
-          <app-route path="/login" element="page-account" bindRouter onUrlChange="updateModel"></app-route>
-          <app-route path="/account" element="page-account" bindRouter onUrlChange="updateModel"></app-route>
-
-          <app-route path="/account/address" element="page-address" bindRouter onUrlChange="updateModel"></app-route>
-          <app-route path="/account/address/:id" element="page-address" bindRouter onUrlChange="updateModel"></app-route>
-
-          <app-route path="/account/card" element="page-card" bindRouter onUrlChange="updateModel"></app-route>
-          <app-route path="/account/card/:id" element="page-card" bindRouter onUrlChange="updateModel"></app-route>
+          <!-- <app-route path="/account/card" element="page-card" bindRouter onUrlChange="reload"></app-route>
+          <app-route path="/account/card/:id" element="page-card" bindRouter onUrlChange="reload"></app-route> -->
 
           <app-route path="*" element="page-error"></app-route>
 
@@ -191,6 +194,11 @@
         properties: {
           // Global
           router: Object,
+          mode: {
+            type: String,
+            notify: true,
+            value: 'hash'
+          },
           settings: {
             type: Object,
             notify: true,
@@ -247,8 +255,17 @@
           'remove-from-cart': 'removeFromCart'
         },
         observers: [
-          'setApp(settings)'
+          'setApp(settings)',
+          //  '_demo(mode)'
         ],
+
+        _demo: function(mode) {
+          console.log(mode);
+          if (mode) {
+            return 'auto';
+          }
+          return 'pushstate';
+        },
 
         _computeAccountText: function(loggedin, user) {
           // console.log(loggedin, user);
@@ -334,13 +351,15 @@
 
         _computeNav: function(item) {
           console.log(item);
-          return '/category/' + item.title.split(' ').join('_');
+          return '#/category/' + item.title.split(' ').join('_');
         },
 
         _clickNav: function function_name(e) {
-          // console.log(e.target.getAttribute('href'));
+          // console.log(e.target.getAttribute('href').split('#')[1]);
+          // console.dir(e.target.getAttribute('link'));
           // this.$.router.go(this.$.menu.selectedItem.getAttribute('href'));
-          this.$.router.go(e.target.getAttribute('href'));
+          // this.$.router.go('/' + e.target.getAttribute('href').split('#')[1]);
+          this.$.router.go('/' + e.target.getAttribute('link'));
         },
 
         _clickNavCart: function(argument) {
@@ -361,7 +380,7 @@
           // console.log(event.detail.path);
           // Select sidebar navigation item if possible
 
-          // console.log(event);
+          // console.log(event.detail.path);
           if (!event) return;
 
           if (event.detail.path === "/") {
@@ -384,18 +403,30 @@
             // console.log(routePath, index);
             // console.log(routePath, _href, i);
 
-            if (routePath[2]) {
-              if (_href.split('/')[2] === routePath[2]) {
-                // console.log(entry.attributes.route.textContent);
-                // console.log(i);
-                this.routeSelected = i;
-                return;
-              }
-            }
+            // if (routePath[2]) {
+            //   if (_href.split('/')[2] === routePath[2]) {
+            //     // console.log(entry.attributes.route.textContent);
+            //     // console.log(i);
+            //     this.routeSelected = i;
+            //     return;
+            //   }
+            // }
 
           }
           this.routeSelected = -1;
 
+        },
+
+        _routeStart: function (_, e) {
+          // console.log(e.path.match('\/product/'));
+          if (e.oldRoute) {
+            // console.dir(e.oldRoute.getAttribute('path'));
+            if (e.oldRoute.getAttribute('path') === e.route.getAttribute('path')) {
+              // console.log('match');
+            }
+          }
+
+          // console.log(e);
         },
 
         _routeEnd: function(event) {
@@ -415,6 +446,7 @@
 
         modifyModel: function(event) {
           // event.detail.model.user = this.$.catalogUser;
+          // console.dir(this.$.router);
         },
 
         // Global settings

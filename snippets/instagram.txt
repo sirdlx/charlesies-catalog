@@ -1,0 +1,6 @@
+https://api.instagram.com/oauth/authorize/?client_id=CLIENT-ID&redirect_uri=REDIRECT-URI&response_type=token
+
+http://your-redirect-uri#access_token=ACCESS-TOKEN
+
+
+Client ID f467930444ba4f3a97c21961e74022e8

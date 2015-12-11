@@ -108,6 +108,11 @@
         color: var(--paper-green-a700);
         font-size: 16px;
       }
+
+      .image{
+        width: 72px;
+        height: 72px;
+      }
     </style>
 
     <catalog-cart id="catalogCart" items="{{cart}}" count={{count}}></catalog-cart>
@@ -148,7 +153,8 @@
         <template is="dom-repeat" items="{{cart}}">
           <paper-icon-item class="cart-item">
             <div class="avatar" item-icon>
-              <img src="[[item.firstImageURL]]" width="72">
+              <!-- <img src="[[itemImage(item)]]" width="72"> -->
+              <iron-image fade class="image" src="[[itemImage(item)]]" sizing="cover" preload placeholder="data:image/gif;base64,R0lGODdhyADIAOMAAO7u/5aWlqGho9jY5OPj8cLCyqyssLe3vc3N1wAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAAyADIAAAE/hDISau9OOvNu/9gKI5kaZ5oqq5s675wLM90bd94ru987//AoHBILBqPyKRyyWw6n9CodEqtWq/YrHbL7Xq/4LB4TC6bz+i0es1uu9/wuHxOr9vv+Lx+z+/7/4CBgoOEhYaHiImKi4yNjo+QkZKTlJWWl5iZmpucnZ6foKGio6SlpqeoqaqrrK2ur7CxsrO0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMzc7P0NHS06kB1tYqA9cUBQEFrgLWAgIqBOEBFNuu1gMs2ugT3d/rAe0r77bsFwMGAQLzEggc8AcQAIJwA+EBuKbQmgF+3iocDHBAXiZ9Fd6dAxhuo4R3/gwnGDgnkqE1BBM0XrN3CSOFgQYM+ouHEsFMAP1i2lQIAN8EhwS6kZPQ74BMnpZcTgiHkoA1AhKxAWDaU+pHqwvrVVVI1ScmpRIwYjxwTqo+r1vTafV6FmtSrRXEak0ooB+8tjzR4v251m0llwSgUnUaAOrJtFMDoESrty9XxYi/wk0sMEBMoRKo7iRK8SiFxu285vQMoIDR0qdNN+rmbxxJlRFLi7u22OG1mDjP4bYb2uFVf+r0CZ+cyOS1oRD/cUM4cN5EA3bDhszqWOHEhBLIZh+qHdnmaFABwIwm9BxLZxAtn6fGvr379/Djy59Pv779+/jz69/Pv7///wAGQyjggAQWaOCBCCao4IIMNujggxBGKOGEFFZo4YUYZqjhhhx26OGHIIYo4ogklmjiiSimqOKKLLbo4oswxijjjDRKEQEAOw=="></iron-image>
             </div>
             <paper-item-body two-line>
 
@@ -240,7 +246,7 @@
           if (cart.length) {
             var total = 0;
             for (var i = 0; i < cart.length; i++) {
-              total += cart[i].default_price * cart[i].quantity;
+              total += cart[i].price * cart[i].quantity;
             }
             return Number(total).toFixed(2);
           }
@@ -267,6 +273,13 @@
         },
         _clickCheckout: function() {
           router.go('/cart/checkout');
+        },
+
+        itemImage: function (item) {
+          if (item.images) {
+            // console.log(item.images[0].src);
+            return item.images[0].src;
+          }
         },
 
 

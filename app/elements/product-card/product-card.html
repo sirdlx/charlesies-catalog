@@ -15,17 +15,13 @@
       width: 100%;
     }
 
+    .productTitle{
+      height: 26px;
+    }
+
     .card-actions .itemPrice {
-      float: right;
-      display: inline-block;
-      position: relative;
-      padding: 8px;
-      outline: none;
-      -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
+      line-height: 40px;
+      margin: 0;
     }
 
     .card-actions {
@@ -33,12 +29,20 @@
     }
 
     .card-content {
-      height: 2em;
+    }
+
+    .productDescription {
+      height: 2.3em;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
     .image {
+      width: 100%;
+      height: 214px;
+    }
+
+    [tall] .image {
       width: 100%;
       height: 264px;
     }
@@ -72,16 +76,22 @@
       </a>
 
       <div class="card-content">
-        <div class="product_title paper-font-title">
+        <div class="productTitle paper-font-title">
           <span>[[product.title]]</span>
         </div>
-        <span>[[product.description]]</span>
+
+        <!-- <template is="dom-if" if="[[product.description]]" restamp="true">
+          <div class="productDescription">
+            <span>[[product.description]]</span>
+          </div>
+        </template> -->
       </div>
 
-      <div class="card-actions">
+      <div class="card-actions layout horizontal">
 
         <!-- <paper-icon-button class="inFav" icon="favorite" on-tap="_favTap" in-fav$="[[inFav]]" disabled$="[[!loggedin]]"></paper-icon-button> -->
         <paper-icon-button class="inCart" icon="shopping-cart" on-tap="_cartTap" in-cart$="[[inCart]]"></paper-icon-button>
+        <span class="flex"></span>
 
         <h4 class="itemPrice">
           <span>[[_computeProductPriceText(product)]]</span>
@@ -150,9 +160,8 @@
       _computeProductImage: function(product) {
         // console.log(product.images[0]);
         if (product.images) {
-          return product.images[0].webContentLink;
+          return product.images[0].src || '';
         }
-
 
       },
 
@@ -170,7 +179,12 @@
 
       _computeLink: function(item) {
         // return '/products/' + item.name.split(' ').join('_');
-        return '/product/' + this.byId;
+        return '#/product/' + this.byId;
+
+        // this.fire('nav', {
+        //   path: '/product/' + this.byId
+        // });
+
       },
       _computeFirstImage: function(images) {
         console.log('_computeFirstImage: ', images);

@@ -1,0 +1,180 @@
+<dom-module id="instagram-picker">
+  <template>
+
+    <style is="custom-style" media="screen">
+      :host {
+        box-sizing: border-box;
+        height: 100%;
+        width: 100%;
+      }
+
+      .grid-container {
+        max-height: 82vh;
+        overflow-y: scroll;
+        overflow-x: hidden;
+      }
+
+      .grid-layout {
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+      }
+
+      .grid-cell {}
+
+      @media all and (min-width: 481px) {
+        .grid-container {}
+        .grid-cell {}
+        .grid-layout {}
+      }
+
+      @media all and (min-width: 961px) and (orientation: landscape) {
+        .grid-layout {}
+      }
+
+      @media all and (min-width: 1281px) and (max-width: 1600px) {
+        .grid-cell {}
+        .grid-layout {}
+      }
+      /*  Images  */
+
+      ::-webkit-scrollbar {
+        -webkit-appearance: none;
+        height: 4px;
+        width: 4px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        border-radius: 1px;
+        background-color: #f44336;
+        /*box-shadow: 0 0 1px rgba(255, 255, 255, .5);*/
+      }
+
+      .selector {
+        width: 100%;
+      }
+
+      .iron-selected {
+        background-color: var(--google-blue-500);
+        padding: 8px;
+      }
+
+      iron-image {
+        width: 100%;
+        height: 390px;
+      }
+    </style>
+
+
+    <iron-ajax id="instagramAjax" url$="{{_computeInstagramAjax(token)}}" handle-as="json" loading="{{loading}}" last-response="{{_instagramResponse}}" auto></iron-ajax>
+    <catalog-user id="catalogUser" user="{{user}}"></catalog-user>
+
+    <div id="grid" class="grid-container">
+
+      <paper-spinner active="[[loading]]" hidden="{{!loading}}"></paper-spinner>
+
+      <div class="grid-layout">
+
+        <iron-selector multi selected-items="{{selectedItems}}" class="selector">
+
+          <template is="dom-repeat" items="[[instagramMedia]]">
+            <div class="grid-cell">
+              <iron-image src="{{item.images.standard_resolution.url}}" preload sizing="cover"></iron-image>
+            </div>
+          </template>
+
+        </iron-selector>
+
+
+        <template is="dom-if" if="[[!instagramMedia]]">
+          <div class="layout vertical center-center">
+            <div>No Media</div>
+            <div>Create Product
+              <paper-icon-button icon="add" on-tap="_navAddProduct"></paper-icon-button>
+            </div>
+          </div>
+        </template>
+
+      </div>
+    </div>
+
+  </template>
+
+  <script>
+    (function() {
+
+      Polymer({
+        is: 'instagram-picker',
+        enableCustomStyleProperties: true,
+        properties: {
+
+          loading: {
+            type: Boolean,
+            notify: true,
+            value: true
+          },
+          token: {
+            type: String,
+            notify: true
+          },
+          instagramMedia: {
+            type: Array,
+            notify: true
+          },
+          selected: {
+            type: Array,
+            notify: true,
+            value: []
+          },
+
+        },
+        observers: [
+          '_selecteditems(selectedItems)',
+          '_computeInstagramResponse(_instagramResponse)'
+        ],
+
+        reset: function() {
+          this.set('instagramMedia', []);
+          this.set('selected', []);
+        },
+
+        _doneTap: function() {
+          console.log('_doneTap - selectedItems: ', this.selectedItems);
+        },
+
+        _selecteditems: function(selectedItems) {
+          console.log('selectedItems: ', selectedItems);
+          if (selectedItems.length) {
+            this.done = true;
+          } else {
+            this.done = false;
+          }
+          this.set('selected', []);
+          for (var i = 0; i < selectedItems.length; i++) {
+            // console.log(selectedItems[i]);
+            this.push('selected', selectedItems[i]._templateInstance.__data__.item);
+          }
+        },
+
+        _computeInstagramAjax: function(token) {
+          // console.log(token);
+          // console.log('https://api.instagram.com/v1/users/self/media/recent/?access_token=' + token);
+          // return 'https://api.instagram.com/v1/users/self/media/recent/?access_token=' + token;
+          return 'http://instagram-timeline.appspot.com/request/instagram?access_token=' + token;
+        },
+
+        _computeInstagramResponse: function(_instagramResponse) {
+          // console.log(_instagramResponse.data[0].images.standard_resolution);
+          if (_instagramResponse.data) {
+            this.set('instagramMedia', _instagramResponse.data);
+          }
+        },
+
+        _computeInstagramImage: function(item) {
+          return item.images.standard_resolution;
+        }
+
+      });
+    })();
+  </script>
+
+</dom-module>

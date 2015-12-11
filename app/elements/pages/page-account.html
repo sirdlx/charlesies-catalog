@@ -136,26 +136,39 @@
       paper-button {
         transition: background-color 0.5s ease;
       }
-
-      paper-button[disabled] {
+      /*paper-button[disabled] {
         background: #a8a8a8 !important;
+        color: black;
+      }*/
+
+      .icon {
+        width: 16px;
+        height: 16px;
+      }
+
+      .addons paper-button.instagram {
+        background: var(--paper-green-300);
         color: black;
       }
 
-      .blue {
+      .addons paper-button {
+        padding: 8px;
+        margin-right: 16px;
+      }
+
+      paper-button.facebook {
         background: #3B5998;
+        color: white;
       }
 
-      .red {
+      paper-button.google {
         background: #DC4A38;
+        color: white;
       }
 
-      .blue2x {
-        background: #3CF;
-      }
-
-      .blue2 {
+      paper-button.twitter {
         background: #55acee;
+        color: white;
       }
     </style>
 
@@ -168,7 +181,6 @@
 
         <h2 class="form-title">Login</h2>
         <br>
-
         <div class="layout vertical">
           <form is="iron-form" id="loginform" method="post">
             <paper-input tabindex="0" no-label-float maxlength="25" required name="email" label="email" type="email" value="{{email}}" disabled$="{{wait}}"></paper-input>
@@ -179,13 +191,13 @@
           <br>
           <br>
           <div class="">
-            <paper-button disabled$="{{wait}}" class="blue" on-tap="_loginFacebook">
+            <paper-button disabled$="{{wait}}" class="facebook" on-tap="_loginFacebook">
               <iron-icon src="/images/facebook-24.png"></iron-icon>
             </paper-button>
-            <paper-button disabled$="{{wait}}" class="red" on-tap="_loginGoogle">
+            <paper-button disabled$="{{wait}}" class="google" on-tap="_loginGoogle">
               <iron-icon src="/images/google-plus-24.png"></iron-icon>
             </paper-button>
-            <paper-button disabled$="{{wait}}" class="blue2" on-tap="_loginTwitter">
+            <paper-button disabled$="{{wait}}" class="twitter" on-tap="_loginTwitter">
               <iron-icon src="/images/twitter-24.png"></iron-icon>
             </paper-button>
           </div>
@@ -210,6 +222,26 @@
             </div>
           </div>
         </div>
+
+
+
+        <div class="section addons layout horizontal center-center">
+
+          <template is="dom-if" if="{{_computeAddonProvider(user)}}" restamp="true">
+            <paper-button class$="{{user.provider}}" raised disabled>
+              <iron-icon src="/images/facebook-24.png" class="icon"></iron-icon>
+              <span>Facebook</span>
+            </paper-button>
+          </template>
+
+          <paper-button class$="{{user.instagram}}" raised disabled$="{{user.instagram}}" on-tap="_instagramAuthTap">
+            <iron-icon src="/images/Glyph_Logo_png.png" class="icon"></iron-icon>
+            <span>Instagram</span>
+          </paper-button>
+
+
+        </div>
+
 
 
         <div class="split section layout">
@@ -281,13 +313,6 @@
 
     </iron-pages>
 
-
-
-
-
-
-
-
   </template>
 
   <script>
@@ -297,7 +322,6 @@
         enableCustomStyleProperties: true,
         properties: {
 
-
           // Page
 
           _page: {
@@ -305,9 +329,6 @@
             notify: true,
             value: 0
           },
-
-
-
 
           // User
           email: {
@@ -345,16 +366,33 @@
           // 'newAddressValue(address.*)'
           // '_check(Address)',
           '_changePage(loggedin)',
+          'check(user)',
         ],
 
+        check: function(user) {
+          console.log(user);
+        },
+
         _changePage: function(loggedin) {
-          console.info('page: ', loggedin);
+          // console.info('loggedin: ', loggedin);
           if (loggedin) {
             this._page = 1;
           } else {
             this._page = 0;
-
           }
+        },
+
+
+        _instagramAuthTap: function() {
+          // console.log(window.location);
+          // window.location.hostname === "localhost" ?
+          var loc = window.location.origin + "/?auth=instagram";
+          var opts = 'location=0,status=0,width=800,height=400';
+          console.log(loc);
+          this.debounce('_instagramAuthTapFFFF', function(argument) {
+            var _oauthWindow = window.open('https://api.instagram.com/oauth/authorize/?client_id=f467930444ba4f3a97c21961e74022e8&redirect_uri=' + loc + '&response_type=token' + '&scope=basic', 'Instagram', opts);
+          }, 200);
+
         },
 
         _computeAccountText: function(loggedin) {
@@ -453,6 +491,11 @@
         },
         _loginFacebook: function() {
           this.$.catalogUser.login('facebook');
+        },
+
+        _computeAddonProvider: function(user) {
+          return user.provider || 'Secure';
+
         }
 
 

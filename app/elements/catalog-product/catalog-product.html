@@ -115,16 +115,52 @@
         var updates = {};
         var imageId = image.id;
 
-        ref.child('/images/' + imageId).once('value', function(snapshot) {
-          // console.log(snapshot.exists());
-          if (!snapshot.exists()) {
-            // imageId = ref.push(image).key();
-            ref.child('/images/' + imageId).set(image);
+        // ref.child('/images/' + imageId).once('value', function(snapshot) {
+        //   // console.log(snapshot.exists());
+        //   if (!snapshot.exists()) {
+        //     // imageId = ref.push(image).key();
+        //     ref.child('/images/' + imageId).set(image);
+        //   }
+        //   updates['/images/' + imageId + '/productById/' + byId] = true;
+        //   updates['/products/' + byId + '/imagesById/' + imageId] = true;
+        //   ref.update(updates);
+        //   return ref.child('images').child(imageId);
+        // });
+
+        var thiss = this;
+
+        ref.child('/images/').orderByChild('key').equalTo(imageId).once('value', function(snap) {
+          // console.log(snap.exists());
+          var val = snap.val();
+          var key;
+
+          if (snap.exists()) {
+            // the image exist, update
+            console.log('the image exist, update!');
+            // console.log(snap.val());
+            for (var key in val) {
+              updates['/images/' + key + '/productById/' + byId] = true;
+              updates['/products/' + byId + '/imagesById/' + key] = true;
+              ref.update(updates);
+            }
+          } else {
+            // add new image
+            console.log('add new image');
+            var obj = {};
+            obj.src = image.webContentLink;
+            obj.key = imageId;
+            key = ref.child('/images/').push(obj).key();
+            // console.log(key);
           }
-          updates['/images/' + imageId + '/productById/' + byId] = true;
-          updates['/products/' + byId + '/imagesById/' + imageId] = true;
-          ref.update(updates);
-          return ref.child('images').child(imageId);
+
+          thiss.debounce('push_image', function(argument) {
+            updates['/images/' + key + '/productById/' + byId] = true;
+            updates['/products/' + byId + '/imagesById/' + key] = true;
+            ref.update(updates);
+          });
+
+
+
         });
 
       },
@@ -133,13 +169,13 @@
         return this.addImageAtomic(image);
       },
 
-      removeImageAtomic: function(imageId) {
+      removeImageAtomic: function(imageKey) {
         var byId = this.byId;
         var urlRef = 'https://charlesiesbeta.firebaseio.com';
         var ref = new Firebase(urlRef);
         var updates = {};
-        updates['/images/' + imageId + '/productById/' + byId] = null;
-        updates['/products/' + byId + '/imagesById/' + imageId] = null;
+        updates['/images/' + imageKey + '/productById/' + byId] = null;
+        updates['/products/' + byId + '/imagesById/' + imageKey] = null;
         ref.update(updates);
         return true;
       },
@@ -163,11 +199,12 @@
         }
         var _productDetails = snap.val();
         // console.log(typeof _productDetails.imagesById=== 'undefined');
-        var imageKeys = Object.keys(_productDetails.imagesById).sort();
+        // var imageKeys = Object.keys(_productDetails.imagesById).sort();
+        var imageKeys = Object.keys(_productDetails.imagesById);
         var images = [];
         for (var i = 0; i < imageKeys.length; i++) {
           // console.log(imageKeys[i]);
-          snap.ref().root().child('/images/' + imageKeys[i]).once('value', function(dataSnapshot) {
+          snap.ref().root().child('/images/' + imageKeys[i]).orderByPriority().once('value', function(dataSnapshot) {
             images.push(dataSnapshot.val());
           });
         }

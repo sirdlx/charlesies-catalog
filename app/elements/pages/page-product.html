@@ -2,8 +2,8 @@
   <template>
     <style media="screen" is="custom-style">
       :host {
-        display: block;
-        margin-bottom: 204px;
+        /*display: block;*/
+        /*padding-bottom: 204px;*/
       }
 
       .editToolbarTitle {
@@ -14,41 +14,42 @@
         visibility: hidden;
         -webkit-transform: translateY(-50px);
         transform: translateY(-50px);
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          z-index: 1;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1;
       }
-
-      [edit] .editToolbarTitle {
+      /*[edit] .editToolbarTitle {
         visibility: visible;
         opacity: 1;
         -webkit-transform: translateY(0px);
         transform: translateY(0px);
-      }
-
-      .productForm[wide] {}
+      }*/
+      /*[edit] .productForm {
+        padding-bottom: 172px;
+      }*/
 
       paper-material {
+        min-height: 1px;
         background-color: white;
         margin: 16px;
         -webkit-transition: all 0.3s, -webkit-transform 0.3s, opacity 0.3s;
         transition: all 0.3s, transform 0.3s, opacity 0.3s;
+        width: 288px;
       }
-
-      [edit] paper-material {
+      /*[edit] paper-material {
         -webkit-transform: translateY(100px);
         transform: translateY(100px);
-      }
+      }*/
 
-      [wide] paper-material {
-        width: 480px;
-      }
-
-      [wide] .page-container {
+      .page-container {
         @apply(--layout-vertical);
         @apply(--layout-center);
+      }
+
+      [edit] .page-container {
+        padding-bottom: 160px;
       }
 
       .body {
@@ -109,8 +110,20 @@
       }
       /*  Product Images  */
 
+      .editToolbarImages {
+        background: rgba(0, 0, 0, 0.25);
+        /*position: fixed;*/
+        position: absolute;
+        color: #f5f5f5;
+        z-index: 1;
+        right: 0;
+        top: 0;
+        left: 0;
+      }
+
       #images {
         position: relative;
+        height: 296px;
       }
 
       #images .iron-selected {}
@@ -119,6 +132,7 @@
         height: 100%;
         overflow-x: scroll;
         overflow-y: hidden;
+        display: flex;
       }
 
       ::-webkit-scrollbar {
@@ -153,20 +167,56 @@
       .images-container {
         /*padding-bottom: 1px;*/
         /*padding: 8px;*/
-        height: 325px;
-        border-bottom: 1px solid #e6e6e6;
+        /*height: 325px;*/
+        -webkit-flex-direction: row;
+        /* Safari */
+        flex-direction: row;
+        border-bottom: .5px solid #e6e6e6;
+        /*height: 288px;*/
       }
 
       .image-container {
-        --iron-image-height: 100%;
-        height: 320px;
+        /*--iron-image-height: 100%;*/
+        height: 288px;
+        width: 288px;
       }
 
-      .image {
-        /*width: 80vw;
-        height: 80vw;
-        margin-right: 8px;*/
-        background-color: white;
+      @media all and (min-width: 481px) {
+        paper-material {
+          width: 464px;
+        }
+        #images {
+          height: 468px;
+        }
+        .image-container {
+          height: 464px;
+          width: 464px;
+        }
+      }
+
+      @media all and (min-width: 705px) {
+        paper-material {
+          width: 416px;
+        }
+        #images {
+          height: 424px;
+        }
+        .image-container {
+          height: 416px;
+          width: 416px;
+        }
+      }
+
+      .imagex {
+        width: 100%;
+        --iron-image-width: 100%;
+        --iron-image-height: 288px;
+        /*height: 100%;*/
+        background-color: #212121;
+      }
+
+      .image-container iron-image /deep/ img {
+        width: 100%;
       }
       /* Details */
 
@@ -203,7 +253,7 @@
 
       .actionFab {
         position: absolute;
-        bottom: -24px;
+        bottom: -26px;
         right: 16px;
         background-color: white;
       }
@@ -212,8 +262,17 @@
         line-height: 40px;
       }
 
+      [edit] .card-actions {
+        margin-bottom: 16px;
+      }
+
       .card-actions[admin] .value {
         width: 35px;
+      }
+      /*  Product Description  */
+
+      [edit] .editDescriptionValue {
+        margin-bottom: 16px;
       }
       /*  Product Options  */
 
@@ -248,17 +307,27 @@
         width: 128px;
         height: 24px;
       }
+
+      #instagramPicker{outline: none;
+    z-index: 12;
+    top: 0;
+    left: 0;
+    box-sizing: border-box;
+    max-width: initial;
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    margin: 0;}
     </style>
 
-    <iron-media-query query="(min-width: 841px)" query-matches="{{wide}}"></iron-media-query>
+
+
     <catalog-product id="catalogProduct" by-id="{{byId}}" data="{{product}}" edit="{{_edit}}"></catalog-product>
     <catalog-user id="catalogUser" user="{{user}}"></catalog-user>
     <google-client-loader id="driveApi" name="drive" version="v2" on-google-api-loadx="driveApiLoaded"></google-client-loader>
     <catalog-cart id="catalogCart" items="{{cart}}" count={{count}}></catalog-cart>
 
-    <form is="iron-form" class="productForm" action="index.html" method="post" edit$="{{edit}}" wide$="{{wide}}">
-
-
+    <form is="iron-form" class="productForm" action="index.html" method="post" edit$="{{edit}}">
       <!-- <template is="dom-if" if="{{edit}}">
         <paper-toolbar class="editToolbarTitle" show$="{{edit}}">
           <div class="paper-font-title" hidden="{{edit}}">[[pageTitle]]</div>
@@ -282,7 +351,7 @@
         <paper-material elevation="1">
           <!-- <template is="dom-if" if="{{product.images}}"> -->
           <template is="dom-if" if="{{edit}}">
-            <paper-toolbar class="editToolbarTitle">
+            <paper-toolbar class="editToolbarImages">
               <div class="paper-font-title">[[_computeImageCountText(product)]]</div>
               <span class="flex"></span>
               <paper-icon-button class=" editImagesButton" icon="add" on-tap="_openPicker"></paper-icon-button>
@@ -312,8 +381,8 @@
               <iron-selector attr-for-selected="item" selected="{{imageSelected}}" class=" layout horizontal">
                 <template is="dom-repeat" items="{{product.images}}">
                   <div class="image-container">
-                    <!-- <iron-image class="image" src="{{item.webContentLink}}" fade preload sizing="contain"></iron-image> -->
-                    <img class="image" src="{{item.webContentLink}}" height="100%" />
+                    <iron-image class="image" src="{{item.src}}" fade preload sizingx="cover"></iron-image>
+                    <!-- <img class="image" src="{{item.src}}" height="100%" /> -->
                   </div>
                 </template>
               </iron-selector>
@@ -328,8 +397,8 @@
 
             <template is="dom-if" if="{{!edit}}">
 
-              <div class="layout horizontal margin-right-16">
-                <div class="paper-font-title">
+              <div class="layout horizontal">
+                <div class="paper-font-title margin-right-16">
                   <span>[[product.title]]</span>
                 </div>
 
@@ -373,18 +442,18 @@
 
             <!-- Product Description -->
 
-            <div class="productDescription section layout vertical">
+            <div class="productDescription layout vertical">
               <!-- Product Description -->
               <template is="dom-if" if="{{!edit}}">
                 <div hidden="{{!product.description}}">
-                  <span class="paper-font-body1">{{product.description}}</span>
+                  <div class="paper-font-body1">{{product.description}}</div>
                 </div>
               </template>
 
               <template is="dom-if" if="{{edit}}">
-                <!-- <paper-input class="editTitleValue fullwidth" value="{{_edit.title::input}}" label="Title" type="text">
-              </paper-input> -->
-                <paper-textarea class="" label="description" rows="1" max-rows="2" value="{{_edit.description}}"></paper-textarea>
+                <paper-input class="editTitleValue fullwidth " value="{{_edit.title::input}}" label="Title" type="text">
+                </paper-input>
+                <paper-textarea class="editDescriptionValue fullwidth " label="description" rows="1" max-rows="2" value="{{_edit.description}}"></paper-textarea>
               </template>
             </div>
 
@@ -393,19 +462,18 @@
 
             <!-- Options List -->
             <template is="dom-if" if="{{product.options}}">
+
+
               <template is="dom-if" if="{{!edit}}">
 
-
                 <template is="dom-repeat" items="{{product.options}}">
-                  <div class="layout horizontal  " hidden="{{edit}}">
+                  <div class="layout horizontal section" hidden="{{edit}}">
                     <div class="margin-right-16">[[item.title]]</div>
                     <div class="">+
                       <span>[[item.price]]</span>
                     </div>
                   </div>
                 </template>
-
-
 
               </template>
             </template>
@@ -462,8 +530,6 @@
                 </div>
               </div>
             </template>
-
-
 
 
 
@@ -539,7 +605,26 @@
         </paper-material>
       </div>
     </form>
-    <script type="text/javascript" src="//apis.google.com/js/api.js?onload=onApiLoad" async></script>
+
+
+    <paper-dialog id="instagramPicker" on-iron-overlay-closed="_instagramPickerClosed" with-backdrop>
+      <h2>
+        <iron-icon src="/images/Glyph_Logo_png.png" class="icon"></iron-icon>
+        <span> Instagram</span>
+      </h2>
+
+      <instagram-picker id="instagramPickerComponent" token="{{user.instagram.authCode}}">
+      </instagram-picker>
+
+      <paper-button dialog-dismiss>Cancel</paper-button>
+      <paper-button dialog-confirm>Accept</paper-button>
+
+    </paper-dialog>
+
+
+
+
+    <!-- <script type="text/javascript" src="//apis.google.com/js/api.js?onload=onApiLoad" async></script> -->
   </template>
 
 
@@ -669,6 +754,11 @@
         //   type: Object,
         //   notify: true
         // },
+
+        instagramSelectedItems: {
+          type: Array,
+          notify: true
+        }
       },
       observers: [
         '_updateCartIcon(cart, product)',
@@ -694,6 +784,7 @@
       },
 
       dettached: function() {
+        console.log('detached page-product');
         console.dir(this.edit);
       },
 
@@ -844,18 +935,28 @@
 
 
       // Picker
+      // Instagram
+      _instagramPickerClosed: function(_, e) {
+        console.log(e.confirmed);
+        if (e.confirmed) {
+          console.log(this.$.instagramPickerComponent.selected);
+        }
+      },
 
       _openPicker: function(e) {
         // console.log(picker);
         // console.log(picker);
-        if (!picker) {
-          this.fire('toast', {
-            text: 'have to be admin to add images'
-          });
-          return;
-        }
-        picker.setVisible(true);
+        // if (!picker) {
+        //   this.fire('toast', {
+        //     text: 'have to be admin to add images'
+        //   });
+        //   return;
+        // }
+        // picker.setVisible(true);
+        this.$.instagramPicker.open();
       },
+
+      // Google
 
 
       google_api_load_error: function(argument) {
