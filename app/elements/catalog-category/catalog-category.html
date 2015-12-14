@@ -29,7 +29,7 @@
         return "https://charlesiesbeta.firebaseio.com/category/" + id;
       },
       getData: function(_category) {
-        if (!_category) return;
+        if (!_category) return {};
 
         var ref = this.$.fbdoc.query.ref().child("products");
         // console.log(this.categoryid);

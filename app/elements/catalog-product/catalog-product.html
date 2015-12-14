@@ -2,7 +2,6 @@
   <template>
     <!-- <catalog-data product-map="{{_products}}"></catalog-data> -->
     <firebase-document id="catalogProoductDetails" location$="[[_productLocation(byId)]]" data="{{_productDetails}}" on-firebase-value="_computeProductDetails"></firebase-document>
-
   </template>
   <script>
     var _defaultProduct = {}; //= {
@@ -107,7 +106,7 @@
 
       // Images
 
-      addImageAtomic: function(image) {
+      addImageAtomicGoogleDrive: function(image) {
         // this.push('images', image);
         var byId = this.byId;
         var urlRef = 'https://charlesiesbeta.firebaseio.com';
@@ -165,8 +164,65 @@
 
       },
 
-      addImage: function(image) {
-        return this.addImageAtomic(image);
+      addImageAtomicInstagram: function(images) {
+        // this.push('images', image);
+        var byId = this.byId;
+        var urlRef = 'https://charlesiesbeta.firebaseio.com';
+        var ref = new Firebase(urlRef);
+        var updates = {};
+
+        for (var i = 0; i < images.length; i++) {
+          console.log(images[i]);
+          var imageId = image[i].id;
+          var thiss = this;
+
+          ref.child('/images/').orderByChild('key').equalTo(imageId).once('value', function(snap) {
+            // console.log(snap.exists());
+            var val = snap.val();
+            var key;
+
+            if (snap.exists()) {
+              // the image exist, update
+              console.log('the image exist, update!');
+              // console.log(snap.val());
+              for (var key in val) {
+                updates['/images/' + key + '/productById/' + byId] = true;
+                updates['/products/' + byId + '/imagesById/' + key] = true;
+                ref.update(updates);
+              }
+            } else {
+              // add new image
+              console.log('add new image');
+              var obj = {};
+              obj.src = image.webContentLink;
+              obj.key = imageId;
+              key = ref.child('/images/').push(obj).key();
+              // console.log(key);
+            }
+
+            thiss.debounce('push_image', function(argument) {
+              updates['/images/' + key + '/productById/' + byId] = true;
+              updates['/products/' + byId + '/imagesById/' + key] = true;
+              ref.update(updates);
+            });
+
+          });
+
+
+        }
+
+
+
+
+
+      },
+
+      addImageGoogleDrive: function(images) {
+        return this.addImageAtomicGoogleDrive(images);
+      },
+
+      addImageInstagram: function(images) {
+        return this.addImageAtomicInstagram(images);
       },
 
       removeImageAtomic: function(imageKey) {

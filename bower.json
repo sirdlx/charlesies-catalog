@@ -28,6 +28,7 @@
     "pushstate-anchor": "~0.3.0",
     "color": "~2.5.0",
     "hydrolysis": "PolymerLabs/hydrolysis#^1.11.0",
-    "paper-chip": "https://github.com/bendavis78/paper-chip.git#~1.0.0"
+    "paper-chip": "https://github.com/bendavis78/paper-chip.git#~1.0.0",
+    "fireproof": "https://github.com/casetext/fireproof.git#~3.1.0"
   }
 }

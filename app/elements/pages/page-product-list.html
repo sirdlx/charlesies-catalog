@@ -31,8 +31,7 @@
         width: 100%;
       }
 
-
-      .grid-cell[wide]{
+      .grid-cell[wide] {
         width: 446px;
       }
 
@@ -88,31 +87,28 @@
     <!-- <iron-ajax id="firebaseProducts" params="{{_params()}}" url="https://charlesiesbeta.firebaseio.com/products.json" handle-as="json" loading="{{loading}}" last-response="{{_products}}" auto></iron-ajax> -->
     <catalog-user id="catalogUser" user="{{user}}"></catalog-user>
 
+    <paper-spinner active="[[loading]]" hidden="{{!loading}}"></paper-spinner>
+
     <div id="grid" class="grid-container">
 
-      <paper-spinner active="[[loading]]" hidden="{{!loading}}"></paper-spinner>
+      <template is="dom-if" if="[[!products.length]]">
+        <div class="layout vertical center-center" style="margin-top: 64px;">
+          <h3>No products at the moment</h3>
+          <!-- <paper-button class="color" style="background-color:white; color: red;" raised on-tap="_navAddProduct">Create Product <iron-icon icon="add"></iron-icon></paper-icon-button> -->
+        </div>
+      </template>
+
+      <template is="dom-if" if="{{user.isAdmin}}">
+        <paper-fab class="addFab" icon="add" on-tap="_navAddProduct"></paper-fab>
+      </template>
+
 
       <div class="grid-layout">
-
         <template is="dom-repeat" items="[[products]]">
           <product-card by-id="[[item.__firebaseKey__]]" class="grid-cell" wide$="{{item.wide}}"></product-card>
         </template>
-
-
-        <template is="dom-if" if="[[!products.length]]">
-          <div class="layout vertical center-center">
-            <div>No products</div>
-            <div>Create Product
-              <paper-icon-button icon="add" on-tap="_navAddProduct"></paper-icon-button>
-            </div>
-          </div>
-        </template>
-
-        <template is="dom-if" if="{{user.isAdmin}}">
-          <paper-fab class="addFab" icon="add" on-tap="_navAddProduct"></paper-fab>
-        </template>
-
       </div>
+
     </div>
 
   </template>
@@ -183,9 +179,10 @@
         },
 
         _navAddProduct: function() {
-          this.fire('nav', {
-            path: '/product/new'
-          });
+          // this.fire('nav', {
+          //   path: '/products/new'
+          // });
+          this.fire('new-product');
         },
 
         _fetchMore: function(e) {

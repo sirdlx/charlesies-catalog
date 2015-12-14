@@ -19,7 +19,7 @@
         margin-top: 16px;
       }
 
-      .cartBadge{
+      .cartBadge {
         --paper-badge-background: var(--accent-color);
         --paper-badge-text-color: white;
       }
@@ -47,7 +47,7 @@
     <catalog-cart id="catalogCart" items="{{cart}}" count="{{cartCount}}"></catalog-cart>
 
     <iron-media-query query="(min-width: 705px)" query-matches="{{narrow}}"></iron-media-query>
-    <firebase-collection id="category" location="https://charlesiesbeta.firebaseio.com/categories" data="{{categories}}" order-by-child="showInNav" equal-to="true"></firebase-collection>
+    <!-- <firebase-collection id="category" location="https://charlesiesbeta.firebaseio.com/categories" data="{{categories}}" order-by-child="showInNav" equal-to="true" on-firebase-value="check"></firebase-collection> -->
 
     <paper-drawer-panel responsive-width="704px">
 
@@ -62,8 +62,11 @@
           <paper-item link="products" on-tap="_clickNav">Browse</paper-item>
           <template is="dom-repeat" items="[[categories]]">
             <!-- <a href$="{{_computeNav(item)}}" is="pushstate-anchor"> -->
-            <paper-item href$="{{_computeNav(item)}}" on-tap="_clickNav">{{item.title}}</paper-item>
             <!-- </a> -->
+            <paper-item link$="products?category={{item.name}}" on-tap="_clickNav">{{item.label}}</paper-item>
+            <!-- Add Categories Page -->
+            <!-- <paper-item link$="categories/{{item.name}}" on-tap="_clickNav">{{item.label}}</paper-item> -->
+
           </template>
         </paper-menu>
 
@@ -121,7 +124,7 @@
           <app-route path="/" element="page-home" bindRouter></app-route>
 
           <app-route path="/products" element="page-product-list" bindRouter onUrlChange="reload"></app-route>
-          <app-route path="/product/:byId" element="page-product" bindRouter onUrlChange="reload"></app-route>
+          <app-route path="/products/:byId" element="page-product" bindRouter onUrlChange="reload"></app-route>
           <!-- <app-route path="/product/:byId/:edit" element="page-product" bindRouter onUrlChange="reload"></app-route> -->
 
           <app-route path="/cart" element="page-cart" bindRouter onUrlChange="reload"></app-route>
@@ -238,6 +241,15 @@
             type: Boolean,
             notify: true,
             value: false
+          },
+
+
+          // Categories
+
+          categories: {
+            type: Array,
+            notify: true,
+            value: []
           }
 
         },
@@ -249,15 +261,42 @@
           'open-address-dialog': 'openAddressDialog',
           'open-card-dialog': 'openCardDialog',
           //product
-          'open-product': 'openProduct',
+          'open-product-category': 'openProductCategory',
+          'new-product': '_productNew',
           'add-to-fav': 'addFav',
           'add-to-cart': 'addCart',
           'remove-from-cart': 'removeFromCart'
         },
         observers: [
           'setApp(settings)',
-          //  '_demo(mode)'
+          //  '_demo(mode)',
+
+
         ],
+        attached: function() {
+          var thiss = this;
+          var categoriesArray;
+
+          var categories = new Fireproof(new Firebase('https://charlesiesbeta.firebaseio.com/categories'));
+          categories.orderByChild('showInNav').equalTo(true).on('child_added', function(snap) {
+            // console.log(snap.val());
+            var val = snap.val();
+            thiss.push('categories', val);
+          }).then(function(argument) {
+            document.body.classList.remove('loading');
+          });
+          // for (var cat in val) {
+          //   if (val.hasOwnProperty(cat)) {
+          //     console.log(cat);
+          //     thiss.push('categories', val[cat]);
+          //
+          //   }
+          // }
+
+
+
+        },
+
 
         _demo: function(mode) {
           console.log(mode);
@@ -295,7 +334,15 @@
           });
         },
 
-        openProduct: function(_, e) {
+        _productNew: function(_, e) {
+          var path = '/products?category=' + e.name;
+          this.fire('nav', {
+            path: path
+          });
+        },
+
+
+        _productNew: function(_, e) {
           var path = '/products/new';
           this.fire('nav', {
             path: path
@@ -351,7 +398,7 @@
 
         _computeNav: function(item) {
           console.log(item);
-          return '#/category/' + item.title.split(' ').join('_');
+          return '#/category/' + item.name;
         },
 
         _clickNav: function function_name(e) {
@@ -417,7 +464,7 @@
 
         },
 
-        _routeStart: function (_, e) {
+        _routeStart: function(_, e) {
           // console.log(e.path.match('\/product/'));
           if (e.oldRoute) {
             // console.dir(e.oldRoute.getAttribute('path'));

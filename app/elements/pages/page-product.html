@@ -308,16 +308,18 @@
         height: 24px;
       }
 
-      #instagramPicker{outline: none;
-    z-index: 12;
-    top: 0;
-    left: 0;
-    box-sizing: border-box;
-    max-width: initial;
-    position: fixed;
-    right: 0;
-    bottom: 0;
-    margin: 0;}
+      #instagramPicker {
+        outline: none;
+        z-index: 12;
+        top: 0;
+        left: 0;
+        box-sizing: border-box;
+        max-width: initial;
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        margin: 0;
+      }
     </style>
 
 
@@ -607,13 +609,13 @@
     </form>
 
 
-    <paper-dialog id="instagramPicker" on-iron-overlay-closed="_instagramPickerClosed" with-backdrop>
+    <paper-dialog id="instagramPicker" on-iron-overlay-closed="_instagramPickerClosed" with-backdrop opened="{{opened}}">
       <h2>
         <iron-icon src="/images/Glyph_Logo_png.png" class="icon"></iron-icon>
         <span> Instagram</span>
       </h2>
 
-      <instagram-picker id="instagramPickerComponent" token="{{user.instagram.authCode}}">
+      <instagram-picker id="instagramPickerComponent" token="{{user.instagram.authCode}}" opened="{{open}}">
       </instagram-picker>
 
       <paper-button dialog-dismiss>Cancel</paper-button>
@@ -828,7 +830,7 @@
             // });
             // var path = "/product/" + key + "&edit=true";
             // history.replaceState(key, null, path);
-            this.router.go("/product/" + key, {
+            this.router.go("/products/" + key, {
               replace: true
             });
             // window.location.search = path;
@@ -941,6 +943,9 @@
         if (e.confirmed) {
           console.log(this.$.instagramPickerComponent.selected);
         }
+
+        this.$.catalogProduct.addImageInstagram(this.$.instagramPickerComponent.selected);
+
       },
 
       _openPicker: function(e) {

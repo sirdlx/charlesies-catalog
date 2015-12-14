@@ -131,9 +131,9 @@
     var onImportLoaded = function() {
       var loadEl = document.getElementById('splash');
       loadEl.addEventListener('transitionend', loadEl.remove);
-      setTimeout(function() {
-        document.body.classList.remove('loading');
-      }, 1000);
+      // setTimeout(function() {
+      //   document.body.classList.remove('loading');
+      // }, 1000);
     };
     var link = document.querySelector('#bundle');
     // crbug.com/504944 - readyState never goes to complete until Chrome 46.
