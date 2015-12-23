@@ -35,7 +35,7 @@
       #menu {
         /*box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.16);*/
         /*height: 100%;*/
-        border-right: 1px solid #e7e7e7
+        border-right: 1px solid #e7e7e7;
       }
 
       paper-toast {
@@ -47,7 +47,6 @@
     <catalog-cart id="catalogCart" items="{{cart}}" count="{{cartCount}}"></catalog-cart>
 
     <iron-media-query query="(min-width: 705px)" query-matches="{{narrow}}"></iron-media-query>
-    <!-- <firebase-collection id="category" location="https://charlesiesbeta.firebaseio.com/categories" data="{{categories}}" order-by-child="showInNav" equal-to="true" on-firebase-value="check"></firebase-collection> -->
 
     <paper-drawer-panel responsive-width="704px">
 
@@ -58,14 +57,12 @@
         </paper-toolbar>
 
         <paper-menu id="menu" selected="[[routeSelected]]">
-          <paper-item link="" on-tap="_clickNav">Home</paper-item>
-          <paper-item link="products" on-tap="_clickNav">Browse</paper-item>
+          <paper-item link="" on-tap="_tapNav">Home</paper-item>
+          <paper-item link="products" on-tap="_tapNav">Browse</paper-item>
           <template is="dom-repeat" items="[[categories]]">
-            <!-- <a href$="{{_computeNav(item)}}" is="pushstate-anchor"> -->
-            <!-- </a> -->
-            <paper-item link$="products?category={{item.name}}" on-tap="_clickNav">{{item.label}}</paper-item>
-            <!-- Add Categories Page -->
-            <!-- <paper-item link$="categories/{{item.name}}" on-tap="_clickNav">{{item.label}}</paper-item> -->
+
+            <paper-item link$="products?category={{item.name}}" on-tap="_tapNav">{{item.label}}</paper-item>
+
 
           </template>
         </paper-menu>
@@ -75,78 +72,74 @@
       <paper-scroll-header-panel id="content" main class="flex" fixed>
 
         <paper-toolbar id="appToolbar">
-          <!-- Menu Button -->
+
           <paper-icon-button id="btnMenu" icon="menu" paper-drawer-toggle></paper-icon-button>
-          <!-- App Logo -->
+
           <app-logo full="{{narrow}}" tabindex="1" hidden$="{{narrow}}"></app-logo>
 
           <span class="flex"></span>
 
-          <!-- Search Toolbar -->
-          <!-- <iron-input id="query" type="search" autocomplete="off" value="{{q::keyup}}" placeholder="Search Elements" class="flex"></iron-input> -->
           <app-bar class="horizontal layout center end-justified" query="{{q}}" style="margin-right: 8px;"></app-bar>
-          <!-- Cart Button -->
+
           <span hidden$="{{!narrow}}">
-            <paper-icon-button id="btnCart" icon="shopping-cart" on-tap="_clickNavCart"></paper-icon-button>
+            <paper-icon-button id="btnCart" icon="shopping-cart" on-tap="_tapNavCart"></paper-icon-button>
             <paper-badge class="cartBadge" for="btnCart" label="{{cartCount}}" hidden$="{{!cartCountShow}}"></paper-badge>
           </span>
 
-          <!-- account Dropdown Button -->
+
           <paper-menu-button vertical-align="top" horizontal-align="right">
 
             <paper-icon-button hidden={{loggedin}} icon="social:person" class="dropdown-trigger userIcon" alt="menu"></paper-icon-button>
             <paper-icon-button hidden={{!loggedin}} src="{{user.profileImageURL}}" class="dropdown-trigger userIcon" alt="menu"></paper-icon-button>
 
-            <!-- <paper-button class="dropdown-trigger" hidden$="{{!narrow}}">
-              <iron-icon src="{{user.profileImageURL}}"></iron-icon>
-              <span>{{user.displayName}}</span>
-            </paper-button> -->
-
-            <!-- account Dropdown Button / Items -->
             <paper-menu class="dropdown-content">
-              <paper-item link="cart" on-tap="_clickNav" hidden$="{{narrow}}">
+              <paper-item link="cart" on-tap="_tapNav" hidden$="{{narrow}}">
                 <iron-icon icon="shopping-cart"></iron-icon>
                 <span>{{cartCount}}</span>
               </paper-item>
-              <paper-item hidden={{!loggedin}} link="account" on-tap="_clickNav">[[_computeAccountText(loggedin, user)]]</paper-item>
-              <paper-item hidden={{!loggedin}} on-tap="logout">logout</paper-item>
-              <paper-item hidden={{loggedin}} link="login" on-tap="_clickNav">login</paper-item>
+              <paper-item hidden={{!loggedin}} link="account" on-tap="_tapNav">[[_computeAccountText(loggedin, user)]]</paper-item>
+              <paper-item hidden={{!loggedin}} on-tap="_tapLogout">logout</paper-item>
+              <paper-item hidden={{loggedin}} link="login" on-tap="_tapNav">login</paper-item>
             </paper-menu>
-
           </paper-menu-button>
-
           </div>
-
         </paper-toolbar>
 
         <app-router id="router" class="flex" main mode="[[_demo(demo)]]" on-activate-route-end="_routeEnd" on-activate-route-start="_routeStart" on-state-change="_routerStateChange" on-before-data-binding="modifyModel">
-
-          <app-route path="/" element="page-home" bindRouter></app-route>
-
-          <app-route path="/products" element="page-product-list" bindRouter onUrlChange="reload"></app-route>
-          <app-route path="/products/:byId" element="page-product" bindRouter onUrlChange="reload"></app-route>
-          <!-- <app-route path="/product/:byId/:edit" element="page-product" bindRouter onUrlChange="reload"></app-route> -->
-
-          <app-route path="/cart" element="page-cart" bindRouter onUrlChange="reload"></app-route>
-          <!-- <app-route path="/cart/checkout" element="page-checkout" bindRouter onUrlChange="reload"></app-route> -->
-
-          <app-route path="/login" element="page-account" bindRouter onUrlChange="reload"></app-route>
-          <app-route path="/account" element="page-account" bindRouter onUrlChange="reload"></app-route>
-
-          <!-- <app-route path="/account/address" element="page-address" bindRouter onUrlChange="reload"></app-route>
-          <app-route path="/account/address/:id" element="page-address" bindRouter onUrlChange="reload"></app-route> -->
-
-          <!-- <app-route path="/account/card" element="page-card" bindRouter onUrlChange="reload"></app-route>
-          <app-route path="/account/card/:id" element="page-card" bindRouter onUrlChange="reload"></app-route> -->
-
+          <app-route path="/" element="page-product-list" bindRouter></app-route>
+          <app-route path="/products" element="page-product-list" bindRouter onUrlChange="updateModel"></app-route>
+          <app-route path="/products/:byId" element="page-product" bindRouter onUrlChange="updateModel"></app-route>
+          <app-route path="/cart" element="page-cart" bindRouter onUrlChange="updateModel"></app-route>
+          <app-route path="/login" element="page-account" bindRouter onUrlChange="updateModel"></app-route>
+          <app-route path="/account" element="page-account" bindRouter onUrlChange="updateModel"></app-route>
           <app-route path="*" element="page-error"></app-route>
-
         </app-router>
-
-        <!-- <a href="//www.iubenda.com/privacy-policy/434491" class="iubenda-white iubenda-embed" title="Privacy Policy">Privacy Policy</a> -->
-
       </paper-scroll-header-panel>
     </paper-drawer-panel>
+    <!-- <firebase-collection id="category" location="https://charlesiesbeta.firebaseio.com/categories" data="{{categories}}" order-by-child="showInNav" equal-to="true" on-firebase-value="check"></firebase-collection> -->
+    <!-- <a href$="{{_computeNav(item)}}" is="pushstate-anchor"> -->
+    <!-- </a> -->
+    <!-- Add Categories Page -->
+    <!-- <paper-item link$="categories/{{item.name}}" on-tap="_tapNav">{{item.label}}</paper-item> -->
+    <!-- Menu Button -->
+    <!-- App Logo -->
+    <!-- Search Toolbar -->
+    <!-- <iron-input id="query" type="search" autocomplete="off" value="{{q::keyup}}" placeholder="Search Elements" class="flex"></iron-input> -->
+    <!-- Cart Button -->
+    <!-- account Dropdown Button -->
+    <!-- <paper-button class="dropdown-trigger" hidden$="{{!narrow}}">
+      <iron-icon src="{{user.profileImageURL}}"></iron-icon>
+      <span>{{user.displayName}}</span>
+    </paper-button> -->
+
+    <!-- account Dropdown Button / Items -->
+    <!-- <app-route path="/account/address" element="page-address" bindRouter onUrlChange="updateModel"></app-route>
+    <app-route path="/account/address/:id" element="page-address" bindRouter onUrlChange="updateModel"></app-route> -->
+
+    <!-- <app-route path="/account/card" element="page-card" bindRouter onUrlChange="updateModel"></app-route>
+    <app-route path="/account/card/:id" element="page-card" bindRouter onUrlChange="updateModel"></app-route> -->
+
+    <!-- <a href="//www.iubenda.com/privacy-policy/434491" class="iubenda-white iubenda-embed" title="Privacy Policy">Privacy Policy</a> -->
     <!-- Uncomment next block to enable Service Worker support (1/2) -->
     <!--
     <paper-toast id="caching-complete"
@@ -166,8 +159,6 @@
 
     <paper-toast id="toast"></paper-toast>
 
-    <!-- <page-new-address id="newAddressDialog" class="fit" hidden="{{!newaddress}}" user="{{user}}"></page-new-address> -->
-    <!-- <page-new-card id="newCardDialog" class="fit" hidden="{{!newcard}}" user="{{user}}"></page-new-card> -->
 
     <script type="text/javascript">
       (function(w, d) {
@@ -254,47 +245,25 @@
 
         },
         listeners: {
-          'toast': 'showToast',
-          'content-scroll': 'firePageScroll',
-          'nav': 'nav',
+          'toast': '_showToast',
+          'content-scroll': '_firePageScroll',
+          'nav': '_nav',
           //address
-          'open-address-dialog': 'openAddressDialog',
-          'open-card-dialog': 'openCardDialog',
+          // 'open-address-dialog': 'openAddressDialog',
+          // 'open-card-dialog': 'openCardDialog',
           //product
-          'open-product-category': 'openProductCategory',
-          'new-product': '_productNew',
-          'add-to-fav': 'addFav',
-          'add-to-cart': 'addCart',
-          'remove-from-cart': 'removeFromCart'
+          'nav-category': '_navCategory',
+          'nav-product': '_navProduct',
+          'add-to-fav': '_addFav',
+          'add-to-cart': '_addCart',
+          'remove-from-cart': '_removeFromCart'
         },
         observers: [
           'setApp(settings)',
           //  '_demo(mode)',
-
-
         ],
         attached: function() {
-          var thiss = this;
-          var categoriesArray;
-
-          var categories = new Fireproof(new Firebase('https://charlesiesbeta.firebaseio.com/categories'));
-          categories.orderByChild('showInNav').equalTo(true).on('child_added', function(snap) {
-            // console.log(snap.val());
-            var val = snap.val();
-            thiss.push('categories', val);
-          }).then(function(argument) {
-            document.body.classList.remove('loading');
-          });
-          // for (var cat in val) {
-          //   if (val.hasOwnProperty(cat)) {
-          //     console.log(cat);
-          //     thiss.push('categories', val[cat]);
-          //
-          //   }
-          // }
-
-
-
+          document.body.classList.remove('loading');
         },
 
 
@@ -315,7 +284,7 @@
           return 'Account';
         },
 
-        nav: function(_, e) {
+        _nav: function(_, e) {
           if (!e) return;
           // console.log(e);
           var path = e.path || window.location.pathname;
@@ -334,7 +303,7 @@
           });
         },
 
-        _productNew: function(_, e) {
+        _openProductCategory: function(_, e) {
           var path = '/products?category=' + e.name;
           this.fire('nav', {
             path: path
@@ -342,8 +311,11 @@
         },
 
 
-        _productNew: function(_, e) {
-          var path = '/products/new';
+        _navProduct: function(_, e) {
+          var path = '/products';
+          if (e.byId) {
+            path += '/' + e.byId;
+          }
           this.fire('nav', {
             path: path
           });
@@ -381,15 +353,15 @@
 
         },
 
-        addFav: function(e, item) {
+        _addFav: function(e, item) {
           // console.log(item.product);
           this.$.catalogUser.addFav(item.product);
         },
-        removeFromCart: function(e, item) {
+        _removeFromCart: function(e, item) {
           // console.log(item.index);
           this.$.catalogCart.removeCart(item.index);
         },
-        addCart: function(e, item) {
+        _addCart: function(e, item) {
           // console.log(item.product);
           this.$.catalogCart.addCart(item.product);
         },
@@ -401,7 +373,7 @@
           return '#/category/' + item.name;
         },
 
-        _clickNav: function function_name(e) {
+        _tapNav: function function_name(e) {
           // console.log(e.target.getAttribute('href').split('#')[1]);
           // console.dir(e.target.getAttribute('link'));
           // this.$.router.go(this.$.menu.selectedItem.getAttribute('href'));
@@ -409,11 +381,11 @@
           this.$.router.go('/' + e.target.getAttribute('link'));
         },
 
-        _clickNavCart: function(argument) {
+        _tapNavCart: function(argument) {
           this.$.router.go('/cart');
         },
 
-        firePageScroll: function(e, el) {
+        _firePageScroll: function(e, el) {
           var content = el.target;
           var bottom = (content.scrollHeight - content.scrollTop) === content.clientHeight;
           // console.log(bottom);
@@ -489,6 +461,7 @@
           //   }
           // }
           this.$.content.scrollToTop(true);
+          // console.log(event.detail.model);
         },
 
         modifyModel: function(event) {
@@ -523,7 +496,7 @@
         },
 
         // Global Functions
-        showToast: function(e, detail) {
+        _showToast: function(e, detail) {
           this.$.toast.text = detail.text;
           this.$.toast.show();
         },
@@ -537,7 +510,7 @@
           //   ga('set', 'page', loc);
           // }, 2000);
         },
-        logout: function() {
+        _tapLogout: function() {
           this.$.catalogUser.logout();
           this._routerStateChange();
         }
