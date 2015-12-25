@@ -124,7 +124,7 @@
 
       #images {
         position: relative;
-        height: 296px;
+        /*height: 296px;*/
         z-index: 0;
         border-bottom: 1.5px solid #e6e6e6;
       }
@@ -151,7 +151,7 @@
 
       .imagePlaceholder {
         position: relative;
-        height: 100%;
+        /*height: 100%;*/
       }
 
       .imagePlaceholder .placeholderBg {
@@ -174,7 +174,8 @@
         -webkit-flex-direction: row;
         /* Safari */
         flex-direction: row;
-        /*height: 288px;*/
+        /*height: 288px;
+        width: 288px;*/
       }
 
       .image-container {
@@ -209,8 +210,9 @@
         }
       }
 
-      .imagex {
+      .image {
         width: 100%;
+        height: 288px;
         --iron-image-width: 100%;
         --iron-image-height: 288px;
         /*height: 100%;*/
@@ -356,9 +358,7 @@
 
               <template is="dom-if" if="{{!product.images.length}}">
                 <div class="imagePlaceholder fullwidth layout horizontal center-center">
-
                   <iron-icon class="placeholderBg" icon="image:collections" hidden="{{edit}}"></iron-icon>
-
                   <!-- <div class="fit layout horizontal center-center">
                     <template is="dom-if" if="{{edit}}">
                       <h2>Add Image
@@ -366,28 +366,26 @@
                       </h2>
                     </template>
                   </div> -->
-
                 </div>
               </template>
 
               <iron-selector attr-for-selected="item" selected="{{imageSelected}}" class=" layout horizontal">
                 <template is="dom-repeat" items="{{product.images}}">
                   <div class="image-container">
-                    <iron-image class="image" src="{{item.images.standard_resolution.url}}" fade preload sizingx="cover"></iron-image>
+                    <iron-image class="image" src="{{item.images.low_resolution.url}}" fade preload sizingx="cover"></iron-image>
                     <!-- <img class="image" src="{{item.src}}" height="100%" /> -->
                   </div>
                 </template>
-
-                <div class="fit layout horizontal center-center">
-                  <template is="dom-if" if="{{edit}}">
+                <template is="dom-if" if="{{edit}}">
+                  <div class=" image-container layout horizontal center-center addImage">
                     <h2>Add Image
                       <paper-icon-button icon="add" on-tap="_openPicker"></paper-icon-button>
                     </h2>
-                  </template>
-                </div>
-
-
+                  </div>
+                </template>
               </iron-selector>
+
+
             </div>
 
             <paper-fab class="actionFab" in-cart$="[[inCart]]" icon$="[[_actionFabIcon(user, edit)]]" on-tap="_actionFabTap"></paper-fab>
@@ -587,7 +585,7 @@
       </div>
     </form>
 
-    <instagram-picker id="instagramPicker" token="{{user.instagram.authCode}}"  on-media-selected="_instagramMediaSelected">
+    <instagram-picker id="instagramPicker" token="{{user.instagram.authCode}}" on-media-selected="_instagramMediaSelected">
     </instagram-picker>
 
 
@@ -833,7 +831,7 @@
       // page
 
       _computePageTitle: function(product) {
-        // console.log(product);
+        console.log(product.images);
         if (!product) {
           return;
         }

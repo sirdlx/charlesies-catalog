@@ -189,7 +189,7 @@
 
 
         _media.forEach(function(e) {
-          // console.log(e);
+          console.log(e.id);
           promises.push(mediaRef.orderByChild('id').equalTo(e.id).limitToFirst(1).then(function(snap) {
             console.log(e.id);
             // console.log(snap.val());
@@ -199,13 +199,16 @@
               console.log('Adding...');
               // console.log(instagramPic);
               // this._updateMediaRef(mediaRef.push(instagramPic).key(), false);
-              // mediaId = mediaRef.push(instagramPic).key();
+              mediaId = mediaRef.push(e).key();
+              console.log(mediaId);
             } else {
               console.log('Updating...');
               // console.log(Object.keys(val)[0]);
               // val.__firebaseKey__ = Object.keys(val)[0];
               // this._updateMediaRef(Object.keys(val)[0], false);
               mediaId = Object.keys(val)[0];
+              // console.log(mediaId);
+              console.log(snap.val().id);
             }
           }.bind(this)).then(function(argument) {
             updates['/media/' + mediaId + '/productById/' + byId] = true;
@@ -213,18 +216,10 @@
           }));
         }, this);
 
-        // for (var i = 0; i < _media.length; i++) {
-        //   console.log('Media id:', _media[i].id);
-        //   var instagramPic = _media[i];
-        //   // console.log(instagramPic);
-        //   var mediaId = instagramPic.id;
-        //   // console.log(mediaId);
-        // }
-
         Promise.all(promises).then(function(dataArr) {
           console.log('updating refs...');
-          console.log(updates);
-          // mediaRef.root().update(updates);
+          // console.log(updates);
+          mediaRef.root().update(updates);
         }).catch(function(err) {
           console.log(err);
         });
@@ -256,14 +251,10 @@
 
       _computeImages: function(snap) {
         // console.log('loading images for ', snap.key());
-        if (this.saving) {
-          // console.log('saving');
-          this.saving = false;
-          return;
-        }
 
         if (snap.err || typeof snap.val().mediaById === 'undefined') {
           // this.images = this._media;
+          console.log(snap.val());
           this.set('images', []);
           return;
         }
@@ -271,10 +262,11 @@
         // console.log(typeof _productDetails.mediaById=== 'undefined');
         // var imageKeys = Object.keys(_productDetails.mediaById).sort();
         var imageKeys = Object.keys(_productDetails.mediaById);
+        // console.log(imageKeys);
         var images = [];
         for (var i = 0; i < imageKeys.length; i++) {
           // console.log(imageKeys[i]);
-          snap.ref().root().child('/images/' + imageKeys[i]).on('value', function(dataSnapshot) {
+          snap.ref().root().child('/media/' + imageKeys[i]).on('value', function(dataSnapshot) {
             // console.log(dataSnapshot.val());
             images.push(dataSnapshot.val());
           });
