@@ -79,23 +79,21 @@
       }
     </style>
 
-    <!-- <firebase-collection id="catalogCategories" location="https://charlesiesbeta.firebaseio.com/categories" data="{{_categories}}" order-by-childx="priorty"></firebase-collection> -->
+    <!-- <firebase-collection id="categories" location="https://charlesiescom.firebaseio.com/categories" data="{{categories}}"></firebase-collection> -->
     <catalog-user id="catalogUser" user="{{user}}"></catalog-user>
+
+    <template is="dom-if" if="{{user.isAdmin}}">
+      <paper-fab class="addFab" icon="add" on-tap="_navToHome"></paper-fab>
+    </template>
 
     <div class="body layout vertical center-center">
       <paper-spinner active="[[loading]]" hidden="{{!loading}}"></paper-spinner>
-
       <template is="dom-if" if="[[!categories.length]]">
         <div class="layout vertical center-center" style="margin-top: 64px;">
           <h3>Nothing at this time</h3>
           <!-- <paper-button class="color" style="background-color:white; color: red;" raised on-tap="_navAddProduct">Create Product <iron-icon icon="add"></iron-icon></paper-icon-button> -->
         </div>
       </template>
-
-      <template is="dom-if" if="{{user.isAdmin}}">
-        <paper-fab class="addFab" icon="add" on-tap="_navNewCategory"></paper-fab>
-      </template>
-
     </div>
 
 
@@ -144,21 +142,19 @@
 
       attached: function() {
         var categoriesArray;
-        var categories = new Fireproof(new Firebase('https://charlesiesbeta.firebaseio.com/categories'));
+        var categories = new Fireproof(new Firebase('https://charlesiescom.firebaseio.com/categories'));
         // categories.orderByChild('showInNav').equalTo(true).on('child_added', function(snap) {
-        categories.on('child_added', function(snap) {
-          // console.log(snap.val());
-          var val = snap.val();
-          val.__firebaseKey__ = snap.key();
-          this.push('categories', val);
-        }.bind(this)).then(function(argument) {
-          this.loading = false;
-          // console.log(this.categories);
-        }.bind(this));
+        // categories.on('child_added', function(snap) {
+        //   // console.log(snap.val());
+        //   var val = snap.val();
+        //   val.__firebaseKey__ = snap.key();
+        //   this.push('categories', val);
+        // }.bind(this)).then(function(argument) {
+        //   this.loading = false;
+        //   // console.log(this.categories);
+        // }.bind(this));
 
       },
-
-
 
       _auth: function(auth, user) {
         // console.log(auth);
@@ -179,8 +175,10 @@
         console.log(user);
       },
 
-      _navNewCategory: function(e, f) {
-        this.fire('new-category');
+      _navNewCategory: function(_, e) {
+        this.fire('nav-category', {
+          byId: 'new'
+        });
       },
 
 

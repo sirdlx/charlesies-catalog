@@ -1,9 +1,9 @@
 <dom-module id="catalog-data">
   <template>
-    <!-- <iron-ajax id="req" url="https://charlesiesbeta.firebaseio.com/.json" method="get" handle-as="json" on-response="_handleResponse"></iron-ajax> -->
-    <!-- <firebase-collection id="packages" location="https://charlesiesbeta.firebaseio.com/packages" data="{{packages}}"></firebase-collection> -->
+    <!-- <iron-ajax id="req" url="https://charlesiescom.firebaseio.com/.json" method="get" handle-as="json" on-response="_handleResponse"></iron-ajax> -->
+    <!-- <firebase-collection id="packages" location="https://charlesiescom.firebaseio.com/packages" data="{{packages}}"></firebase-collection> -->
     <!-- <firebase-collection id="elements" location$="{{_locElements}}" data="{{elements}}"></firebase-collection> -->
-    <!-- <firebase-document location="https://charlesiesbeta.firebaseio.com/settings" data="{{settings}}"></firebase-document> -->
+    <!-- <firebase-document location="https://charlesiescom.firebaseio.com/settings" data="{{settings}}"></firebase-document> -->
     <!-- <google-client-loader id="gcl" name="blogger" version="v3"></google-client-loader> -->
     <!-- <iron-ajax id="req" url="/blogger.json" method="get" handle-as="json" on-response="_handlePostsResponse"></iron-ajax> -->
     <iron-ajax id="req" url="/blogger.json" method="get" handle-as="json" on-response="_handlePostsResponse"></iron-ajax>

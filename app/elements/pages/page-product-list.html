@@ -83,9 +83,9 @@
       }
     </style>
 
-    <firebase-collection id="products" location="https://charlesiesbeta.firebaseio.com/products" data="{{products}}" order-by-child="[[_orderByChild]]" equal-to="[[category]]" limit-to-first="[[queryLimit]]" on-firebase-value="_computeProducts"></firebase-collection>
+    <firebase-collection id="products" location="https://charlesiescom.firebaseio.com/products" data="{{products}}" order-by-child="[[_orderByChild]]" equal-to="[[category]]" limit-to-first="[[queryLimit]]" on-firebase-value="_computeProducts"></firebase-collection>
     <!-- <catalog-data products="[[products]]"></catalog-data> -->
-    <!-- <iron-ajax id="firebaseProducts" params="{{_params()}}" url="https://charlesiesbeta.firebaseio.com/products.json" handle-as="json" loading="{{loading}}" last-response="{{_products}}" auto></iron-ajax> -->
+    <!-- <iron-ajax id="firebaseProducts" params="{{_params()}}" url="https://charlesiescom.firebaseio.com/products.json" handle-as="json" loading="{{loading}}" last-response="{{_products}}" auto></iron-ajax> -->
     <catalog-user id="catalogUser" user="{{user}}"></catalog-user>
 
     <paper-spinner active="[[loading]]" hidden="{{!loading}}"></paper-spinner>
@@ -219,7 +219,7 @@
 
           // ________________________________________________________
           // import products from bigcartel
-          // var ref = new Firebase("https://charlesiesbeta.firebaseio.com/products");
+          // var ref = new Firebase("https://charlesiescom.firebaseio.com/products");
           // for (var i = 0; i < els.length; i++) {
           //   ref.push(els[i]);
           // }
@@ -229,7 +229,7 @@
 
           // ________________________________________________________
           // Image relations with products by key
-          // var ref = new Firebase("https://charlesiesbeta.firebaseio.com/products");
+          // var ref = new Firebase("https://charlesiescom.firebaseio.com/products");
           // ref.on('value', function(p) {
           // console.log(p.val());
           // var products = p.val();
@@ -241,7 +241,7 @@
           // var childData = childSnapshot.val();
           // var images = childData.images;
           // console.log(childData.images[0].secure_url);
-          // var imagesRef = new Firebase("https://charlesiesbeta.firebaseio.com/images");
+          // var imagesRef = new Firebase("https://charlesiescom.firebaseio.com/images");
           //   var out = {
           //     rel: key,
           //     images: []

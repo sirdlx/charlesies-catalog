@@ -298,13 +298,13 @@
         },
 
         _userSettingLocation: function(user) {
-          return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid + '/settings/';
+          return 'https://charlesiescom.firebaseio.com/users/' + user.uid + '/settings/';
         },
 
         _computeAddressLocation: function(user, loggedin) {
           // console.log(user.uid, loggedin);
           if (loggedin) {
-            return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid + '/address';
+            return 'https://charlesiescom.firebaseio.com/users/' + user.uid + '/address';
           }
         },
 
@@ -312,12 +312,12 @@
           // console.log(user.uid, id);
           if (user.uid) {
             this.selectedPage = 1;
-            return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid + '/address/' + id;
+            return 'https://charlesiescom.firebaseio.com/users/' + user.uid + '/address/' + id;
           }
 
           if (id === true) {
             this.selectedPage = 1;
-            return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid + '/address/';
+            return 'https://charlesiescom.firebaseio.com/users/' + user.uid + '/address/';
           }
 
         },

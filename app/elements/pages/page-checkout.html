@@ -605,8 +605,8 @@
             return;
           }
 
-          var oRef = new Firebase('https://charlesiesbeta.firebaseio.com/orders');
-          var oURef = new Firebase('https://charlesiesbeta.firebaseio.com/users/' + this.user.uid + '/orders');
+          var oRef = new Firebase('https://charlesiescom.firebaseio.com/orders');
+          var oURef = new Firebase('https://charlesiescom.firebaseio.com/users/' + this.user.uid + '/orders');
 
           var newOrder = oRef.push(res, function(ref) {
             console.log('ref: ', ref);

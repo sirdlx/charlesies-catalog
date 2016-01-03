@@ -5,8 +5,8 @@
 */
 
 
-< firebase-collection id="elements" location="https://charlesiesbeta.firebaseio.com/elements"data = "{{elements}}" on-firebase-value="_eles"> </firebase-collection>
-<firebase-collection id="packages"location="https://charlesiesbeta.firebaseio.com/packages" data="{{packages}}"></firebase-collection>
+< firebase-collection id="elements" location="https://charlesiescom.firebaseio.com/elements"data = "{{elements}}" on-firebase-value="_eles"> </firebase-collection>
+<firebase-collection id="packages"location="https://charlesiescom.firebaseio.com/packages" data="{{packages}}"></firebase-collection>
 
 
 

@@ -233,6 +233,7 @@ gulp.task('serve', ['styles', 'elements'], function() { //'catalog:dev'
 
   browserSync({
     notify: false,
+    ghostMode: false,
     server: {
       baseDir: dirs,
       middleware: mw,

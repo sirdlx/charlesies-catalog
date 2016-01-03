@@ -11,9 +11,18 @@
     _defaultProduct.price = 0;
     _defaultProduct.title = "New";
 
+    var _oldById = '';
+
     Polymer({
       is: 'catalog-product',
       properties: {
+
+        loading: {
+          type: Boolean,
+          notify: true,
+          // computed: '_detectChange(byId)',
+          // reflectToAttribute: true
+        },
 
         byId: {
           type: String,
@@ -27,7 +36,7 @@
         },
 
         // Product References
-        images: {
+        media: {
           type: Array,
           notify: true,
         },
@@ -56,33 +65,36 @@
       },
 
       observers: [
-        '_computeImages(productDetails)',
+        '_computeMedia(productDetails)',
         '_computeCategories(productDetails)',
         '_computeProductOptions(productDetails)',
-        'getData(images, categories, options)',
+        'getData(media,categories, options)',
         '_edit(edit.*)',
-        '_options(data.options.*)',
+        '_options(data.options.*)'
       ],
+
+
+      _detectChange: function(byId) {
+        console.log(byId, _oldById);
+        if (byId !== _oldById && _oldById !== '') {
+          _oldById = byId;
+          return true;
+        }
+      },
 
 
       // Categories
 
       _computeCategories: function(snap) {
         // console.log('loading ' + snap.key() + '\'s categories');
-        if (this.saving) {
-          // console.log('saving');
-          // this.saving = false;
-          return;
-        }
 
         if (snap.err || typeof snap.val().categories === 'undefined') {
-          this.set('categories', false);
+          this.set('categories', []);
           return;
         }
 
         var _productDetails = snap.val();
         // console.log(this.addImage(_image));
-        this.set('categories', []);
         // var imageKeys = Object.keys(_productDetails.categoriesById).sort();
         var categories = [];
         for (var key in _productDetails.categoriesById) {
@@ -105,7 +117,7 @@
       addImageAtomicGoogleDrive: function(image) {
         // this.push('images', image);
         var byId = this.byId;
-        var urlRef = 'https://charlesiesbeta.firebaseio.com';
+        var urlRef = 'https://charlesiescom.firebaseio.com';
         var ref = new Firebase(urlRef);
         var updates = {};
         var imageId = image.id;
@@ -159,7 +171,7 @@
 
 
       _updateMediaRef: function(key, remove) {
-        console.log('update references');
+        // console.log('update references');
         var value = true;
         if (remove) {
           value = false;
@@ -169,29 +181,102 @@
 
         updates['/media/' + key + '/productById/' + byId] = value;
         updates['/products/' + byId + '/mediaById/' + key] = value;
-        var rootRef = new Fireproof(new Firebase('https://charlesiesbeta.firebaseio.com/'));
+        var rootRef = new Fireproof(new Firebase('https://charlesiescom.firebaseio.com/'));
         rootRef.update(updates);
 
-        // console.log('/images/' + key + '/productById/' + byId);
+        // console.log('/media/' + key + '/productById/' + byId);
       },
 
-      addImageAtomicInstagram: function(_media) {
+      readyParse: function() {
+        var script = document.createElement('script');
+        script.src = 'https://parse.com/downloads/javascript/parse-1.6.12.min.js';
+        script.onload = function() {
+          // console.log('loaded');
+          Parse.initialize("jKezwNz4AfEGU4UGLq82XsSqrlmjqkCGEaZSyXlr", "3ZZYwFQbXB42ee369XIEjgk37qo5W6hF2RYaCQIC");
+        };
 
+        document.head.appendChild(script);
+      },
+
+      addImageAtomicInstagramParse: function(_media) {
+        // Parse
         if (!_media.length) return;
 
+        // console.log(_media);
+        // console.log(this._product);
+
+        var _pro = this._product;
+
+        var MediaObject = Parse.Object.extend("MediaObject");
+
+
+        _media.forEach(function(item) {
+
+          var query = new Parse.Query(MediaObject);
+          query.equalTo("instagram_id", item.id);
+          query.first({
+            success: function(media_object) {
+              // console.dir(media_object);
+              if (!media_object) {
+                // Save new media
+                // console.log(item);
+                item.instagram_id = item.id;
+                item.id = null;
+                item.media_type = 'instagram';
+
+                var instgramMedia = new MediaObject();
+                var relation = instgramMedia.relation("products_byId");
+                relation.add(_pro);
+                instgramMedia.save(item).then(function(e) {
+                  // console.log(e);
+                  console.log('saved new media', e.id);
+                });
+              } else {
+                // Update media
+                // console.log(media_object);
+
+                query.get(media_object.id, {
+                  success: function(item) {
+                    var relation = media_object.relation("products_byId");
+                    relation.add(_pro);
+                    media_object.save();
+                    console.log(item);
+                    console.log('updated media', item.id);
+                  },
+
+                  error: function(object, error) {
+                    console.log("ERROR: ", error);
+                  }
+                });
+
+
+              }
+            },
+            error: function(error) {
+              alert("Error: " + error.code + " " + error.message);
+            }
+          });
+
+        });
+      },
+
+      addImageAtomicInstagramReferences: function(_media) {
+        // FIREBASE
+        // console.log(_media);
+
+        if (!_media.length) return;
 
         var promises = [];
 
         var byId = this.byId;
         var updates = {};
 
-        var mediaRef = new Fireproof(new Firebase('https://charlesiesbeta.firebaseio.com/media'));
-
+        var mediaRef = new Fireproof(new Firebase('https://charlesiescom.firebaseio.com/media'));
 
         _media.forEach(function(e) {
-          console.log(e.id);
+          // console.log(e.link);
           promises.push(mediaRef.orderByChild('id').equalTo(e.id).limitToFirst(1).then(function(snap) {
-            console.log(e.id);
+            // console.log(e.link);
             // console.log(snap.val());
             // console.log(instagramPic);
             var val = snap.val();
@@ -199,30 +284,68 @@
               console.log('Adding...');
               // console.log(instagramPic);
               // this._updateMediaRef(mediaRef.push(instagramPic).key(), false);
-              mediaId = mediaRef.push(e).key();
-              console.log(mediaId);
+              // mediaId = mediaRef.push(e).key();
+              // console.log(mediaId);
+              this._updateMediaRef(mediaId = mediaRef.push(e).key());
             } else {
               console.log('Updating...');
               // console.log(Object.keys(val)[0]);
               // val.__firebaseKey__ = Object.keys(val)[0];
               // this._updateMediaRef(Object.keys(val)[0], false);
-              mediaId = Object.keys(val)[0];
+              // mediaId = Object.keys(val)[0];
               // console.log(mediaId);
-              console.log(snap.val().id);
+              this._updateMediaRef(Object.keys(val)[0]);
+              // console.log(snap.val().id);
             }
           }.bind(this)).then(function(argument) {
-            updates['/media/' + mediaId + '/productById/' + byId] = true;
-            updates['/products/' + byId + '/mediaById/' + mediaId] = true;
+            // updates['/media/' + mediaId + '/productById/' + byId] = true;
+            // updates['/products/' + byId + '/mediaById/' + mediaId] = true;
+            // console.log(mediaId);
           }));
         }, this);
 
         Promise.all(promises).then(function(dataArr) {
-          console.log('updating refs...');
+          // console.log('updating refs...');
           // console.log(updates);
-          mediaRef.root().update(updates);
+          // mediaRef.root().update(updates);
         }).catch(function(err) {
           console.log(err);
         });
+
+      },
+      addImageAtomicInstagram: function(_media) {
+        // FIREBASE
+        // console.log(_media);
+
+        if (!_media.length) return;
+
+        var promises = [];
+
+        var byId = this.byId;
+        var updates = {};
+
+        var mediaRef = new Fireproof(new Firebase('https://charlesiescom.firebaseio.com/products/' + this.byId + '/media/'));
+        console.log(this._productDetails);
+
+        _media.forEach(function(e) {
+          // console.log(e.link);
+          mediaRef.orderByChild('id').equalTo(e.id).limitToFirst(1).then(function(snap) {
+            // console.log(snap.val());
+            var val = snap.val();
+            if (!val) {
+              console.log('Adding...');
+              // console.log(instagramPic);
+              // this._updateMediaRef(mediaRef.push(instagramPic).key(), false);
+              // mediaId = mediaRef.push(e).key();
+              // console.log(mediaId);
+              mediaRef.push(e).key();
+            } else {
+              console.log('Already Added');
+            }
+          }.bind(this));
+        });
+
+
 
       },
 
@@ -236,7 +359,7 @@
 
       removeImageAtomic: function(imageKey) {
         var byId = this.byId;
-        var urlRef = 'https://charlesiesbeta.firebaseio.com';
+        var urlRef = 'https://charlesiescom.firebaseio.com';
         var ref = new Firebase(urlRef);
         // var updates = {};
         // updates['/images/' + imageKey + '/productById/' + byId] = null;
@@ -245,37 +368,103 @@
         return true;
       },
 
-      removeImage: function(imageId) {
+      removeImageFirebaseReference: function(imageId) {
         return this.addImageAtomic(imageId);
       },
 
-      _computeImages: function(snap) {
-        // console.log('loading images for ', snap.key());
+      removeMedia: function(mediaKey) {
 
+      },
+
+      _computeMediaFirebaseReferences: function(snap) {
+        // console.log('loading media for ', snap.key());
         if (snap.err || typeof snap.val().mediaById === 'undefined') {
-          // this.images = this._media;
-          console.log(snap.val());
-          this.set('images', []);
+          // console.log(snap.val());
+          this.set('media', []);
           return;
         }
         var _productDetails = snap.val();
         // console.log(typeof _productDetails.mediaById=== 'undefined');
         // var imageKeys = Object.keys(_productDetails.mediaById).sort();
-        var imageKeys = Object.keys(_productDetails.mediaById);
+        // var imageKeys = Object.keys(_productDetails.mediaById);
         // console.log(imageKeys);
-        var images = [];
-        for (var i = 0; i < imageKeys.length; i++) {
-          // console.log(imageKeys[i]);
-          snap.ref().root().child('/media/' + imageKeys[i]).on('value', function(dataSnapshot) {
-            // console.log(dataSnapshot.val());
-            images.push(dataSnapshot.val());
-          });
-        }
+        // var images = [];
+        // for (var i = 0; i < imageKeys.length; i++) {
+        //   // console.log(imageKeys[i]);
+        //   snap.ref().root().child('/media/' + imageKeys[i]).on('value', function(dataSnapshot) {
+        //     // console.log(dataSnapshot.val());
+        //     images.push(dataSnapshot.val());
+        //   });
+        // }
         //      Throttle
-        this.debounce('_computeImagesFFFF', function() {
-          this.set('images', images);
-          // console.log(this.images);
-        }, 600);
+        // this.debounce('_computeMediaFFFF', function() {
+        //   this.set('images', images);
+        //   // console.log(this.images);
+        // }, 600);
+
+
+        var productKey = snap.key();
+        var refPath = 'productById' + productKey;
+        var mediaKeys = Object.keys(_productDetails.mediaById);
+        var promises = [];
+        var _media = [];
+
+        var mediaRef = new Fireproof(new Firebase('https://charlesiescom.firebaseio.com/media/'));
+        // console.log(mediaKeys);
+
+        for (var mediaId in mediaKeys) {
+          if (mediaKeys.hasOwnProperty(mediaId)) {
+            // console.log(mediaKeys[mediaId]);
+            promises.push(
+              mediaRef.child(mediaKeys[mediaId]).then(function(e) {
+                // console.log(e.val());
+                _media.push(e.val());
+              })
+            );
+          }
+        }
+
+        Promise.all(promises).then(function(dataArr) {
+          // console.log('images, ', dataArr);
+          // console.log(_media);
+          this.set('media', []);
+          this.set('media', _media);
+        }.bind(this)).catch(function(err) {
+          console.log(err);
+        });
+
+      },
+
+
+      _computeMedia: function(snap) {
+
+        if (snap.err || typeof snap.val().media === 'undefined') {
+          // console.log(snap.val());
+          this.set('media', []);
+          return;
+        } else {
+          var _productDetails = snap.val();
+          var mediaArray = [];
+          // console.log(_productDetails);
+
+          var mediaRef = new Fireproof(new Firebase('https://charlesiescom.firebaseio.com/products/' + this.byId + '/media/'));
+          // console.log(mediaKeys);
+          mediaRef.then(function(mediaSnap) {
+            var mediaKeys = mediaSnap.val();
+            // console.log(mediaKeys);
+            for (var mediaId in mediaKeys) {
+              if (mediaKeys.hasOwnProperty(mediaId)) {
+                // console.log(mediaKeys[mediaId]);
+                mediaArray.push(mediaKeys[mediaId]);
+              }
+            }
+            this.set('media', mediaArray);
+
+          }.bind(this));
+
+
+        }
+
       },
 
       // Options
@@ -318,7 +507,7 @@
       _options: function(options) {
         // console.log('options', options.path);
         if (options.path === 'data.options') return;
-        this.saving = true;
+        // this.saving = true;
         var optionKey = options.path.split('#')[1].split('.');
         var option = options.base[optionKey[0]];
         this.productDetails.child('/options/' + option.__firebaseKey__).ref().update(option);
@@ -326,8 +515,8 @@
       },
 
       removeOption: function(option) {
-        console.log('removeOption', option);
-        this.saving = true;
+        // console.log('removeOption', option);
+        // this.saving = true;
         this.productDetails.child('/options/' + option.__firebaseKey__).ref().remove();
       },
 
@@ -338,8 +527,8 @@
         var byId = this.byId;
         var updates = {};
 
-        var rootRef = new Fireproof(new Firebase('https://charlesiesbeta.firebaseio.com/'));
-        var tagsRef = new Fireproof(new Firebase('https://charlesiesbeta.firebaseio.com/tags'));
+        var rootRef = new Fireproof(new Firebase('https://charlesiescom.firebaseio.com/'));
+        var tagsRef = new Fireproof(new Firebase('https://charlesiescom.firebaseio.com/tags'));
         var tagId, newTag = {
           name: '',
           text: 'new'
@@ -353,12 +542,19 @@
 
       },
 
+
+      removeTag: function(tag) {
+        // console.log('removeOption', option);
+        // this.saving = true;
+        // this.productDetails.child('/tags/' + tags.__firebaseKey__).ref().remove();
+      },
+
       // Product Details
 
       _productLocation: function(id) {
-        // console.log('_productsLocation', "https://charlesiesbeta.firebaseio.com/products/" + id);
+        // console.log('_productsLocation', "https://charlesiescom.firebaseio.com/products/" + id);
         // console.log('loading ' + id + ' details');
-        return "https://charlesiesbeta.firebaseio.com/products/" + id;
+        return "https://charlesiescom.firebaseio.com/products/" + id;
       },
 
 
@@ -387,7 +583,7 @@
       },
 
       new: function() {
-        var urlRef = 'https://charlesiesbeta.firebaseio.com/products/';
+        var urlRef = 'https://charlesiescom.firebaseio.com/products/';
         var ref = new Firebase(urlRef);
         var newProduct = ref.push(_defaultProduct);
         // newProduct.update(_defaultProduct);
@@ -398,7 +594,6 @@
       },
 
       getData: function(_media, _categories, _options) {
-
         // console.log('getData', this.productDetails.key(), _media, _categories, _options);
 
         if (this.productDetails.err) {
@@ -421,8 +616,28 @@
         _productDetails.categories = _categories;
         _productDetails.options = _options;
         // console.log(_productDetails);
+        this.set('loading', false)
         this.set('data', _productDetails);
         this.set('edit', this._productDetails);
+
+
+        // Parse last min add-on
+
+        // var Product = Parse.Object.extend("Products");
+        //
+        // var pquery = new Parse.Query(Product);
+        // var jjj = pquery.get('vTfMIVc1bc', {
+        //   success: function(item) {
+        //     // console.log(item);
+        //     this.set('_product', item);
+        //   }.bind(this),
+        //
+        //   error: function(object, error) {
+        //     console.log("ERROR: ", error);
+        //   }
+        // });
+
+
       }
     });
   </script>

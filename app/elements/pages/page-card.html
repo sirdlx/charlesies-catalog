@@ -366,7 +366,7 @@
           // console.log(user);
           // console.log(this.user, this.byId);
           if (user) {
-            return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid + '/settings/';
+            return 'https://charlesiescom.firebaseio.com/users/' + user.uid + '/settings/';
           }
 
         },
@@ -374,7 +374,7 @@
         _computeCardLocation: function(user, loggedin) {
           // console.log(user.uid, loggedin);
           if (loggedin) {
-            return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid + '/cards';
+            return 'https://charlesiescom.firebaseio.com/users/' + user.uid + '/cards';
           }
         },
 
@@ -383,7 +383,7 @@
           // console.log(id !== "new" && loggedin);
           if (id !== "new" && user) {
             this.selectedPage = 1;
-            return 'https://charlesiesbeta.firebaseio.com/users/' + this.user.uid + '/cards/' + id;
+            return 'https://charlesiescom.firebaseio.com/users/' + this.user.uid + '/cards/' + id;
           }
 
           if (id === "new" && user) {

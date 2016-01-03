@@ -1,6 +1,6 @@
 <dom-module id="catalog-user">
   <template>
-    <firebase-auth id="firebaseLogin" user="{{_userAuth}}" status-known="{{statusKnown}}" location="https://charlesiesbeta.firebaseio.com" provider="{{provider}}" on-error="errorHandler" on-user-created="userSuccessHandler" on-password-changed="userSuccessHandler"
+    <firebase-auth id="firebaseLogin" user="{{_userAuth}}" status-known="{{statusKnown}}" location="https://charlesiescom.firebaseio.com" provider="{{provider}}" on-error="errorHandler" on-user-created="userSuccessHandler" on-password-changed="userSuccessHandler"
     on-password-reset="userSuccessHandler" on-user-removed="userSuccessHandler"></firebase-auth>
     <!-- <firebase-document id="firebaseFavorites" location$="{{_favLocation(user)}}" data="{{_favs}}"></firebase-document> -->
     <firebase-document id="fbUserProfile" location$="{{_userProfileLocation(_userAuth)}}" data="{{_userProfile}}"  on-firebase-value="_computeUser"></firebase-document>
@@ -170,7 +170,7 @@
 
         _favLocation: function(user) {
           // console.log(user.uid);
-          return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid + '/favorites';
+          return 'https://charlesiescom.firebaseio.com/users/' + user.uid + '/favorites';
         },
         _userProfileLocation: function(user) {
           // console.log(user.uid);
@@ -178,13 +178,13 @@
             this.set('user', {});
             return;
           }
-          return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid;
+          return 'https://charlesiescom.firebaseio.com/users/' + user.uid;
         },
 
         addFav: function(product) {
           // console.log(product.__firebaseKey__);
           if (!product) return;
-          var ref = new Firebase('https://charlesiesbeta.firebaseio.com/users/' + this.user.uid + '/favorites/' + product.__firebaseKey__);
+          var ref = new Firebase('https://charlesiescom.firebaseio.com/users/' + this.user.uid + '/favorites/' + product.__firebaseKey__);
           ref.once("value", function(snapshot) {
             // console.log(snapshot.val());
             if (snapshot.val()) {
@@ -328,7 +328,7 @@
 
         _computeCardLocation: function(user, loggedin) {
           if (loggedin) {
-            return 'https://charlesiesbeta.firebaseio.com/users/' + this.user.uid + '/card';
+            return 'https://charlesiescom.firebaseio.com/users/' + this.user.uid + '/card';
           }
           return;
         },
@@ -336,7 +336,7 @@
         _computeAddressLocation: function(user, loggedin) {
           // console.log(user.uid, loggedin);
           if (loggedin) {
-            return 'https://charlesiesbeta.firebaseio.com/users/' + user.uid + '/address';
+            return 'https://charlesiescom.firebaseio.com/users/' + user.uid + '/address';
           }
         },
 
@@ -453,7 +453,7 @@
             authCode: authCode
           };
 
-          var urlRef = 'https://charlesiesbeta.firebaseio.com';
+          var urlRef = 'https://charlesiescom.firebaseio.com';
           var ref = new Firebase(urlRef);
           var updates = {};
           var uid = this.user.uid;

@@ -11,12 +11,12 @@
         margin: 0 auto;
         background-color: white;
         overflow: hidden;
+        padding: 16px;
       }
 
       paper-material[wide] {
         max-width: initial;
         margin: 16px;
-        padding: 0;
       }
 
       paper-toolbar {
@@ -229,16 +229,15 @@
 
           <template is="dom-if" if="{{_computeAddonProvider(user)}}" restamp="true">
             <paper-button class$="{{user.provider}}" raised disabled>
-              <iron-icon src="/images/facebook-24.png" class="icon"></iron-icon>
-              <span>Facebook</span>
+              <iron-icon src="{{_computeAddonProviderIcon(user)}}" class="icon"></iron-icon>
+              <span>{{user.provider}}</span>
             </paper-button>
           </template>
 
-          <paper-button class$="{{user.instagram}}" raised disabled$="{{user.instagram}}" on-tap="_instagramAuthTap">
+          <paper-button class$="{{user.instagram}}" raised disabled$="{{user.instagram}}" on-tap="_instagramAuthTap" hidden$="{{!user.isAdmin}}">
             <iron-icon src="/images/Glyph_Logo_png.png" class="icon"></iron-icon>
             <span>Instagram</span>
           </paper-button>
-
 
         </div>
 
@@ -366,7 +365,7 @@
           // 'newAddressValue(address.*)'
           // '_check(Address)',
           '_changePage(loggedin)',
-          'check(user)',
+          // 'check(user)',
         ],
 
         check: function(user) {
@@ -496,6 +495,15 @@
         _computeAddonProvider: function(user) {
           return user.provider || 'Secure';
 
+        },
+        _computeAddonProviderIcon: function(user) {
+          if (user.provider === 'facebook') {
+            return '/images/facebook-24.png';
+          } else if (user.provider === 'google') {
+            return '/images/google.svg';
+          } else if (user.provider === 'twitter') {
+            return '/images/twitter-24.png';
+          }
         }
 
 
