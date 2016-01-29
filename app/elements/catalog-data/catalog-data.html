@@ -1,101 +1,275 @@
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/firebase-element/firebase-document.html">
+<link rel="import" href="../../bower_components/firebase-element/firebase-collection.html">
+<link rel="import" href="../../bower_components/fireproof-element/fireproof-element.html">
+
 <dom-module id="catalog-data">
   <template>
-    <iron-ajax id="checkoutReq" url="http://localhost:8080/checkout" method="post" handle-as="json" on-response="_handleCheckoutPostsResponse" on-error="_handleCheckoutPostsResponse"></iron-ajax>
+    <!-- <iron-ajax id="req" url="/catalog.json" method="get" handle-as="json" on-response="_handleResponse"></iron-ajax> -->
+    <firebase-collection id="categories" location$="{{_computeCategoriesLocation(_fetchData)}}" data="{{_categories}}" on-firebase-value="_computeCategories"></firebase-collection>
+    <firebase-collection id="categories" location$="{{_computeProductsLocation(_fetchData)}}" data="{{_products}}" on-firebase-value="_computeProducts"></firebase-collection>
   </template>
-  <script>
-    (function() {
+</dom-module>
 
-      var _instances = [],
-        _data={};
+<script>
+  (function() {
+    var _data = {};
+    var _els = [];
 
-      var _add = function(type, item) {
-        var check = _instances[0];
-        var insertAt = 0;
+    var _generateMap = function(list) {
+      var out = {};
+      for (var i = 0; i < list.length; i++) {
+        out[list[i].name] = list[i];
+      }
+      return out;
+    };
 
-      };
+    var _setData = function(itemName, itemValue) {
+      _data = main || {};
+      // console.log(el._categoriesArray);
+      if (data) {
+        // _data.products = _generateMap(data.products);
+        // _data.categoriesMap = _generateMap(data.categories);
+        // console.log(_data);
+        // _data.guideMap = _generateMap(data.guides);
+        // _data.behaviorMap = {};
+        // _data.elements.forEach(function(el) {
+        //   el.behaviors.forEach(function(be) {
+        //     _data.behaviorMap[be] = el.name;
+        //   });
+        // });
+        _els.forEach(function(el) {
+          // el.load(_data);
+          // el._setCategories(main._categoriesArray);
+          // console.log(itemValue);
 
-      var _remove = function(product_index) {
-        var check = _instances[0];
-        var removeAt = product_index;
-        // for (var i = 0; i < check.items.length; i++) {
-        //   if (check.items[i] === product || check.items[i].name === product.name) {
-        //     removeAt = i;
-        //   }
+          el.set(itemName, itemValue);
+          console.log(itemName, el[itemName]);
+
+        });
+      }
+
+    };
+
+    var _retrieve = function() {
+      try {
+        return _data;
+      } catch (e) {
+        console.log('error retrieving catalog data from _data.', e);
+        return {};
+      }
+    };
+
+    Polymer({
+      is: 'catalog-data',
+
+
+      ready: function() {
+
+
+      },
+      attached: function() {
+        // console.log(_els.length);
+        if (_els.length) {
+          // console.log('loading exiting data');
+          // this.load(_data);
+        } else {
+          // console.log('first run');
+          this._fetchData = true;
+          // this.$.req.generateRequest();
+        }
+        _els.push(this);
+      },
+      detached: function() {
+        _els.splice(_els.indexOf(this), 1);
+      },
+      properties: {
+        packages: {
+          type: Array,
+          readOnly: true,
+          notify: true
+        },
+        packageMap: {
+          type: Object,
+          readOnly: true,
+          notify: true
+        },
+        elements: {
+          type: Array,
+          readOnly: true,
+          notify: true
+        },
+        elementMap: {
+          type: Object,
+          readOnly: true,
+          notify: true
+        },
+        guides: {
+          type: Array,
+          readOnly: true,
+          notify: true
+        },
+        guideMap: {
+          type: Object,
+          readOnly: true,
+          notify: true
+        },
+        tags: {
+          type: Object,
+          readOnly: true,
+          notify: true
+        },
+        behaviorMap: {
+          type: Object,
+          readOnly: true,
+          notify: true
+        },
+        // DLX
+        data: {
+          type: Object,
+          notify: true,
+          // readOnly: true,
+          value: function() {
+            return _retrieve();
+          }
+        },
+        _fetchData: {
+          type: Boolean,
+          notify: true,
+          value: false
+        },
+        categories: {
+          type: Array,
+          notify: true,
+        },
+        _categories: {
+          type: Array,
+          notify: true
+        },
+        products: {
+          type: Array,
+          notify: true
+        },
+      },
+
+      observers: [
+        // '_computeReady(_readyCategories, _readyProducts)',
+        // '_updateData(_categories.*)',
+        // '_updateData(_productsArray.*)',
+        'check(categories.*)'
+      ],
+
+      check: function(dat) {
+        console.log('dat: ', dat);
+        this.data.categories = this.categories;
+      },
+      _updateData: function(data) {
+        console.log(data);
+        var itemPath = data.path.split('.');
+        // console.log(itemPath.length-1);
+        if (itemPath.length - 1 === 0) return;
+        var itemName = itemPath[0].split('_')[1];
+        var itemType = itemPath[1];
+        // console.log(itemType);
+        // if (itemType === 'splices') {
+        // console.log(itemName);
+        //   var dataItem = data.path.split('.')[0];
+        // _setData(itemName, data.base);
+        _data[itemName] = data.base;
+        _els.forEach(function(el) {
+          // el.load(_data);
+          // el.set(itemName, data.base);
+          // el[itemName] = data.base;
+          console.log(itemValue);
+          // console.log(itemName, el[itemName]);
+        });
+        // }
+      },
+
+      load: function(_data) {
+        // console.log('load called');
+        this.data = _retrieve();
+        // this.set(itemName, itemValue);
+        // this[itemName] = itemValue;
+
+        // if (data.path) {
+        //   console.log(data.path.split('.')[0]);
+        //   var dataItem = data.path.split('.')[0];
+        //   this.set(dataItem, data.base);
         // }
 
-        if (removeAt >= 0) {
-          _instances.forEach(function(instance) {
-            instance.splice('items', removeAt, 1);
-            instance.fire('item-removed', product_index, {
-              bubbles: false
-            });
-          });
-        } else {
-          return false;
+        // if (data._categoriesArray) {
+        //   // this.set('categories', data._categoriesArray);
+        //   console.log(this.categories, this);
+        // }
+        // if (data._productsArray) {
+        //   this._setProducts(data._productsArray);
+        // }
+      },
+
+      _handleResponse: function(_, req) {
+        // _setPackageData(req.response);
+        // console.log(req.response);
+        _data.elements = [];
+        for (var i = 0; i < req.response.elements.length; i++) {
+          // console.log(req.response.elements[i]);
+          _data.elements.push(req.response.elements[i]);
         }
-      };
+      },
 
 
-      var _updateAll = function() {
-        _instances.forEach(function(instance) {
-          // instance.data = _instances[0].data;
-          instance.data = _data;
-        });
-      };
-
-      Polymer({
-        is: 'catalog-data',
-        ready: function() {
-
-          // SC.oEmbed("http://soundcloud.com/forss/flickermood", {
-          //   auto_play: true
-          // }, function(oembed) {
-          //   console.log("oEmbed response: ", oembed);
-          // });
-        },
-        attached: function() {
-          if (_instances.length === 0 && !_data) {
-            //this.$.req.generateRequest();
-          }
-          _instances.push(this);
-        },
-        detached: function() {
-          _instances.splice(_instances.indexOf(this), 1);
-        },
-        properties: {
-
-          data:{
-            type: Object,
-            notify: true,
-          }
-
-        },
-
-        observers: [
-
-        ],
-
-        created: function() {
-          _instances.push(this);
-          // this.data = _data;
-        },
-
-        checkout: function(order) {
-          this.$.checkoutReq.body = order;
-          this.$.checkoutReq.method = 'POST';
-          this.$.checkoutReq.generateRequest();
-
-        },
-
-        _handleCheckoutPostsResponse: function(_, req) {
-          // console.log('_handleCheckoutPostsResponse: ', req.response);
-          // _add('checkout', req.response);
-          this.fire('checkout-response', req.response);
-        },
 
 
-      });
-    })();
-  </script>
+      _computeProductsLocation: function(_fetchData) {
+        // console.log(_fetchData);
+        if (_fetchData) {
+          return 'https://charlesiescom.firebaseio.com/products';
+        }
+      },
 
-</dom-module>
+      _computeProducts: function(_, snap) {
+        // console.log(snap.val());
+        // this._readyProducts = true;
+        this.set('products', this._products);
+      },
+
+
+
+
+
+      _computeCategoriesLocation: function(_fetchData) {
+        if (_fetchData) {
+          // console.log(_fetchData);
+          return 'https://charlesiescom.firebaseio.com/categories';
+        }
+      },
+
+      _computeCategories: function(_, snap) {
+        // console.log(snap.val());
+        // this._readyCategories = true;
+        // this.set('categories', this._categories);
+        // _data['/categories/'] = this._categories;
+        // console.log(_data.categories[0]);
+        // console.log(_data);
+        // console.log(this);
+        // _data['categories'] = this._categories;
+        // _els.forEach(function(el) {
+        //   // el.data = _retrieve();
+        //   console.log(el.data);
+        // });
+      },
+
+
+
+
+
+
+      _computeReady: function(_readyCategories, _readyProducts) {
+        // console.log(_readyCategories, _readyProducts);
+        if (!_readyCategories) return;
+        if (!_readyProducts) return;
+        // _setData(this);
+      }
+    });
+  })();
+</script>

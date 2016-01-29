@@ -1,149 +1,34 @@
 <!doctype html>
 <html lang="en">
-
 <head>
   <meta charset="utf-8">
-  <meta name="description" content="">
+  <meta name="description" content="A catalog of Polymer-based web components">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="generator" content="Polymer Starter Kit" />
-  <title>Charlesie's Catalog</title>
-  <!-- Place favicon.ico in the `app/` directory -->
+  <title>Charlesies.com Catalog</title>
 
-  <!-- Chrome for Android theme color -->
-  <meta name="theme-color" content="#303F9F">
+  <link rel="shortcut icon" href="/images/p-logo-32.png">
 
-  <!-- Web Application Manifest -->
-  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="/styles/main.css" inline>
 
-  <!-- Tile color for Win8 -->
-  <meta name="msapplication-TileColor" content="#3372DF">
+  <script src="/../bower_components/webcomponentsjs/webcomponents-lite.js" inline async></script>
 
-  <!-- Add to homescreen for Chrome on Android -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="application-name" content="PSK">
-  <link rel="icon" sizes="192x192" href="images/touch/chrome-touch-icon-192x192.png">
-
-  <!-- Add to homescreen for Safari on iOS -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="Polymer Starter Kit">
-  <link rel="apple-touch-icon" href="images/touch/apple-touch-icon.png">
-
-  <!-- Tile icon for Win8 (144x144) -->
-  <meta name="msapplication-TileImage" content="images/touch/ms-touch-icon-144x144-precomposed.png">
-
-  <style media="screen">
-    body.fullbleed {
-      margin: 0;
-      height: 100vh;
-      font-family: 'Roboto', 'Noto', sans-serif;
-      -webkit-font-smoothing: antialiased;
-      transition: opacity ease-in 0.2s;
-    }
-
-    html /deep/ .1x1 {
-      background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX0QzYBWW+JAAAACklEQVR4nGNiAAAABgADNjd8qAAAAABJRU5ErkJggg==');
-    }
-
-    body.loading #splash {
-      opacity: 1;
-    }
-
-    #splash {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      transition: opacity 450ms cubic-bezier(0, 0, 0.2, 1);
-      opacity: 0;
-      will-change: opacity;
-      z-index: 1;
-      /*background: url() no-repeat;*/
-      background-color: white;
-    }
-
-    .logo {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      display: table;
-      -webkit-transition: opacity 0.5s ease-in-out;
-      -moz-transition: opacity 0.5s ease-in-out;
-      -ms-transition: opacity 0.5s ease-in-out;
-      -o-transition: opacity 0.5s ease-in-out;
-      opacity: 1;
-      z-index: -1;
-    }
-
-    .logo p {
-      font-family: 'niconneregular';
-      text-align: center;
-      display: table-cell;
-      vertical-align: middle;
-      font-size: 15vw;
-    }
-  </style>
-
-  <!-- build:js lib.min.js -->
-  <!-- <script src="bower_components/webcomponentsjs/webcomponents-lite.js" async></script> -->
-  <!-- endbuild -->
-
-  <!-- will be replaced with elements/elements.vulcanized.html -->
-  <link id="bundle" rel="import" href="elements/elements.html">
+  <!-- will be replaced with /elements/elements.build.html -->
+  <link rel="import" href="/elements/elements.html">
   <!-- endreplace-->
+
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:900">
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-39334307-10', 'auto');
+  // ga('send', 'pageview');
+  </script>
 </head>
 
-<body class="fullbleed flex loading">
-  <span id="browser-sync-binding"></span>
-  <div id="splash">
-
-    <div class="logo">
-      <p>
-        <span style="color: red;">C</span>
-      </p>
-    </div>
-
-
-  </div>
-  <app-shell class="fit" id="app-shell"></app-shell>
+<body id="app" class="fullbleed" unresolved>
+  <app-shell class="fit"></app-shell>
 </body>
-
-
-<script type="text/javascript">
-  var webComponentsSupported = ('registerElement' in document && 'import' in document.createElement('link') && 'content' in document.createElement('template'));
-  if (!webComponentsSupported) {
-    var script = document.createElement('script');
-    script.async = true;
-    script.src = '/bower_components/webcomponentsjs/webcomponents-lite.min.js';
-    script.onload = finishLazyLoading;
-    document.head.appendChild(script);
-  } else {
-    finishLazyLoading();
-  }
-  function finishLazyLoading() {
-    // (Optional) Use native Shadow DOM if it's available in the browser.
-    window.Polymer = window.Polymer || {
-      dom: 'shadow'
-    };
-    var onImportLoaded = function() {
-      var loadEl = document.getElementById('splash');
-      loadEl.addEventListener('transitionend', loadEl.remove);
-      // setTimeout(function() {
-      //   document.body.classList.remove('loading');
-      // }, 1000);
-    };
-    var link = document.querySelector('#bundle');
-    // crbug.com/504944 - readyState never goes to complete until Chrome 46.
-    // crbug.com/505279 - Resource Timing API is not available until Chrome 46.
-    if (link.import && link.import.readyState === 'complete') {
-      onImportLoaded();
-    } else {
-      link.addEventListener('load', onImportLoaded);
-    }
-  }
-</script>
-
 </html>

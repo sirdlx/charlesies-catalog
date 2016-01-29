@@ -1,661 +1,127 @@
+<link rel="import" href="../../bower_components/paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../../bower_components/paper-drawer-panel/paper-drawer-panel.html">
+<link rel="import" href="../../bower_components/paper-header-panel/paper-header-panel.html">
+<link rel="import" href="../../bower_components/app-router/app-router.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+
+<link rel="import" href="../app-styles/app-styles.html">
+<link rel="import" href="../app-link/app-link.html">
+<link rel="import" href="../app-logo/app-logo.html">
+<link rel="import" href="../app-cart/app-cart.html">
+<link rel="import" href="../search-bar/search-bar.html">
+<link rel="import" href="../app-sidebar/app-sidebar.html">
+
+<link rel="import" href="../pages/page-packages.html">
+<link rel="import" href="../pages/page-browse.html">
+<link rel="import" href="../pages/page-item.html">
+<link rel="import" href="../pages/page-account.html">
+<!-- <link rel="import" href="../pages/page-guide.html"> -->
+<link rel="import" href="../pages/item-not-found.html">
+
+
+
 <dom-module id="app-shell">
+  <style>
+    #cartpanel::shadow > #scrim {
+      z-index: 4;
+    }
+
+    #cartpanel::shadow > #drawer {
+      z-index: 5;
+    }
+
+    paper-toast {
+      z-index: 5;
+    }
+  </style>
   <template>
-
-    <style is="custom-style">
-      :host {
-        @apply(--app-shell);
-      }
-
-      #appToolbar {
-        @apply(--app-toolbar);
-      }
-
-      #appToolbar a {
-        @apply(--app-toolbar-link);
-      }
-
-      #btnCartx {
-        margin-right: 16px;
-        margin-top: 16px;
-      }
-
-      .cartBadge {
-        --paper-badge-background: var(--accent-color);
-        --paper-badge-text-color: white;
-      }
-
-      #appToolbar paper-icon-button[icon=menu] {
-        margin-right: 8px;
-      }
-
-      paper-icon-button.userIcon::shadow img {
-        border-radius: 50%;
-      }
-
-      #menu {
-        /*box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.16);*/
-        /*height: 100%;*/
-        border-right: 1px solid #e7e7e7;
-      }
-
-      .categoryInput {
-        padding: 0 16px;
-      }
-
-      paper-toast {
-        z-index: 1;
-      }
-
-      :root {
-        --paper-input-container-disabled: {
-          opacity: 1;
-        }
-        ;
-        --paper-input-container-underline: {
-          opacity: 0;
-        }
-        ;
-      }
-
-      .avatar {
-        display: inline-block;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        overflow: hidden;
-        background: #ccc;
-      }
-
-      .blue {
-        background-color: var(--paper-light-blue-300);
-      }
-
-      .red {
-        background-color: var(--paper-red-300);
-      }
-
-      .orange {
-        background-color: var(--paper-amber-300);
-      }
-
-      .green {
-        background-color: var(--paper-green-300);
-      }
-    </style>
-
-    <catalog-user id="catalogUser" loggedin="{{loggedin}}" wait="{{wait}}" user="{{user}}"></catalog-user>
-    <catalog-cart id="catalogCart" items="{{cart}}" count="{{cartCount}}"></catalog-cart>
-
-    <firebase-collection id="categories" location="https://charlesiescom.firebaseio.com/categories" data="{{categories}}"></firebase-collection>
-
-    <iron-media-query query="(min-width: 705px)" query-matches="{{narrow}}"></iron-media-query>
-
-    <paper-drawer-panel responsive-width="704px">
-
-      <paper-scroll-header-panel id="menuPanel" drawer class="layout vertical" fixed>
-
-        <paper-toolbar id="appToolbar">
-          <app-logo full="true" tabindex="1" hidden$x="{{!narrow}}"></app-logo>
-        </paper-toolbar>
-
-        <paper-menu id="menu" selected="[[routeSelected]]">
-          <paper-item link="" on-tap="_tapNav">Home</paper-item>
-          <template is="dom-repeat" items="[[categories]]">
-            <!-- <paper-item hidden$="{{editCategory}}" link$="products?category={{item.name}}" on-tapx="_tapNav">
-              <span>{{item.label}}</span>
-            </paper-item> -->
-            <paper-icon-item hidden$="{{item.edit}}" link$="products?category={{item.name}}" on-tap="_tapNav">
-              <div class="avatar orange" item-icon></div>
-              <!-- <div class="flex">{{item.label}}</div> -->
-              <paper-input class="flex" disabled$="{{!user.isAdmin}}" style="z-index:4;" id$="categoryId_{{item.__firebaseKey__}}" tab-index="0" value="{{item.label::change}}" labelx="{{item.label}}" on-change="_categoryLabelChange" no-label-float
-              focused$="{{item.edit}}"></paper-input>
-              <!-- <paper-checkbox hidden$="{{!user.isAdmin}}" style="z-index:4;" checked="{{item.edit}}"></paper-checkbox> -->
-            </paper-icon-item>
-
-            <!-- <template is="dom-if" if="{{item.edit}}"> -->
-            <!-- <paper-icon-button icon="editor:mode-edit" on-tap="_tapEdit"></paper-icon-button> -->
-
-            <!-- </template> -->
-
-          </template>
-
-          <template is="dom-if" if="{{user.isAdmin}}">
-            <paper-item on-tap="_tapNewCategory">New Category</paper-item>
-          </template>
-        </paper-menu>
-
-      </paper-scroll-header-panel>
-
-      <paper-scroll-header-panel id="content" main class="flex" fixed>
-
-        <paper-toolbar id="appToolbar">
-
-          <paper-icon-button id="btnMenu" icon="menu" paper-drawer-toggle></paper-icon-button>
-
-          <app-logo full="{{narrow}}" tabindex="1" hidden$="{{narrow}}"></app-logo>
-
-          <span class="flex"></span>
-
-          <app-bar class="horizontal layout center end-justified" query="{{q}}" style="margin-right: 8px;"></app-bar>
-
-          <span hiddenFFFF$="{{!narrow}}" style="position: relative;">
-            <paper-icon-button id="btnCart" icon="shopping-cart" on-tap="_tapNavCart"></paper-icon-button>
-            <paper-badge class="cartBadge" for="btnCart" label="{{cartCount}}" hidden$="{{!cartCountShow}}"></paper-badge>
-          </span>
-
-
-          <paper-menu-button vertical-align="top" horizontal-align="right">
-
-            <paper-icon-button hidden={{loggedin}} icon="social:person" class="dropdown-trigger userIcon" alt="menu"></paper-icon-button>
-            <paper-icon-button hidden={{!loggedin}} src="{{user.profileImageURL}}" class="dropdown-trigger userIcon" alt="menu"></paper-icon-button>
-
-            <paper-menu class="dropdown-content">
-              <!-- <paper-item link="cart" on-tap="_tapNav" hidden$="{{narrow}}">
-                <iron-icon icon="shopping-cart"></iron-icon>
-                <span>{{cartCount}}</span>
-              </paper-item> -->
-              <paper-item hidden={{!loggedin}} link="account" on-tap="_tapNav">[[_computeAccountText(loggedin, user)]]</paper-item>
-              <paper-item hidden={{!loggedin}} on-tap="_tapLogout">logout</paper-item>
-              <paper-item hidden={{loggedin}} link="login" on-tap="_tapNav">login</paper-item>
-            </paper-menu>
-          </paper-menu-button>
-          </div>
-        </paper-toolbar>
-
-        <app-router id="router" class="flex" main modeFFFF="[[_demo(demo)]]" on-activate-route-end="_routeEnd" on-activate-route-start="_routeStart" on-state-change="_routerStateChange" on-before-data-binding="modifyModel">
-          <app-route path="/" element="page-home" bindRouter></app-route>
-          <app-route path="/account" element="page-account" bindRouter onUrlChange="reload"></app-route>
-          <app-route path="/cart" element="page-cart" bindRouter onUrlChange="reload"></app-route>
-          <app-route path="/browse" element="page-product-list" bindRouter></app-route>
-          <app-route path="/login" element="page-account" bindRouter onUrlChange="reload"></app-route>
-          <app-route path="/products/:byId" element="page-product" bindRouter onUrlChange="updateModel"></app-route>
-          <app-route path="*" element="page-error"></app-route>
+    <catalog-user id="catalogUser" user="{{user}}"></catalog-user>
+    <paper-drawer-panel id="cartpanel" class="flex" force-narrow right-drawer disable-edge-swipe disable-swipe drawer-width="320px">
+      <div id="main" main>
+        <app-router id="router" class="flex" mode="pushstate" on-activate-route-end="trackPageview">
+          <app-route path="/" element="page-browse" bindRouter></app-route>
+          <app-route path="/products/:byId" element="page-item" bindRouter onUrlChange="updateModel"></app-route>
+          <app-route path="/category/:category" element="page-item" bindRouter onUrlChange="updateModel"></app-route>
+          <app-route path="/guides/:name" element="page-guide" bindRouter></app-route>
+          <app-route path="/account" element="page-account" bindRouter></app-route>
+          <!-- <app-route path="/m/:mediaId" element="page-item" bindRouter onUrlChange="updateModel"></app-route> -->
+          <!-- <app-route path="/*" element="page-browse" bindRouter onUrlChange="updateModel"></app-route> -->
+          <app-route path="*" element="item-not-found"></app-route>
         </app-router>
-      </paper-scroll-header-panel>
+      </div>
+      <app-cart id="cart" drawer></app-cart>
     </paper-drawer-panel>
-    <!-- <firebase-collection id="category" location="https://charlesiescom.firebaseio.com/categories" data="{{categories}}" order-by-child="showInNav" equal-to="true" on-firebase-value="check"></firebase-collection> -->
-    <!-- <a href$="{{_computeNav(item)}}" is="pushstate-anchor"> -->
-    <!-- </a> -->
-    <!-- Add Categories Page -->
-    <!-- <paper-item link$="categories/{{item.name}}" on-tap="_tapNav">{{item.label}}</paper-item> -->
-    <!-- Menu Button -->
-    <!-- App Logo -->
-    <!-- Search Toolbar -->
-    <!-- <iron-input id="query" type="search" autocomplete="off" value="{{q::keyup}}" placeholder="Search Elements" class="flex"></iron-input> -->
-    <!-- Cart Button -->
-    <!-- account Dropdown Button -->
-    <!-- <paper-button class="dropdown-trigger" hidden$="{{!narrow}}">
-      <iron-icon src="{{user.profileImageURL}}"></iron-icon>
-      <span>{{user.displayName}}</span>
-    </paper-button> -->
-
-    <!-- account Dropdown Button / Items -->
-    <!-- <app-route path="/account/address" element="page-address" bindRouter onUrlChange="updateModel"></app-route>
-    <app-route path="/account/address/:id" element="page-address" bindRouter onUrlChange="updateModel"></app-route> -->
-
-    <!-- <app-route path="/account/card" element="page-card" bindRouter onUrlChange="updateModel"></app-route>
-    <app-route path="/account/card/:id" element="page-card" bindRouter onUrlChange="updateModel"></app-route> -->
-
-    <!-- <a href="//www.iubenda.com/privacy-policy/434491" class="iubenda-white iubenda-embed" title="Privacy Policy">Privacy Policy</a> -->
-    <!-- Uncomment next block to enable Service Worker support (1/2) -->
-    <!--
-    <paper-toast id="caching-complete"
-                 duration="6000"
-                 text="Caching complete! This app will work offline.">
-    </paper-toast>
-
-    <platinum-sw-register auto-register
-                          clients-claim
-                          skip-waiting
-                          on-service-worker-installed="displayInstalledToast">
-      <platinum-sw-cache default-cache-strategy="networkFirst"
-                         precache-file="precache.json">
-      </platinum-sw-cache>
-    </platinum-sw-register>
-    -->
-
-    <paper-toast id="toast"></paper-toast>
-
-
-    <script type="text/javascript">
-      (function(w, d) {
-        var loader = function() {
-          var s = d.createElement("script"),
-            tag = d.getElementsByTagName("script")[0];
-          s.src = "//cdn.iubenda.com/iubenda.js";
-          tag.parentNode.insertBefore(s, tag);
-        };
-        if (w.addEventListener) {
-          w.addEventListener("load", loader, false);
-        } else if (w.attachEvent) {
-          w.attachEvent("onload", loader);
-        } else {
-          w.onload = loader;
-        }
-      })(window, document);
-    </script>
-
   </template>
-
-  <script>
-    (function() {
-
-      var _defaultNewCategory = {
-        label: ''
-      };
-
-      // var _categoriesFireproof = new Fireproof(new Firebase('https://charlesiescom.firebaseio.com/categories'));
-      var _categoriesFireproof = null;
-
-      Polymer({
-        is: 'app-shell',
-        enableCustomStyleProperties: true,
-        properties: {
-          // Global
-          router: Object,
-          mode: {
-            type: String,
-            notify: true,
-            value: 'hash'
-          },
-          settings: {
-            type: Object,
-            notify: true,
-          },
-          narrow: Boolean,
-          routeSelected: {
-            type: Number,
-            notify: true
-          },
-
-          // Cart
-          cartCount: {
-            type: Number,
-            notify: true,
-          },
-          cartCountShow: {
-            type: Boolean,
-            notify: true,
-            value: true
-          },
-
-          // User
-          user: {
-            type: Object,
-            notify: true
-          },
-          loggedin: {
-            type: Boolean,
-            notify: true,
-          },
-          newaddress: {
-            type: Boolean,
-            notify: true,
-            value: false
-          },
-          newcard: {
-            type: Boolean,
-            notify: true,
-            value: false
-          },
-
-          // Categories
-          categories: {
-            type: Array,
-            notify: true,
-            // value: []
-          },
-          editCategory: {
-            type: Boolean,
-            notify: true,
-            value: false
-          },
-
-        },
-        listeners: {
-          'toast': '_showToast',
-          'content-scroll': '_firePageScroll',
-          'nav': '_nav',
-          //address
-          // 'open-address-dialog': 'openAddressDialog',
-          // 'open-card-dialog': 'openCardDialog',
-          //product
-          // 'nav-category': '_navCategory',
-          'nav-product': '_navProduct',
-          'add-to-fav': '_addFav',
-          'add-to-cart': '_addCart',
-          'remove-from-cart': '_removeFromCart'
-        },
-        observers: [
-          'setApp(settings)',
-          //  '_demo(mode)',
-        ],
-
-
-        attached: function() {
-          document.body.classList.remove('loading');
-          // var _categoriesFireproof = new Fireproof();
-          // categories.orderByChild('showInNav').equalTo(true).on('child_added', function(snap) {
-          // _categoriesFireproof.on('child_added', function(snap) {
-          //   // console.log(snap.val());
-          //   var val = snap.val();
-          //   val.__firebaseKey__ = snap.key();
-          //   this.push('categories', val);
-          // }.bind(this)).then(function(argument) {
-          //   this.loading = false;
-          //   document.body.classList.remove('loading');
-          //   // console.log(this.categories);
-          // }.bind(this));
-        },
-
-        _tapEdit: function(e) {
-          // console.log(e.model.__data__.item.__firebaseKey__);
-          // console.log(this.editCategory);
-          // var _id = e.model.__data__.item.__firebaseKey__;
-          // console.log(e);
-          this.editCategory = !this.editCategory;
-        },
-
-        _tapNav: function function_name(e) {
-          // console.log(e.target.getAttribute('href').split('#')[1]);
-          // console.dir(e.target.getAttribute('link'));
-          // this.$.router.go(this.$.menu.selectedItem.getAttribute('href'));
-          // this.$.router.go('/' + e.target.getAttribute('href').split('#')[1]);
-          // console.dir(e.path[2]);
-          if (e.path[2].nodeName === 'PAPER-MENU') {
-            console.log('PAPER-MENU');
-            if (this.editCategory) {
-
-            }
-          }
-          if (!this.user.admin && !this.editCategory) {
-            this.$.router.go('/' + e.target.getAttribute('link'));
-          }
-
-        },
-        _computeNav: function(item) {
-          console.log(item);
-          return '#/category/' + item.name;
-        },
-
-
-        _demo: function(mode) {
-          console.log(mode);
-          if (mode) {
-            return 'auto';
-          }
-          return 'pushstate';
-        },
-
-        _categoryLabelChange: function(e) {
-          console.dir(e.model.__data__.item);
-          var _edit = e.model.__data__.item;
-          // _edit.tag = _edit['label'].replace(/[^\w-]/g, '').toLowerCase();
-          // console.log(_edit['item.label'].replace(/[^\w-]/g, '').toLowerCase());
-          var _editLoc = new Fireproof(new Firebase('https://charlesiescom.firebaseio.com/categories/' + _edit.__firebaseKey__));
-          _editLoc.set(_edit);
-          // _editLoc.set(_edit);
-
-        },
-
-
-        _tapNewCategory: function(_, e) {
-          // console.dir(this.$.categories.query.ref());
-          var _categoriesFireproof = new Fireproof(this.$.categories.query.ref());
-
-          // console.log(_categoriesFireproof);
-
-          // categories.orderByChild('showInNav').equalTo(true).on('child_added', function(snap) {
-          _categoriesFireproof.push({label:'', name:''}, function(snap) {
-            // this.$.categoryId_new.value = 'new';
-            console.log(snap);
-            this.editCategory = true;
-          }.bind(this));
-
-        },
-
-        _computeAccountText: function(loggedin, user) {
-          // console.log(loggedin, user);
-          if (user.displayName) {
-            // console.log(user);
-            return this.user.displayName;
-          }
-          return 'Account';
-        },
-
-
-        // Events
-
-        _nav: function(_, e) {
-          if (!e) return;
-          // console.log(e);
-          var path = e.path || window.location.pathname;
-          var params = e.params || null;
-          if (params) {
-            // path = path + '&';
-            for (var param in params) {
-              // console.log('key: ', param);
-              // console.log('value: ', params[param]);
-              path = path + '?' + param + '=' + params[param];
-            }
-          }
-
-          this.$.router.go(path, {
-            replace: e.replace
-          });
-        },
-
-        _navCategory: function(_, e) {
-          var path = '/category';
-          if (e.byId) {
-            path += '/' + e.byId;
-          }
-          this.fire('nav', {
-            path: path
-          });
-
-        },
-
-        _openProductCategory: function(_, e) {
-          var path = '/products?category=' + e.name;
-          this.fire('nav', {
-            path: path
-          });
-        },
-
-
-        _navProduct: function(_, e) {
-          var path = '/products';
-          if (e.byId) {
-            path += '/' + e.byId;
-          }
-          this.fire('nav', {
-            path: path
-          });
-        },
-
-        openCardDialog: function(_, e) {
-          if (e.new && e.after) {
-            this.fire('nav', {
-              path: '/account/card/?byId=new&after=' + e.after
-            });
-            return;
-          }
-
-        },
-
-        openAddressDialog: function(_, e) {
-
-          // if (e.new && e.after) {
-          //   this.fire('nav', {
-          //     path: '/account/address/?new=true&after=' + e.after
-          //   });
-          //   return;
-          // }
-          var params = {
-            addressEdit: true
-          };
-          if (e.after) {
-            params.after = e.after;
-          }
-
-          this.fire('nav', {
-            params: params
-          });
-
-
-        },
-
-        _addFav: function(e, item) {
-          // console.log(item.product);
-          this.$.catalogUser.addFav(item.product);
-        },
-        _removeFromCart: function(e, item) {
-          // console.log(item.index);
-          this.$.catalogCart.removeCart(item.index);
-        },
-        _addCart: function(e, item) {
-          // console.log(item.product);
-          this.$.catalogCart.addCart(item.product);
-        },
-
-        // Navigation
-
-        _tapNavCart: function() {
-          this.$.router.go('/cart');
-        },
-
-        _firePageScroll: function(e, el) {
-          var content = el.target;
-          var bottom = (content.scrollHeight - content.scrollTop) === content.clientHeight;
-          // console.log(bottom);
-          if (bottom === true) {
-            this.fire('page-fetch-more', e);
-          }
-        },
-        // Router
-
-        _routerStateChange: function(event) {
-          // console.log(event.detail.path);
-          // Select sidebar navigation item if possible
-
-          // console.log(event.detail);
-          if (!event) return;
-
-          if (event.detail.path === "/") {
-            this.routeSelected = 0;
-            return;
-          }
-
-          var items = this.$.menu.items;
-
-          for (var i = 0; i < items.length; i++) {
-            // console.log(items[i].getAttribute('href'));
-
-            if (typeof items[i].getAttribute('href') === 'undefined') {
-              return;
-            }
-
-            var _href = items[i].getAttribute('href');
-            var routePath = event.detail.path.split('/');
-            // console.log(routePath);
-            // console.log(routePath, index);
-            // console.log(routePath, _href, i);
-
-            // if (routePath[2]) {
-            //   if (_href.split('/')[2] === routePath[2]) {
-            //     // console.log(entry.attributes.route.textContent);
-            //     // console.log(i);
-            //     this.routeSelected = i;
-            //     return;
-            //   }
-            // }
-
-          }
-          this.routeSelected = -1;
-
-        },
-
-        _routeStart: function(_, e) {
-          // console.log(e.path.match('\/product/'));
-          if (e.oldRoute) {
-            // console.dir(e.oldRoute.getAttribute('path'));
-            if (e.oldRoute.getAttribute('path') === e.route.getAttribute('path')) {
-              // console.log('match');
-            }
-          }
-
-          // console.log(e);
-        },
-
-        _routeEnd: function(event) {
-          // if (event.detail.path === "/account") {
-          //   if (!this.loggedin) {
-          //     event.preventDefault();
-          //     this.fire('toast', {
-          //       text: 'Have to be logged in to view page'
-          //     });
-          //     router.go('/login', {
-          //       replace: true
-          //     });
-          //   }
-          // }
-          this.$.content.scrollToTop(true);
-          // console.log(event.detail.model);
-        },
-
-        modifyModel: function(event) {
-          // event.detail.model.user = this.$.catalogUser;
-          // console.dir(this.$.router);
-          // console.log(event.detail.model);
-        },
-
-        // Global settings
-
-        setApp: function(settings) {
-          // console.log('setApp', settings);
-          this.title = settings.title;
-          this.fire('page-meta', {
-            title: null
-          });
-        },
-        // Search
-        toggleSearch: function() {
-          this.$.search.active = !this.$.search.active;
-        },
-        performSearch: function(e) {
-          e.preventDefault();
-          if (this.query.length) this.$.router.go('/search?q=' + this.query);
-        },
-
-        updateTitle: function(_, detail) {
-          if (detail.title && detail.title.length) {
-            document.title = detail.title + " - Catalog";
-          } else {
-            document.title = "Catalog";
-          }
-        },
-
-        // Global Functions
-        _showToast: function(e, detail) {
-          this.$.toast.text = detail.text;
-          this.$.toast.show();
-        },
-        trackPageview: function(e, detail) {
-          // this.debounce('pageview', function() {
-          //   var loc = window.location.pathname + window.location.search;
-          //   ga('send', 'pageview', {
-          //     location: loc,
-          //     title: document.title
-          //   });
-          //   ga('set', 'page', loc);
-          // }, 2000);
-        },
-        _tapLogout: function() {
-          this.$.catalogUser.logout();
-          this._routerStateChange();
-        }
-      });
-    })();
-  </script>
 </dom-module>
+<script>
+  var _lastNavigated = '';
+  Polymer({
+    is: 'app-shell',
+    listeners: {
+      'nav': 'handleNav',
+      'page-meta': 'updateTitle',
+      'cart-close': 'cartClose',
+      'cart-open': 'cartOpen',
+      'cart-add': 'cartAdd',
+      'cart-remove': 'cartRemove',
+      'toast': 'showToast'
+    },
+    _toast: null,
+
+    toggleSearch: function() {
+      this.$.search.active = !this.$.search.active;
+    },
+    performSearch: function(e) {
+      e.preventDefault();
+      if (this.query.length) this.$.router.go('/?q=' + this.query);
+    },
+    handleNav: function(_, nav) {
+      if (nav.url !== _lastNavigated && nav.url !== window.location.href) {
+        // _lastNavigated = nav.url;
+        this.$.router.go(nav.url);
+        this.$.cartpanel.closeDrawer();
+      }
+    },
+    updateTitle: function(_, detail) {
+      if (detail.title && detail.title.length) {
+        document.title = detail.title + " - Charleies.com Catalog";
+      } else {
+        document.title = "Charleies.com Catalog";
+      }
+    },
+    cartClose: function() {
+      this.$.cartpanel.closeDrawer();
+    },
+    cartOpen: function() {
+      this.$.cartpanel.openDrawer();
+    },
+    cartAdd: function(e, el) {
+      this.$.cart.add(el);
+    },
+    cartRemove: function(e, el) {
+      this.$.cart.remove(el);
+    },
+    showToast: function(e, detail) {
+      if (!this._toast) {
+        this._toast = document.createElement('paper-toast');
+        Polymer.dom(this.$.router).appendChild(this._toast);
+      }
+      this._toast.text = detail.text;
+      this.async(this._toast.show.bind(this._toast), 1);
+    },
+
+    trackPageview: function(e, detail) {
+      if (window.location.href !== _lastNavigated) {
+        _lastNavigated = window.location.href;
+      }
+      this.debounce('pageview', function() {
+        var loc = window.location.pathname + window.location.search;
+        ga('send', 'pageview', {
+          location: loc,
+          title: document.title
+        });
+        ga('set', 'page', loc);
+      }, 2000);
+    }
+  });
+</script>

@@ -26,22 +26,22 @@
       }
     };
 
-    var _add = function(product) {
+    var _add = function(_item) {
       var check = _instances[0];
       var insertAt = 0;
 
       // var el = document.createElement('catalog-product');
-      // el.id = _product.__firebaseKey__;
-      // console.dir(_product);
+      // el.id = __item.__firebaseKey__;
+      // console.dir(_item);
       // if (!el.data) {
       //   return;
       // }
-      // var product = el.data;
+      // var _item = el.data;
 
       for (var i = 0; i < check.items.length; i++) {
         // console.log(check.items[i].__firebaseKey__);
-        if (check.items[i].__firebaseKey__ === product.__firebaseKey__) {
-          // console.log('product match');
+        if (check.items[i].key === _item.key) {
+          // console.log('_item match');
           check.items[i].quantity++;
           _store();
           _updateAll();
@@ -51,33 +51,36 @@
         }
       }
 
-      product.quantity = 1;
+      _item.quantity = 1;
 
       _instances.forEach(function(instance) {
-        instance.splice('items', insertAt, 0, product);
-        instance.fire('item-added', product, {
+        instance.splice('items', insertAt, 0, _item);
+        // console.log('item-added: ', _item.label);
+        instance.fire('item-added', _item.label, {
           bubbles: false
         });
       });
 
       _store();
 
-      return product;
+      return _item;
     };
 
-    var _remove = function(product_index) {
+    var _remove = function(_item) {
       var check = _instances[0];
-      var removeAt = product_index;
-      // for (var i = 0; i < check.items.length; i++) {
-      //   if (check.items[i] === product || check.items[i].name === product.name) {
-      //     removeAt = i;
-      //   }
-      // }
+      var removeAt = _item;
+      for (var i = 0; i < check.items.length; i++) {
+        if (check.items[i].key === _item.key) {
+          removeAt = i;
+        }
+      }
+
 
       if (removeAt >= 0) {
         _instances.forEach(function(instance) {
+          // console.log('item-removed');
           instance.splice('items', removeAt, 1);
-          instance.fire('item-removed', product_index, {
+          instance.fire('item-removed', _item.label, {
             bubbles: false
           });
         });
@@ -129,11 +132,12 @@
       Update: function() {
         this.items = _retrieve();
       },
-      addCart: function(item) {
+      add: function(item) {
         // if (this.includes(name)) return false;
+        // console.log(item);
         return _add(item);
       },
-      removeCart: function(item) {
+      remove: function(item) {
         return _remove(item);
       },
       _count: function(items) {
@@ -153,6 +157,15 @@
           _store();
         }
 
+      },
+      includes: function(item) {
+        if (!item) return;
+        for (var i = 0; i < this.items.length; i++) {
+          // console.log(this.items[i].__firebaseKey__ === item.__firebaseKey__);
+          // console.log(this.items[i]);
+          if (this.items[i].key === item.key) return true;
+        }
+        return false;
       }
     });
   })();

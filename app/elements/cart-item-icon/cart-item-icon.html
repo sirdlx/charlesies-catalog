@@ -1,79 +1,144 @@
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../catalog-cart/catalog-cart.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
 <dom-module id="cart-item-icon">
   <style>
-    iron-icon {
-      width: var(--cart-item-icon-size, 24px);
-      height: var(--cart-item-icon-size, 24px);
+    :root {
+      /*Cart Icon Styles*/
+      --cart-item-icon-fill: rgba(0, 0, 0, 0.6);
+      --cart-item-icon-background: white;
+      /*Paper Styles*/
+      --paper-icon-button-ink-color: var(--cart-item-icon-button-ink-color);
+      --iron-icon-fill-color: var(--cart-item-icon-fill);
     }
+
+    [present] {
+      --cart-item-icon-background: var(--accent-color);
+      --cart-item-icon-fill: rgba(0, 0, 0, 0.6);
+    }
+
+    paper-button,
+    paper-fab,
+    paper-icon-button {
+      background: var(--cart-item-icon-background);
+      transition: all .4s;
+    }
+    /*iron-icon {
+      width: var(--cart-item-icon-size, 18px);
+      height: var(--cart-item-icon-size, 18px);
+    }*/
 
     span {
       @apply(--cart-item-icon-label);
     }
+
+    .label {
+      margin-left: 8px;
+    }
   </style>
   <template>
     <catalog-cart id="cart" on-item-added="_update" on-item-removed="_update" on-items-changed="_update"></catalog-cart>
-
-    <iron-icon icon="[[_icon]]"></iron-icon>
-    <span hidden$="[[noLabel]]">[[_label]]</span>
+    <!-- <iron-icon icon="[[_icon]]" title$="[[_label]]"></iron-icon> -->
+    <template is="dom-if" if="{{paperIconButton}}" restamp="true">
+      <paper-icon-button id="iconButton" icon="[[_icon]]" title$="[[_label]]" on-tap="_tapped" present$="[[present]]"></paper-icon-button>
+      <!-- <span>[[_label]]</span> -->
+    </template>
+    <template is="dom-if" if="{{paperButton}}" restamp="true">
+      <paper-button id="labelButton" icon="[[_icon]]" title$="[[_label]]" on-tap="_tapped" present$="[[present]]">
+        <iron-icon icon="[[_icon]]" title$="[[_label]]"></iron-icon>
+        <span class="label">[[_label]]</span>
+      </paper-button>
+    </template>
+    <template is="dom-if" if="[[paperFab]]" restamp="true">
+      <paper-fab id="cartFab" icon="[[_icon]]" title$="[[_label]]" on-tap="_tapped" present$="[[present]]"></paper-fab>
+    </template>
   </template>
-
-  <script>
-    Polymer({
-      is: 'cart-item-icon',
-      properties: {
-        element: {
-          type: String,
-          observer: '_update'
-        },
-        presentLabel: {
-          type: String,
-          value: 'Remove from Collection',
-          observer: '_update'
-        },
-        absentLabel: {
-          type: String,
-          value: 'Add to Collection',
-          observer: '_update'
-        },
-        present: {
-          type: Boolean,
-          notify: true,
-          readOnly: true,
-          value: false
-        },
-        noLabel: {
-          type: Boolean,
-          value: false
-        },
-        tappable: {
-          type: Boolean,
-          value: false
-        },
-        _label: String,
-        _icon: String
-      },
-      listeners: {
-        tap: '_tapped'
-      },
-      attached: function() {
-        this._update();
-      },
-      _update: function() {
-        this._setPresent(this.$.cart.includes(this.element));
-
-        this._label = this.present ? this.presentLabel : this.absentLabel;
-        this.setAttribute('aria-label', this._label);
-
-        this.debounce('icon', function() {
-          this._icon = this.present ? 'star' : 'star-border';
-        }, 10);
-      },
-      toggle: function(e) {
-        this.fire(this.present ? 'cart-remove' : 'cart-add', this.element);
-      },
-      _tapped: function() {
-        if (this.tappable) this.toggle();
-      }
-    });
-  </script>
-
 </dom-module>
+
+<script>
+  Polymer({
+    is: 'cart-item-icon',
+    properties: {
+      item: {
+        type: Object,
+        observer: '_update'
+      },
+      presentLabel: {
+        type: String,
+        value: 'Remove from Cart',
+        observer: '_update'
+      },
+      absentLabel: {
+        type: String,
+        value: 'Add to Cart',
+        observer: '_update'
+      },
+      present: {
+        type: Boolean,
+        notify: true,
+        readOnly: true,
+        value: false
+      },
+      view: {
+        type: String,
+        value: 'paperIconButton',
+        observer: '_updateView'
+      },
+      tappable: {
+        type: Boolean,
+        value: false
+      },
+      _label: String,
+      _icon: String
+    },
+    listeners: {
+      tap: '_tapped'
+    },
+
+    _updateView: function() {
+
+      if (this.view === 'paper-icon-button') {
+        // console.log(this.view);
+        this.paperIconButton = true;
+      }
+      if (this.view === 'paper-button') {
+        // console.log(this.view);
+        this.paperButton = true;
+      }
+      if (this.view === 'paper-fab') {
+        // console.log(this.view);
+        this.paperFab = true;
+      }
+
+    },
+    attached: function() {
+      // this._update();
+    },
+    _update: function() {
+      if (!this.item) {
+        return;
+      }
+
+      this._setPresent(this.$.cart.includes(this.item));
+      // console.log(this.$.cart.includes(this.item));
+
+      this._label = this.present ? this.presentLabel : this.absentLabel;
+      this.setAttribute('aria-label', this._label);
+
+      this.debounce('icon', function() {
+        this._icon = this.present ? 'shopping-cart' : 'add-shopping-cart';
+      }, 10);
+    },
+    toggle: function() {
+      this.fire(this.present ? 'cart-remove' : 'cart-add', this.item);
+    },
+    _tapped: function(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      this.toggle();
+      // if (this.tappable) this.toggle();
+    }
+  });
+</script>

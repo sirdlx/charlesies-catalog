@@ -1,11 +1,17 @@
-<style is="custom-style">
-  /* Application theme */
+<link rel="import" href="../../bower_components/paper-styles/paper-styles.html">
 
+<style is="custom-style">
   * {
     box-sizing: border-box;
   }
 
   :root {
+    --iron-icon-size: 24px;
+    --primary-font-family: Roboto, 'Noto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    --secondary-background-color: #fafafa;
+    --material-curve: cubic-bezier(0.55, 0, 0.1, 1);
+    --material-curve-320: all 320ms cubic-bezier(0.55, 0, 0.1, 1);
+    --material-curve-220: all 220ms cubic-bezier(0.55, 0, 0.1, 1);
     /* App Colors */
     --dark-primary-color: var(--paper-red-900);
     --default-primary-color: var(--paper-red-500);
@@ -21,6 +27,8 @@
     --divider-color: #B6B6B6;
     --app-logo-text-color: var(--default-primary-color);
     --toolbar-menu-color: #f8f8f8;
+    --paper-toolbar-background: #fafafa;
+    --paper-toolbar-color: #424242;
     /* Components */
     /* TABS */
     --paper-tabs-selection-bar-color: #fff;
@@ -47,10 +55,6 @@
     --paper-button-ink-color: var(--accent-color);
   }
 
-  #menuPanel {
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
-  }
-
   body,
   a {
     color: var(--text-primary-color);
@@ -59,61 +63,9 @@
   body {
     background-color: var(--google-grey-100);
   }
-  /* Breakpoints */
-  /* Tablet+ */
 
-  @media (min-width: 601px) {
-    #drawer.paper-drawer-panel > [drawer] {
-      border-right: 1px solid rgba(0, 0, 0, 0.14);
-    }
+  [animateAll] {
+    transition: all 400ms 320ms;
+    transition-timing-function: var(--material-curve-320);
   }
-  /* Material Design Adaptive Breakpoints */
-  /* mobile-small */
-
-  @media all and (min-width: 0) and (max-width: 360px) and (orientation: portrait) {}
-  /* mobile-large */
-
-  @media all and (min-width: 361px) and (orientation: portrait) {}
-  /* mobile-small-landscape */
-
-  @media all and (min-width: 0) and (max-width: 480px) and (orientation: landscape) {}
-  /* mobile-large-landscape */
-
-  @media all and (min-width: 481px) and (orientation: landscape) {}
-  /* tablet-small-landscape */
-
-  @media all and (min-width: 600px) and (max-width: 960px) and (orientation: landscape) {}
-  /* tablet-large-landscape */
-
-  @media all and (min-width: 961px) and (orientation: landscape) {}
-  /* tablet-small */
-
-  @media all and (min-width: 600px) and (orientation: portrait) {}
-  /* tablet-large */
-
-  @media all and (min-width: 601px) and (max-width: 840px) and (orientation: portrait) {}
-  /* desktop-x-small-landscape */
-
-  @media all and (min-width: 0) and (max-width: 480px) and (orientation: landscape) {}
-  /* desktop-x-small */
-
-  @media all and (min-width: 0) and (max-width: 480px) and (max-aspect-ratio: 4/3) {}
-  /* desktop-small-landscape */
-
-  @media all and (min-width: 481px) and (max-width: 840px) and (orientation: landscape) {}
-  /* desktop-small */
-
-  @media all and (min-width: 481px) and (max-width: 840px) and (max-aspect-ratio: 4/3) {}
-  /* desktop-medium-landscape */
-
-  @media all and (min-width: 841px) and (max-width: 1280px) and (orientation: landscape) {}
-  /* desktop-medium */
-
-  @media all and (min-width: 841px) and (max-width: 1280px) and (max-aspect-ratio: 4/3) {}
-  /* desktop-large */
-
-  @media all and (min-width: 1281px) and (max-width: 1600px) {}
-  /* desktop-xlarge */
-
-  @media all and (min-width: 1601px) and (max-width: 1920px) {}
 </style>

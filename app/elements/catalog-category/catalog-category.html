@@ -1,58 +1,69 @@
+<link rel="import" href="../catalog-data/catalog-data.html">
+
 <dom-module id="catalog-category">
   <template>
-    <firebase-document id="fbdoc" location$="[[_categoryLocation(id)]]" data="{{_category}}"></firebase-document>
+    <!-- <catalog-data package-map="{{_packages}}"></catalog-data> -->
+    <firebase-document location$="{{_computeCategoryLocation(key)}}" data="{{edit}}" on-firebase-value="_computeData"></firebase-document>
   </template>
-  <script>
-    Polymer({
-      is: 'catalog-category',
-      properties: {
-        id: {
-          type: String,
-          notify: true
-        },
-        _category: {
-          type: Object,
-          notify: true
-        },
-        products: {
-          type: Array,
-          notify: true,
-          value: []
-        },
-        data: {
-          type: Object,
-          notify: true,
-          computed: 'getData(_category)'
-        }
+</dom-module>
+<script>
+  Polymer({
+    is: 'catalog-category',
+    properties: {
+      key: {
+        type: String,
+        notify: true,
+        // computed: '_computeCategoryByShort(short)'
       },
-      _categoryLocation: function(id) {
-        return "https://charlesiescom.firebaseio.com/category/" + id;
+      short: {
+        type: String,
+        notify: true
       },
-      getData: function(_category) {
-        if (!_category) return {};
-
-        var ref = this.$.fbdoc.query.ref().child("products");
-        // console.log(this.categoryid);
-        // ref.orderByChild("categoryByName").equalTo(getcategory.name).on("child_added", function(snapshot) {
-        //   console.log(snapshot.key());
-        // });
-        _category.productsKeys = [];
-
-        ref.on("child_added", function(snapshot) {
-          // console.log(snapshot.key());
-          _category.productsKeys.push(snapshot.key());
-        });
-        // console.log(_category);
-
-        return _category;
-
+      edit: {
+        type: Object,
+        notify: true,
+        // value: {'white': 'squares'}
       },
-      remove: function(item) {
+
+      data: {
+        type: Object,
+        notify: true,
+        // computed: 'getData(_data)'
+      }
+    },
+    observers: [
+      '_computeCategoryByShort(short)'
+
+    ],
+    _computeCategoryLocation: function(key) {
+      // console.log(key);
+      return 'https://charlesiescom.firebaseio.com/categories/' + key;
+    },
+    _computeCategoryByShort: function(short) {
+      // console.log(short);
+      if (short) {
+        var catloc = new Fireproof(new Firebase('https://charlesiescom.firebaseio.com/categories/'));
+        catloc.orderByChild('short').equalTo(short).then(function(snap) {
+          // console.log(snap.val());
+          // console.log(Object.keys(snap.val())[0]);
+          this.set('key', Object.keys(snap.val())[0]);
+          // this.set('data', snap.val()[Object.keys(snap.val())[0]]);
+          // return Object.keys(snap.val())[0];
+        }.bind(this));
 
       }
 
+    },
+    _computeData: function(e, snap) {
+      // console.log(this._data);
+      var _value =this.edit;
+      _value.key = snap.key();
+      this.set('data', this.edit);
+    },
 
-    });
-  </script>
-
-</dom-module>
+    getData: function(_data) {
+      console.log(_data);
+      return _data;
+    }
+  });
+</script>

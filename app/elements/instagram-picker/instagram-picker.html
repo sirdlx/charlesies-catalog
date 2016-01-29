@@ -1,8 +1,38 @@
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
+<link rel="import" href="../../bower_components/paper-dialog-behavior/paper-dialog-behavior.html">
+<link rel="import" href="../../bower_components/paper-dialog-behavior/paper-dialog-shared-styles.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-styles/color.html">
+<link rel="import" href="../../bower_components/neon-animation/neon-animations.html">
+<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+
+<link rel="import" href="../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../bower_components/paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+
+<link rel="import" href="../catalog-user/catalog-user.html">
+
 <dom-module id="instagram-picker">
   <template>
 
     <style is="custom-style" media="screen">
-      :host {
+      :hostFFFF {
+        box-sizing: border-box;
+        height: 100%;
+        width: 100%;
+        background-color: white;
+        display: block;
+        position: fixed;
+        z-index: 2;
+      }
+
+      .container {
         box-sizing: border-box;
         height: 100%;
         width: 100%;
@@ -12,12 +42,13 @@
         top: 56px;
         left: 0;
         right: 0;
-        /*z-index: 2;*/
+        z-index: 2;
         /*display: none;*/
-        visibility: collapse;
+        /*visibility: collapse;*/
+        background-color: red;
       }
 
-      :host[opened] {
+      [open] {
         /*display: block;*/
         display: flex;
         visibility: visible;
@@ -155,7 +186,7 @@
       }
 
       .container {
-        @apply(--layout-fit);
+        /*@apply(--layout-fit);*/
         /*background-color: white;*/
       }
 
@@ -195,55 +226,49 @@
     </style>
 
 
-    <iron-ajax id="instagramAjax" url$="{{_computeInstagramAjax(token, opened)}}" handle-as="json" loading="{{loading}}" last-response="{{_instagramResponse}}" auto></iron-ajax>
+    <iron-ajax id="instagramAjax" url$="{{_computeInstagramAjax(token, open)}}" handle-as="json" loading="{{loading}}" last-response="{{_instagramResponse}}" auto></iron-ajax>
     <catalog-user id="catalogUser" user="{{user}}"></catalog-user>
-    <!-- <paper-dialog id="dialog" on-iron-overlay-closed="_instagramPickerClosed" with-backdrop opened="{{opened}}">
-      <paper-toolbar>
 
-        <h2>
-          <paper-icon-button dialog-dismiss icon="arrow-back">Cancel</paper-icon-button>
-          <iron-icon src="/images/Glyph_Logo_png.png" class="icon"></iron-icon>
-          <span> Instagram</span>
-        </h2>
+    <paper-dialog id="dialog" with-backdrop entry-animation="scale-up-animation" exit-animation="fade-out-animation" opened="{{open}}">
+      <paper-toolbar class="">
 
-        <span class="flex"></span>
-
-        <paper-icon-button icon="save" dialog-confirm>Accept</paper-icon-button>
+        <paper-icon-button dialog-dismiss icon="arrow-back">Cancel</paper-icon-button>
+        <span style="margin-right: 8px"></span>
+        <paper-input id="inputInstagramSearch" style="width:100%;margin-right:16px;" no-label-float>
+          <div prefix style="margin-right: 16px;">
+            <iron-icon src="/images/Glyph_Logo_png.png" class="icon"></iron-icon>
+          </div>
+          <paper-icon-button suffix icon="clear" hidden></paper-icon-button>
+        </paper-input>
+        <paper-icon-button icon="save" disabled$="{{!selectedItems.length}}" dialog-confirm></paper-icon-button>
 
       </paper-toolbar>
 
-
-      <paper-spinner active="[[loading]]" hidden="{{!loading}}"></paper-spinner>
-
-      <div id="grid" class="grid-container  layout vertical center-center">
-        <iron-selector multi selected-items="{{selectedItems}}" class="selector grid-layout">
-
-          <template is="dom-repeat" items="[[instagramMedia]]">
-            <div class="grid-cell">
-              <iron-image src="{{item.images.standard_resolution.url}}" preload sizing="cover"></iron-image>
-            </div>
-          </template>
-
-        </iron-selector>
-
-
-        <template is="dom-if" if="[[!instagramMedia]]">
-          <div class="layout vertical center-center">
-            <div>No Media</div>
-            <div>Create Product
-              <paper-icon-button icon="add" on-tap="_navAddProduct"></paper-icon-button>
-            </div>
-          </div>
-        </template>
-
-      </div>
-    </paper-dialog> -->
+      <paper-dialog-scrollable>
+        <div id="grid" class="grid-container layout vertical center-center">
+          <iron-selector multi selected-itemsx="{{selectedItemsx}}" selected-values="{{selectedItems}}" class="selector grid-layout">
+            <template is="dom-repeat" items="[[instagramMedia]]">
+              <div class="grid-cell">
+                <div class="check fit">
+                  <iron-icon icon="check"></iron-icon>
+                </div>
+                <iron-image src="{{item.images.low_resolution.url}}" preload sizing="cover"></iron-image>
+              </div>
+            </template>
+          </iron-selector>
+        </div>
+      </paper-dialog-scrollable>
+      <!-- <div class="buttons">
+        <paper-button dialog-dismiss>Cancel</paper-button>
+        <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div> -->
+    </paper-dialog>
 
 
-    <div class="container">
 
+
+    <!-- <div class="container" open$="[[open]]">
       <section>
-
         <div class="header layout horizontal center">
           <paper-icon-button dialog-dismiss icon="arrow-back">Cancel</paper-icon-button>
           <span style="margin-right: 8px"></span>
@@ -269,7 +294,7 @@
               <template is="dom-repeat" items="[[instagramMedia]]">
                 <div class="grid-cell">
                   <div class="check fit">
-                    <!-- <iron-icon icon="check"></iron-icon> -->
+                    <iron-icon icon="check"></iron-icon>
                   </div>
                   <iron-image src="{{item.images.low_resolution.url}}" preload sizing="cover"></iron-image>
                 </div>
@@ -278,12 +303,12 @@
           </div>
         </paper-dialog-scrollable>
 
-        <!-- <div class="footer">
+        <div class="footer">
           Lewis Carroll
-        </div> -->
+        </div>
 
       </section>
-    </div>
+    </div> -->
   </template>
 
   <script>
@@ -303,10 +328,10 @@
             type: String,
             notify: true
           },
-          opened: {
-            type: String,
+          open: {
+            type: Boolean,
             notify: true,
-            reflectToAttribute: true,
+            // reflectToAttribute: true,
             // value: true
           },
           instagramMedia: {
@@ -323,19 +348,27 @@
         },
 
         behaviors: [
-          Polymer.PaperDialogBehavior
+          // Polymer.PaperDialogBehavior
         ],
         observers: [
           // '_selecteditems(selectedItems)',
           '_computeInstagramResponse(_instagramResponse)',
-          // '_opened(opened)',
+          // '_open(open)',
+          // '_computeOpen(open)'
         ],
         listeners: {
           'iron-overlay-closed': '_onIronOverlayClosed',
         },
-
+        _computeOpen: function(open) {
+          if (open) {
+            // console.log(this.$.dialog.open);
+            this.$.dialog.open();
+            this.$.dialog.backdropElement.style.zIndex = 0;
+          }
+        },
         _onIronOverlayClosed: function(_, e) {
-          // console.log(e.confirmed);
+          // console.log(e);
+          // this.open = false;
           if (e.confirmed) {
             var arr = [];
             for (var i = 0; i < this.selectedItems.length; i++) {
@@ -358,17 +391,17 @@
           this.set('selected', []);
         },
 
-        // _opened: function(opened) {
+        // _open: function(open) {
         //
-        //   if (!opened && this.instagramMedia) {
+        //   if (!open && this.instagramMedia) {
         //     this.reset();
         //   }
         // },
 
-        open: function(argument) {
+        openFFFF: function(argument) {
           // this.$.dialog.open();
-          // this.setAttribute("opened", "true");
-          this.opened = true;
+          // this.setAttribute("open", "true");
+          this.open = true;
         },
 
         _selecteditems: function(selectedItems) {
@@ -385,12 +418,12 @@
           }
         },
 
-        _computeInstagramAjax: function(token, opened) {
-          // console.log(token, opened);
+        _computeInstagramAjax: function(token, open) {
+          // console.log(token, open);
           // console.log('https://api.instagram.com/v1/users/self/media/recent/?access_token=' + token);
           // return 'https://api.instagram.com/v1/users/charlesielove/media/recent/?access_token=' + token;
-          if (token && opened) {
-            return 'http://instagram-timeline.appspot.com/request/instagram?access_token=' + token + "&count=50";
+          if (token && open) {
+            return 'http://instagram-timeline.appspot.com/request/instagram?access_token=' + token + "&count=20";
           }
 
         },

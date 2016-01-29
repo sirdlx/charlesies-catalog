@@ -1,26 +1,92 @@
+<link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/paper-toolbar/paper-toolbar.html">
+
+<link rel="import" href="../../bower_components/paper-header-panel/paper-header-panel.html">
+<link rel="import" href="../../bower_components/paper-drawer-panel/paper-drawer-panel.html">
+<link rel="import" href="../../bower_components/iron-component-page/iron-component-page.html">
+<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/paper-badge/paper-badge.html">
+
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+
+<link rel="import" href="../../bower_components/paper-header-panel/paper-header-panel.html">
+
+<link rel="import" href="../../bower_components/paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../../bower_components/paper-styles/color.html">
+<link rel="import" href="../../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<link rel="import" href="../catalog-data/catalog-data.html">
+<link rel="import" href="../catalog-user/catalog-user.html">
+<link rel="import" href="../cart-icon/cart-icon.html">
+<link rel="import" href="../cart-item-icon/cart-item-icon.html">
+<link rel="import" href="../app-logo/app-logo.html">
+<link rel="import" href="../app-bar/app-bar.html">
+
 <dom-module id="page-account">
   <template>
 
     <style media="screen" is="custom-style">
-      :host {
+      :host {}
+
+      paper-header-panel {
+        @apply(--layout-fit);
+      }
+
+      iron-pages {
         display: block;
+        width: 100%;
+      }
+
+      .content {
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        margin: 16px;
+      }
+
+      paper-toolbar {
+        height: 256px;
       }
 
       paper-material {
-        max-width: 320px;
-        margin: 0 auto;
+        /*max-width: 304px;*/
+        margin: 0;
         background-color: white;
         overflow: hidden;
         padding: 16px;
       }
 
       paper-material[wide] {
-        max-width: initial;
-        margin: 16px;
+        /*max-width: 584px;*/
       }
 
-      paper-toolbar {
-        --paper-toolbar-background: white;
+      .bottom-text {
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+        font-size: 20px;
+        padding-bottom: 10px;
+      }
+
+      .subtitle {
+        padding-top: 4px;
+        font-size: 16px;
+        color: #ccc;
+      }
+
+      .fab {
+        position: absolute;
+        bottom: -24px;
+        right: 20%;
+        fill: #4285f4;
+        height: 48px;
+        width: 48px;
+      }
+
+      .indent {
+        margin-left: 60px;
       }
 
       .user {
@@ -175,142 +241,158 @@
     <catalog-user id="catalogUser" loggedin="{{loggedin}}" wait="{{wait}}" user="{{user}}"></catalog-user>
     <iron-media-query query="(min-width: 600px)" query-matches="{{wide}}"></iron-media-query>
 
-    <iron-pages selected="{{_page}}">
+    <paper-header-panel modeFFFF="cover">
 
-      <paper-material class="login-form layout vertical center-center" wide$="{{wide}}">
+      <paper-toolbar>
+        <paper-icon-button icon="arrow-back"></paper-icon-button>
+        <app-logo tabindex="1"></app-logo>
+        <h2 class="title">Account</h2>
+        <div class="flex"></div>
 
-        <h2 class="form-title">Login</h2>
-        <br>
-        <div class="layout vertical">
-          <form is="iron-form" id="loginform" method="post">
-            <paper-input tabindex="0" no-label-float maxlength="25" required name="email" label="email" type="email" value="{{email}}" disabled$="{{wait}}"></paper-input>
-            <paper-input no-label-float maxlength="25" required name="password" label="password" type="password" value="{{password}}" disabled$="{{wait}}"></paper-input>
+        <cart-icon id="cart-toggle"></cart-icon>
+
+        <div class="bottom indent bottom-text" self-end>
+          <div>[[user.displayName]]</div>
+          <div class="subtitle">[[user.provider]]</div>
+        </div>
+        <!-- <cart-item-icon class="bottom fab" id="cartItemIcon" item="[[item]]" view="paper-fab"></cart-item-icon> -->
+      </paper-toolbar>
+
+      <div class="content cover">
+
+        <iron-pages selected="{{_page}}">
+          <!-- #Login -->
+          <paper-material class="login-form layout vertical center-center" wide$="{{wide}}">
+
+            <h2 class="form-title">Login</h2>
             <br>
-            <paper-button raised class="form-submit" on-tap="_loginPassword" disabled$="{{wait}}">login</paper-button>
-          </form>
-          <br>
-          <br>
-          <div class="">
-            <paper-button disabled$="{{wait}}" class="facebook" on-tap="_loginFacebook">
-              <iron-icon src="/images/facebook-24.png"></iron-icon>
-            </paper-button>
-            <paper-button disabled$="{{wait}}" class="google" on-tap="_loginGoogle">
-              <iron-icon src="/images/google-plus-24.png"></iron-icon>
-            </paper-button>
-            <paper-button disabled$="{{wait}}" class="twitter" on-tap="_loginTwitter">
-              <iron-icon src="/images/twitter-24.png"></iron-icon>
-            </paper-button>
-          </div>
-          <br>
-          <paper-button on-click="forgotClick" disabled$="{{wait}}">forgot password?</paper-button>
-        </div>
-      </paper-material>
-
-
-
-
-      <paper-material wide$="{{wide}}">
-
-        <div class="section user layout vertical center-center">
-          <iron-image class="userIcon" src="{{user.profileImageURL}}" alt="user image" fade sizing="cover">
-          </iron-image>
-
-          <div class="info">
-            <h3 class="header">[[user.displayName]]</h3>
-            <div class="subheader">
-              <span>[[user.provider]]</span>
-            </div>
-          </div>
-        </div>
-
-
-
-        <div class="section addons layout horizontal center-center">
-
-          <template is="dom-if" if="{{_computeAddonProvider(user)}}" restamp="true">
-            <paper-button class$="{{user.provider}}" raised disabled>
-              <iron-icon src="{{_computeAddonProviderIcon(user)}}" class="icon"></iron-icon>
-              <span>{{user.provider}}</span>
-            </paper-button>
-          </template>
-
-          <paper-button class$="{{user.instagram}}" raised disabled$="{{user.instagram}}" on-tap="_instagramAuthTap" hidden$="{{!user.isAdmin}}">
-            <iron-icon src="/images/Glyph_Logo_png.png" class="icon"></iron-icon>
-            <span>Instagram</span>
-          </paper-button>
-
-        </div>
-
-
-
-        <div class="split section layout">
-
-          <div class="address layout vertical flex">
-
-            <div class="header layout vertical center-center">
-              Address
-            </div>
-
-            <template is="dom-if" if="{{!user.address}}" restamp="true">
-              <div class="body layout vertical center-center">
-                <paper-icon-button class="edit-action" icon="add" on-tap="_navAddressList"></paper-icon-button>
+            <div class="layout vertical">
+              <form is="iron-form" id="loginform" method="post">
+                <paper-input tabindex="0" no-label-float maxlength="25" required name="email" label="email" type="email" value="{{email}}" disabled$="{{wait}}"></paper-input>
+                <paper-input no-label-float maxlength="25" required name="password" label="password" type="password" value="{{password}}" disabled$="{{wait}}"></paper-input>
+                <br>
+                <paper-button raised class="form-submit" on-tap="_loginPassword" disabled$="{{wait}}">login</paper-button>
+              </form>
+              <br>
+              <br>
+              <div class="">
+                <paper-button disabled$="{{wait}}" class="facebook" on-tap="_loginFacebook">
+                  <iron-icon src="/images/facebook-24.png"></iron-icon>
+                </paper-button>
+                <paper-button disabled$="{{wait}}" class="google" on-tap="_loginGoogle">
+                  <iron-icon src="/images/google-plus-24.png"></iron-icon>
+                </paper-button>
+                <paper-button disabled$="{{wait}}" class="twitter" on-tap="_loginTwitter">
+                  <iron-icon src="/images/twitter-24.png"></iron-icon>
+                </paper-button>
               </div>
-            </template>
+              <br>
+              <paper-button on-click="forgotClick" disabled$="{{wait}}">forgot password?</paper-button>
+            </div>
+          </paper-material>
 
 
-            <template is="dom-if" if="{{user.address}}" restamp="true">
-              <paper-item>
-                <paper-item-body two-line>
-                  <div class="line1">
-                    <span>[[user.address.add_street]]</span>
-                  </div>
-                  <div secondary>
-                    <span>[[user.address.add_city]]</span>,
-                    <span>[[user.address.add_state]]</span>,
-                    <span>[[user.address.add_zip]]</span>
-                  </div>
-                </paper-item-body>
-                <paper-icon-button class="edit-action" icon="editor:mode-edit" on-tap="_navAddressList"></paper-icon-button>
-              </paper-item>
-            </template>
+          <!-- #Account -->
+          <paper-material wide$="{{wide}}">
 
-          </div>
+            <!-- <div class=" section info">
+              <h3 class="header">[[user.displayName]]</h3>
+              <div class="subheader">
+                <span>[[user.provider]]</span>
+              </div>
+            </div> -->
 
-          <div class="divider"></div>
+            <div class=" addons layout horizontal center-center">
 
-          <div class="card layout vertical flex">
-            <!-- <iron-icon class="headerIcon" icon="icons:credit-card"></iron-icon> -->
-            <div class="header layout vertical center-center">
-              Card
+              <template is="dom-if" if="{{_computeAddonProvider(user)}}" restamp="true">
+                <paper-button class$="{{user.provider}}" raised disabled>
+                  <iron-icon src="{{_computeAddonProviderIcon(user)}}" class="icon"></iron-icon>
+                  <span>{{user.provider}}</span>
+                </paper-button>
+              </template>
+
+              <paper-button class$="{{user.instagram}}" raised disabled$="{{user.instagram}}" on-tap="_instagramAuthTap" hidden$="{{!user.isAdmin}}">
+                <iron-icon src="/images/Glyph_Logo_png.png" class="icon"></iron-icon>
+                <span>Instagram</span>
+              </paper-button>
+
             </div>
 
 
-            <template is="dom-if" if="{{!user.card}}" restamp="true">
-              <div class="body layout vertical center-center">
-                <paper-icon-button class="edit-action" icon="add" on-tap="_navCardList"></paper-icon-button>
-              </div>
-            </template>
+            <div class="split  layout">
 
+              <div class="address layout vertical flex">
 
-            <template is="dom-if" if="{{user.card}}" restamp="true">
-              <paper-item>
-                <paper-item-body>
-                  <div class="layout horizontal">
-                    <iron-icon class="cc_type margin-right-16" src$="[[_computeTypeIcon(user.card.cc_type)]]"></iron-icon>
-                    <div class="cc_end">{{user.card.cc_end}}</div>
+                <div class="header layout vertical center-center">
+                  Address
+                </div>
+
+                <template is="dom-if" if="{{!user.address}}" restamp="true">
+                  <div class="body layout vertical center-center">
+                    <paper-icon-button class="edit-action" icon="add" on-tap="_navAddressList"></paper-icon-button>
                   </div>
-                </paper-item-body>
-                <paper-icon-button class="edit-action" icon="editor:mode-edit" on-tap="_navAddressList"></paper-icon-button>
-              </paper-item>
-            </template>
+                </template>
 
-          </div>
 
-        </div>
+                <template is="dom-if" if="{{user.address}}" restamp="true">
+                  <paper-item>
+                    <paper-item-body two-line>
+                      <div class="line1">
+                        <span>[[user.address.add_street]]</span>
+                      </div>
+                      <div secondary>
+                        <span>[[user.address.add_city]]</span>,
+                        <span>[[user.address.add_state]]</span>,
+                        <span>[[user.address.add_zip]]</span>
+                      </div>
+                    </paper-item-body>
+                    <paper-icon-button class="edit-action" icon="editor:mode-edit" on-tap="_navAddressList"></paper-icon-button>
+                  </paper-item>
+                </template>
 
-      </paper-material>
+              </div>
 
-    </iron-pages>
+              <div class="divider"></div>
+
+              <div class="card layout vertical flex">
+                <!-- <iron-icon class="headerIcon" icon="icons:credit-card"></iron-icon> -->
+                <div class="header layout vertical center-center">
+                  Card
+                </div>
+
+
+                <template is="dom-if" if="{{!user.card}}" restamp="true">
+                  <div class="body layout vertical center-center">
+                    <paper-icon-button class="edit-action" icon="add" on-tap="_navCardList"></paper-icon-button>
+                  </div>
+                </template>
+
+
+                <template is="dom-if" if="{{user.card}}" restamp="true">
+                  <paper-item>
+                    <paper-item-body>
+                      <div class="layout horizontal">
+                        <iron-icon class="cc_type margin-right-16" src$="[[_computeTypeIcon(user.card.cc_type)]]"></iron-icon>
+                        <div class="cc_end">{{user.card.cc_end}}</div>
+                      </div>
+                    </paper-item-body>
+                    <paper-icon-button class="edit-action" icon="editor:mode-edit" on-tap="_navAddressList"></paper-icon-button>
+                  </paper-item>
+                </template>
+
+              </div>
+
+            </div>
+
+          </paper-material>
+
+        </iron-pages>
+
+      </div>
+    </paper-header-panel>
+
+
+
 
   </template>
 
@@ -374,6 +456,7 @@
 
         _changePage: function(loggedin) {
           // console.info('loggedin: ', loggedin);
+
           if (loggedin) {
             this._page = 1;
           } else {
@@ -392,13 +475,6 @@
             var _oauthWindow = window.open('https://api.instagram.com/oauth/authorize/?client_id=f467930444ba4f3a97c21961e74022e8&redirect_uri=' + loc + '&response_type=token' + '&scope=basic', 'Instagram', opts);
           }, 200);
 
-        },
-
-        _computeAccountText: function(loggedin) {
-          if (loggedin) {
-            return this.user.displayName;
-          }
-          return 'Account';
         },
 
         _checkAuth: function(wait, loggedin) {

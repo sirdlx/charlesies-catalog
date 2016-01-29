@@ -1,56 +1,70 @@
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/paper-badge/paper-badge.html">
+
+<link rel="import" href="../catalog-cart/catalog-cart.html">
+
 <dom-module id="cart-icon">
+  <style>
+    :host {
+      display: inline-block;
+      line-height: 40px;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      text-align: center;
+    }
 
+    iron-icon {
+      margin-top: -2px;
+    }
+
+    :host(.full) iron-icon {
+      color: var(--accent-color);
+    }
+    [hide]{
+      opacity: 0;
+    }
+
+    [animateAll] {
+      transition: all 220ms;
+      transition-timing-function: var(--material-curve-320);
+    }
+  </style>
   <template>
-    <style>
-      :host {
-        display: inline-block;
-        line-height: 24px;
-        width: 24px;
-        height: 24px;
-        vertical-align: top;
-        cursor: pointer;
-      }
+    <catalog-cart items="{{cartItems}}" count="{{count}}"></catalog-cart>
+    <iron-icon id="cartIcon" icon="shopping-cart" animateAll></iron-icon>
+    <paper-badge class="cartBadge" for="cartIcon" label="{{count}}" hide$="{{!count}}" animateAll></paper-badge>
 
-      iron-icon {
-        transition: color 0.2s;
-      }
-
-      :host(.full) iron-icon {
-        color: var(--paper-pink-500);
-      }
-    </style>
-    <catalog-cart items="{{cartItems}}"></catalog-cart>
-
-    <iron-icon icon="stars"></iron-icon>
   </template>
-  <script>
-    Polymer({
-      is: 'cart-icon',
-      listeners: {
-        tap: 'openCart'
-      },
-      observers: [
-        '_anyItems(cartItems.length)'
-      ],
-      openCart: function() {
-        this.fire('cart-open');
-      },
-      _anyItems: function() {
-        if (this.cartItems.length >= 1) {
-          this.classList.add('full');
-        } else {
-          this.classList.remove('full');
-        }
-      },
-      _pulse: function() {
-        this.classList.remove('pulse');
-        this.async(function() {
-          this.classList.add('pulse');
-        });
-      },
-      _shrink: function() {
-
-      }
-    });
-  </script>
 </dom-module>
+
+<script>
+  Polymer({
+    is: 'cart-icon',
+    listeners: {
+      tap: 'openCart'
+    },
+    observers: [
+      '_anyItems(cartItems.length)'
+    ],
+    openCart: function() {
+      this.fire('cart-open');
+    },
+    _anyItems: function() {
+      if (this.cartItems.length >= 1) {
+        this.classList.add('full');
+      } else {
+        this.classList.remove('full');
+      }
+    },
+    _pulse: function() {
+      this.classList.remove('pulse');
+      this.async(function() {
+        this.classList.add('pulse');
+      });
+    },
+    _shrink: function() {
+
+    }
+  });
+</script>

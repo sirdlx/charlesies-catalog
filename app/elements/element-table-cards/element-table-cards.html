@@ -1,0 +1,323 @@
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-icons/maps-icons.html">
+<link rel="import" href="../../bower_components/iron-icons/av-icons.html">
+<link rel="import" href="../../bower_components/iron-icons/social-icons.html">
+<link rel="import" href="../../bower_components/iron-icons/editor-icons.html">
+<link rel="import" href="../../bower_components/iron-icons/image-icons.html">
+
+
+<link rel="import" href="../element-card/element-card.html">
+<link rel="import" href="../catalog-data/catalog-data.html">
+<link rel="import" href="../catalog-user/catalog-user.html">
+
+<dom-module id="element-table-cards">
+  <style>
+    :host {
+      display: block;
+      max-width: 920px;
+    }
+
+    #cards {
+      @apply(--layout-horizontal);
+      @apply(--layout-wrap);
+      margin-right: -8px;
+    }
+
+    .grid-container {
+      @apply(--layout-vertical);
+      @apply(--layout-center);
+    }
+
+    .grid-layout {
+      padding: 16px 0;
+      @apply(--layout-horizontal);
+      @apply(--layout-wrap);
+      width: 266px;
+    }
+
+    .grid-cell {
+      margin: 0 0 16px 0;
+    }
+
+    @media all and (min-width: 481px) {
+      .grid-container {
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+      }
+      .grid-layout {
+        width: 460px;
+      }
+      .grid-cell {
+        margin-right: 8px;
+      }
+    }
+
+    @media all and (min-width: 961px) and (orientation: landscape) {
+      .grid-container {
+        padding-left: 0;
+        padding-right: 0;
+      }
+      .grid-layout {
+        width: 690px;
+      }
+    }
+
+    @media all and (min-width: 1281px) and (max-width: 1600px) {
+      .grid-cell {
+        width: 302px;
+      }
+      .grid-layout {
+        width: 940px;
+      }
+    }
+
+    .grid-layout paper-button {
+      margin: 0 8px 16px 0;
+      width: 125px;
+    }
+
+    #new-button-catgeory {
+      background-color: white;
+    }
+
+    #new-button-catgeory .placeholderBg {
+      color: var(--paper-green-500);
+    }
+
+    #new-button {
+      background-color: white;
+    }
+
+    #new-button .placeholderBg {
+      color: var(--paper-grey-800);
+    }
+
+    .imagePlaceholder {
+      position: relative;
+      /*height: 100%;*/
+    }
+
+    .imagePlaceholder .placeholderBg {
+      /*color: rgba(0, 0, 0, 0.05);*/
+      width: 205px;
+      height: 100%;
+    }
+  </style>
+  <template>
+    <!-- <catalog-data package-map="{{packages}}"></catalog-data> -->
+    <!-- <firebase-collection id="products" location="https://charlesiescom.firebaseio.com/products" data="{{products}}" order-by-child="category/newone" equal-to=""></firebase-collection> -->
+    <catalog-user id="catalogUser" user="{{user}}"></catalog-user>
+    <div id="grid" class="grid-container">
+
+      <template is="dom-if" if="{{user.isAdmin}}">
+        <div class="grid-layout">
+
+          <paper-button id="new-button-catgeory" hiddenFFFF$="{{!edit}}" class="" raised on-tap="_tapNewProduct">
+            <span>{{category}}</span>
+
+            <div class="imagePlaceholder fullwidth layout horizontal center-center">
+              <iron-icon class="placeholderBg" icon="note-add"></iron-icon>
+            </div>
+          </paper-button>
+
+          <paper-button id="new-button" class="" raised on-tap="_tapNewProduct">
+            <div class="imagePlaceholder fullwidth layout horizontal center-center">
+              <iron-icon class="placeholderBg" icon="note-add"></iron-icon>
+            </div>
+          </paper-button>
+        </div>
+      </template>
+
+
+      <div class="grid-layout">
+        <template name="element-cards-repeat" is="dom-repeat" items="[[products]]" initial-count="2" chunk-count="2">
+          <element-card viewFFFF="{{item.view}}" view="" item-key="[[item.key]]" color="[[_getColor(item)]]" package-symbol="[[_getCategorySymbol(item)]]" on-tap="_tapCard" adminFFFF="[[user.isAdmin]]"></element-card>
+        </template>
+      </div>
+
+    </div>
+    <!-- <div id="cards" on-tap="_tap">
+      <template name="element-cards-repeat" is="dom-repeat" items="[[products]]" initial-count="10" chunk-count="10">
+        <element-card item="[[item]]" color="[[_getColor(item)]]" package-symbol="[[_getCategorySymbol(item)]]"></element-card>
+      </template>
+    </div> -->
+  </template>
+</dom-module>
+<script>
+  Polymer({
+    is: 'element-table-cards',
+
+    properties: {
+      products: {
+        type: Array,
+        value: function() {
+          return [];
+        }
+      },
+
+      elements: {
+        type: Array
+      },
+
+      byshort: {
+        type: String,
+        value: ''
+      },
+
+      bytag: {
+        type: String,
+        value: ''
+      },
+
+    },
+
+    observers: [
+      // '_render(elements, packages, isAttached)'
+      // '_render(byshort, isAttached)',
+      // 'check(user)',
+      '_getDataBy(byshort, bytag)'
+    ],
+    check: function(e) {
+      console.log(e);
+    },
+
+
+
+    _getDataBy: function(byshort, bytag) {
+      // console.log('_getData:', arguments);
+      if (this.products.length) {
+        this.splice('products', 0, this.products.length);
+      }
+
+      var _products = new Fireproof(new Firebase('https://charlesiescom.firebaseio.com/products/'));
+      if (byshort.length) {
+        _products.orderByChild('byshort/' + byshort).equalTo(true).on('child_added', function(snap) {
+          // console.log(snap.val(), 'byshort');
+          var _obj = snap.val();
+          _obj.key = snap.key();
+
+          this.push('products', _obj);
+        }.bind(this));
+
+
+      } else if (bytag.length) {
+
+        _products.orderByChild('bytag/' + bytag).equalTo(true).on('child_added', function(snap) {
+          // console.log(snap.val(), 'bytag');
+          var _obj = snap.val();
+          _obj.key = snap.key();
+
+          this.push('products', _obj);
+        }.bind(this));
+
+      } else {
+        // console.log('no byShort, no tag');
+        _products.orderByPriority().on('child_added', function(snap) {
+          // console.log(snap.val());
+          var _obj = snap.val();
+          _obj.key = snap.key();
+
+          this.push('products', _obj);
+        }.bind(this));
+
+      }
+
+
+
+      _products.on('child_removed', function(snap) {
+        // console.log(snap.val());
+        for (var index = 0; index < this.products.length; index++) {
+          // console.log('looking', this.categories[index]);
+          if (snap.key() === this.products[index].key) {
+            // console.log('match');
+            this.splice('products', index, 1);
+            return;
+          }
+        }
+      }.bind(this));
+
+    },
+
+    _tapNewProduct: function() {
+      // this.fire('new-item');
+      var _newProductItem = {
+        creadtedAt: Firebase.ServerValue.TIMESTAMP
+      };
+      var _products = new Fireproof(new Firebase('https://charlesiescom.firebaseio.com/products/'));
+      _products.push(_newProductItem).then(function(snap) {
+        // console.log(snap);
+      }.bind(this));
+    },
+
+    _findAncestor: function(node, fn) {
+      while (node && fn.call(this, node)) {
+        node = node.parentNode;
+      }
+      return node;
+    },
+
+    _tapCard: function(e) {
+      var sourceEvent = e.detail.sourceEvent;
+      var A = this._findAncestor(e.target, function(node) {
+        return node != this && node.tagName !== 'A';
+      });
+
+      if (A && A.tagName === 'A' && A.href.indexOf(location.host) > 0) {
+        if (sourceEvent.ctrlKey || sourceEvent.metaKey) {
+          window.open(A.href);
+        } else {
+          this.fire('nav', {
+            url: A.href
+          });
+        }
+        e.preventDefault();
+      }
+    },
+
+    _getColor: function(item) {
+      // return this.products[item.package].color;
+    },
+
+    _getCategorySymbol: function(item) {
+      // return this.products[item.package].symbol;
+    },
+
+    _render: function(byshort) {
+      if (byshort) {
+        this.$.cards.innerHTML = '';
+
+        var head = 0;
+        var batchSize = 3;
+        var flush = function() {
+          if (head + batchSize >= elements.length) {
+            batchSize = elements.length - head;
+          }
+
+          if (batchSize <= 0) {
+            return false;
+          }
+          var el;
+          var firstHead = head;
+          var lastHead = firstHead + batchSize;
+
+          for (; head < lastHead; head++) {
+            el = document.createElement('element-card');
+            el.item = elements[head];
+            el.color = packages[el.item.package].color;
+            el.packageSymbol = packages[el.item.package].symbol;
+            Polymer.dom(this.$.cards).appendChild(el);
+          }
+          return true;
+        };
+        var batch = function() {
+          if (flush.call(this)) {
+            batchSize = 10;
+            requestAnimationFrame(batch.bind(this));
+          }
+        };
+
+        batch.call(this);
+      }
+    }
+  });
+</script>

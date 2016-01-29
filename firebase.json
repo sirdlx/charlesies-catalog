@@ -1,5 +1,5 @@
 {
-  "firebase": "charlesiesbeta",
+  "firebase": "charlesiescom",
   "public": "dist",
   "ignore": [
     "firebase.json",
@@ -7,19 +7,10 @@
     "**/node_modules/**"
   ],
   "rewrites": [{
-      "source": "**/elements.vulcanized.html",
-      "destination": "/elements/elements.vulcanized.html"
-    },
-
-    {
-      "source": "**/lib.min.js",
-      "destination": "/lib.min.js"
-    }, {
-      "source": "**/fonts/niconne-regular-charlesies.ttf",
-      "destination": "/fonts/niconne-regular-charlesies.ttf"
-    }, {
-      "source": "**",
-      "destination": "/index.html"
-    }
-  ]
+    "source": "**/fonts/niconne-regular-charlesies.ttf",
+    "destination": "/fonts/niconne-regular-charlesies.ttf"
+  }, {
+    "source": "**",
+    "destination": "/index.html"
+  }]
 }

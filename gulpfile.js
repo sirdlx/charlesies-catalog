@@ -14,9 +14,14 @@ var reload = browserSync.reload;
 var merge = require('merge-stream');
 var superstatic = require('superstatic');
 var plumber = require('gulp-plumber');
-var polybuild = require('polybuild');
+var polybuild = require('./polybuild');
+var inlinesource = require('gulp-inline-source');
+
+var stream = require('./build/catalog/utils/stream').obj;
+var catalogBuilder = require('./build/catalog');
 
 function serve(directories, callback) {
+  console.log('serve');
   var port = process.env.PORT || 3000;
   var dev = connect();
   directories.forEach(function(directory) {
@@ -47,6 +52,7 @@ var AUTOPREFIXER_BROWSERS = [
   'bb >= 10'
 ];
 
+var CATALOG_FILEPATH = __dirname + '/catalog.json';
 
 // Lint JavaScript
 gulp.task('jshint', function() {
@@ -152,8 +158,9 @@ gulp.task('html', function() {
   });
 
   return gulp.src(['app/**/*.html', '!app/{elements,test}/**/*.html'])
+    .pipe(inlinesource())
     // Replace path for build assets
-    .pipe($.if('*.html', $.replace('elements/elements.html', 'elements/elements.build.html')))
+    // .pipe($.if('*.html', $.replace('elements/elements.html', 'elements/elements.build.html')))
     .pipe(assets)
     // Concatenate And Minify JavaScript
     .pipe($.if('*.js', $.uglify({
@@ -182,7 +189,8 @@ gulp.task('polybuild', function() {
   var DEST_DIR = 'dist/elements';
 
   return gulp.src('dist/elements/elements.html')
-    .pipe(polybuild())
+    .pipe(polybuild({maximumCrush: true, suffix: 'build'}))
+
     .pipe(gulp.dest(DEST_DIR))
     .pipe($.size({
       title: 'polybuild'
@@ -191,23 +199,21 @@ gulp.task('polybuild', function() {
 
 // Clean Output Directory
 gulp.task('clean', del.bind(null, ['.tmp', 'dist']));
-var historyApiFallback = require('connect-history-api-fallback');
+
+// Clean everything
+gulp.task('distclean', ['clean'], del.bind(null, ['bower_components']));
+
+// Clean bower folder
+gulp.task('clean:bower', del.bind(null, ['dist/bower**']));
+
 // Watch Files For Changes & Reload
-gulp.task('serve', ['styles', 'elements'], function() { //'catalog:dev'
+gulp.task('serve', ['styles'], function() { // , 'catalog:dev'
+  //  'elements',
   var dirs = ['.tmp', 'app'];
   var mw = [
-    historyApiFallback(),
     function(req, res, next) {
-      if (req.url.indexOf('/bower_components') === -1) {
-        return next();
-      }
-      // console.log("***                     ***");
-      // console.log("***  NEW BOWER REQUEST  ***");
-      // console.log("***                     ***");
-      //
-      // console.log(req.url);
+      if (req.url.indexOf('/bower_components') !== 0) return next();
       req.url = req.url.replace(/^\/bower_components/, '');
-      // console.log(req.url);
       return superstatic({
         config: {
           root: 'bower_components'
@@ -233,7 +239,6 @@ gulp.task('serve', ['styles', 'elements'], function() { //'catalog:dev'
 
   browserSync({
     notify: false,
-    ghostMode: false,
     server: {
       baseDir: dirs,
       middleware: mw,
@@ -264,7 +269,8 @@ gulp.task('default', ['clean'], function(cb) {
   runSequence(
     ['copy', 'styles'],
     'elements', ['jshint', 'images', 'fonts', 'html'],
-    'polybuild', 'clean:extra',
+    // 'catalog:dist',
+    'polybuild',// 'clean:bower',
     cb);
 });
 
@@ -280,6 +286,45 @@ gulp.task('pagespeed', function(cb) {
   }, cb);
 });
 
+gulp.task('catalog_assets:dist', function() {
+  return gulp.src('guides/assets/**/*').pipe(gulp.dest('dist/guides/assets'));
+});
+
+// Build element catalog JSON file
+gulp.task('catalog:dist', ['catalog_assets:dist'], function() {
+  if (process.env.FIXTURES) return;
+
+  return execCatalogTask({
+    destDir: 'dist'
+  });
+});
+
+gulp.task('catalog_assets:dev', function() {
+  return gulp.src('guides/assets/**/*').pipe(gulp.dest('.tmp/guides/assets'));
+});
+
+gulp.task('catalog:dev', ['catalog_assets:dev'], function() {
+  // return execCatalogTask({
+  //   destDir: '.tmp',
+  //   space: 2
+  // });
+});
+
+function execCatalogTask(options) {
+  var destDir = options.destDir;
+  var space = options.space;
+  var destFilepath = path.join('.', destDir, 'catalog.json');
+
+  return catalogBuilder({
+      src: CATALOG_FILEPATH,
+      destDir: destDir
+    })
+    .pipe(stream.stringify({
+      space: space
+    }))
+    .pipe(stream.writeFile(destFilepath));
+}
+
 
 // Load tasks for web-component-tester
 // Adds tasks for `gulp test:local` and `gulp test:remote`
@@ -291,10 +336,3 @@ try {
 try {
   require('require-dir')('tasks');
 } catch (err) {}
-
-gulp.task('clean:extra', del.bind(null, ['dist/bower**']));
-
-// Build and distribute with Firebase hosting
-var shell = require('gulp-shell');
-gulp.task('dist', ['default'], shell.task('firebase deploy'));
-// Build Production Files, the Default Task

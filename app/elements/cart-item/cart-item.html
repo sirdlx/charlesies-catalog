@@ -1,3 +1,6 @@
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../catalog-product/catalog-product.html">
+
 <dom-module id="cart-item">
   <style>
     :host {
@@ -27,26 +30,25 @@
     }
   </style>
   <template>
-    <span class="flex">[[element.name]]</span>
-    <iron-icon icon="description" view="docs" on-tap="_nav"></iron-icon>
-    <iron-icon icon="visibility" view="demo" on-tap="_nav"></iron-icon>
+    <span class="flex">[[item.label]]</span>
+    <!-- <iron-icon icon="description" view="docs" on-tap="_nav"></iron-icon>
+    <iron-icon icon="visibility" view="demo" on-tap="_nav"></iron-icon> -->
     <iron-icon icon="clear" on-tap="_remove"></iron-icon>
   </template>
-  <script>
-    Polymer({
-      is: 'cart-item',
-      properties: {
-        element: String
-      },
-      _remove: function() {
-        this.fire('remove');
-      },
-      _nav: function(e) {
-        var view = e.currentTarget.getAttribute('view');
-        this.fire('nav', {
-          url: '/elements/' + this.element.name + '?view=' + view
-        });
-      }
-    });
-  </script>
 </dom-module>
+
+<script>
+Polymer({
+  is: 'cart-item',
+  properties: {
+    item: Object
+  },
+  _remove: function() {
+    this.fire('remove');
+  },
+  _nav: function(e) {
+    var view = e.currentTarget.getAttribute('view');
+    this.fire('nav', {url: '/products/' + this.item.short + '?view=' + view});
+  }
+});
+</script>
