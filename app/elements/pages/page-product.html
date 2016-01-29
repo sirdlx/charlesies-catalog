@@ -356,7 +356,6 @@
             </paper-toolbar>
           </template> -->
 
-
             <div id="images" class="images-container">
               <div class="image-list">
 
@@ -493,16 +492,16 @@
                     <template is="dom-if" if="{{edit}}">
 
                       <div class=" layout horizontal">
-                      <div class="productOptionLabelDefaultValue layout start margin-right-16">
-                        Default Price:
+                        <div class="productOptionLabelDefaultValue layout start margin-right-16">
+                          Default Price:
+                        </div>
+
+                        <span class="flex"></span>
+
+                        <paper-input class="productOptionPriceDefaultValue layout end" value="{{_edit.price::change}}" label="price" type="number" no-label-float>
+                          <div prefix>$</div>
+                        </paper-input>
                       </div>
-
-                      <span class="flex"></span>
-
-                      <paper-input class="productOptionPriceDefaultValue layout end" value="{{_edit.price::change}}" label="price" type="number" no-label-float>
-                        <div prefix>$</div>
-                      </paper-input>
-                    </div>
 
                       <template is="dom-repeat" items="{{product.options}}">
                         <!-- <div class="layout horizontal">

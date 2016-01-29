@@ -134,7 +134,6 @@
         //   return ref.child('images').child(imageId);
         // });
 
-
         ref.child('/images/').orderByChild('key').equalTo(imageId).once('value', function(snap) {
           // console.log(snap.exists());
           var val = snap.val();
@@ -345,8 +344,6 @@
           }.bind(this));
         });
 
-
-
       },
 
       addImageGoogleDrive: function(images) {
@@ -401,7 +398,6 @@
         //   this.set('images', images);
         //   // console.log(this.images);
         // }, 600);
-
 
         var productKey = snap.key();
         var refPath = 'productById' + productKey;
