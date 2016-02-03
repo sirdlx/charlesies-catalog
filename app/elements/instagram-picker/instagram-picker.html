@@ -8,6 +8,7 @@
 <link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
 <link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/paper-header-panel/paper-header-panel.html">
 
 <link rel="import" href="../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../../bower_components/paper-toolbar/paper-toolbar.html">
@@ -32,6 +33,19 @@
         z-index: 2;
       }
 
+      :host {
+        height: 90vh;
+        width: 320px;
+        box-sizing: border-box;
+        background-color: white;
+        box-shadow: rgba(0, 0, 0, 0.24) -2.3408942051048403px 5.524510324047423px 12.090680100755666px 0px, rgba(0, 0, 0, 0.12) 0px 0px 12px 0px;
+        /*display: none;*/
+      }
+
+      :hostFFFF[opened] {
+        display: -webkit-box;
+      }
+
       .container {
         box-sizing: border-box;
         height: 100%;
@@ -45,13 +59,11 @@
         z-index: 2;
         /*display: none;*/
         /*visibility: collapse;*/
-        background-color: red;
       }
 
-      [open] {
-        /*display: block;*/
-        display: flex;
-        visibility: visible;
+      paper-icon-button.acceptButton {
+        color: var(--paper-green-500);
+        --paper-icon-button-ink-color: var(--paper-green-500);
       }
       /*  Picker Dialog  */
 
@@ -117,7 +129,7 @@
       .check {
         /*background-color: var(--paper-green-500);*/
         border-color: var(--paper-green-500);
-        border-width: 4px;
+        border-widt h ``: 4px;
         border-style: solid;
         z-index: 1;
         visibility: hidden;
@@ -179,12 +191,6 @@
         /*box-shadow: 0 0 1px rgba(255, 255, 255, .5);*/
       }
 
-      paper-toolbar {
-        position: absolute;
-        left: 0;
-        right: 0;
-      }
-
       .container {
         /*@apply(--layout-fit);*/
         /*background-color: white;*/
@@ -223,15 +229,70 @@
           @apply(--layout-fit);
         }
       }
+
+      @media all and (min-width: 481px) {
+        :host {
+          width: 460px;
+        }
+      }
+
+      @media all and (min-width: 961px) and (orientation: landscape) {
+        :host {
+          width: 690px;
+        }
+      }
+
+      @media all and (min-width: 1281px) and (max-width: 1600px) {
+        :host {
+          width: 940px;
+        }
+      }
     </style>
 
 
-    <iron-ajax id="instagramAjax" url$="{{_computeInstagramAjax(token, open)}}" handle-as="json" loading="{{loading}}" last-response="{{_instagramResponse}}" auto></iron-ajax>
+    <iron-ajax id="instagramAjax" url$="{{_computeInstagramAjax(token, opened)}}" handle-as="json" loading="{{loading}}" last-response="{{_instagramResponse}}" auto></iron-ajax>
     <catalog-user id="catalogUser" user="{{user}}"></catalog-user>
 
-    <paper-dialog id="dialog" with-backdrop entry-animation="scale-up-animation" exit-animation="fade-out-animation" opened="{{open}}">
-      <paper-toolbar class="">
+    <!-- <paper-dialog id="dialog" with-backdrop entry-animation="scale-up-animation" exit-animation="fade-out-animation" opened="{{open}}">
+      <paper-dialog-scrollable style="height:100vh;">
+        <div class="layout vertical">
 
+
+          <paper-toolbar>
+            <paper-icon-button dialog-dismiss icon="arrow-back">Cancel</paper-icon-button>
+            <span style="margin-right: 8px"></span>
+            <paper-input id="inputInstagramSearch" style="width:100%;margin-right:16px;" no-label-float>
+              <div prefix style="margin-right: 16px;">
+                <iron-icon src="/images/Glyph_Logo_png.png" class="icon"></iron-icon>
+              </div>
+              <paper-icon-button suffix icon="clear" hidden></paper-icon-button>
+            </paper-input>
+            <paper-icon-button icon="save" disabled$="{{!selectedItems.length}}" dialog-confirm></paper-icon-button>
+          </paper-toolbar>
+
+          <div id="grid" class="grid-container layout vertical center-center">
+            <iron-selector multi selected-itemsx="{{selectedItemsx}}" selected-values="{{selectedItems}}" class="selector grid-layout">
+              <template is="dom-repeat" items="[[instagramMedia]]">
+                <div class="grid-cell">
+                  <div class="check fit">
+                    <iron-icon icon="check"></iron-icon>
+                  </div>
+                  <iron-image src="{{item.images.low_resolution.url}}" preload sizing="cover"></iron-image>
+                </div>
+              </template>
+            </iron-selector>
+          </div>
+        </div>
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Cancel</paper-button>
+        <paper-button dialog-confirm autofocus>OK</paper-button>
+      </div>
+    </paper-dialog> -->
+
+    <!-- <div class="container" open$="[[open]]">
+
+      <div class="header layout horizontal center">
         <paper-icon-button dialog-dismiss icon="arrow-back">Cancel</paper-icon-button>
         <span style="margin-right: 8px"></span>
         <paper-input id="inputInstagramSearch" style="width:100%;margin-right:16px;" no-label-float>
@@ -241,54 +302,16 @@
           <paper-icon-button suffix icon="clear" hidden></paper-icon-button>
         </paper-input>
         <paper-icon-button icon="save" disabled$="{{!selectedItems.length}}" dialog-confirm></paper-icon-button>
+      </div>
 
-      </paper-toolbar>
+      <template is="dom-if" if="[[!instagramMedia.length]]">
+        <div class="layout vertical center-center">
+          <div>Nothing</div>
+          <div>Try Again</div>
+        </div>
+      </template>
 
       <paper-dialog-scrollable>
-        <div id="grid" class="grid-container layout vertical center-center">
-          <iron-selector multi selected-itemsx="{{selectedItemsx}}" selected-values="{{selectedItems}}" class="selector grid-layout">
-            <template is="dom-repeat" items="[[instagramMedia]]">
-              <div class="grid-cell">
-                <div class="check fit">
-                  <iron-icon icon="check"></iron-icon>
-                </div>
-                <iron-image src="{{item.images.low_resolution.url}}" preload sizing="cover"></iron-image>
-              </div>
-            </template>
-          </iron-selector>
-        </div>
-      </paper-dialog-scrollable>
-      <!-- <div class="buttons">
-        <paper-button dialog-dismiss>Cancel</paper-button>
-        <paper-button dialog-confirm autofocus>OK</paper-button>
-      </div> -->
-    </paper-dialog>
-
-
-
-
-    <!-- <div class="container" open$="[[open]]">
-      <section>
-        <div class="header layout horizontal center">
-          <paper-icon-button dialog-dismiss icon="arrow-back">Cancel</paper-icon-button>
-          <span style="margin-right: 8px"></span>
-          <paper-input id="inputInstagramSearch" style="width:100%;margin-right:16px;" no-label-float>
-            <div prefix style="margin-right: 16px;">
-              <iron-icon src="/images/Glyph_Logo_png.png" class="icon"></iron-icon>
-            </div>
-            <paper-icon-button suffix icon="clear" hidden></paper-icon-button>
-          </paper-input>
-          <paper-icon-button icon="save" disabled$="{{!selectedItems.length}}" dialog-confirm></paper-icon-button>
-        </div>
-
-        <template is="dom-if" if="[[!instagramMedia.length]]">
-          <div class="layout vertical center-center">
-            <div>Nothing</div>
-            <div>Try Again</div>
-          </div>
-        </template>
-
-        <paper-dialog-scrollable>
           <div id="grid" class="grid-container layout vertical center-center">
             <iron-selector multi selected-itemsx="{{selectedItemsx}}" selected-values="{{selectedItems}}" class="selector grid-layout">
               <template is="dom-repeat" items="[[instagramMedia]]">
@@ -303,12 +326,25 @@
           </div>
         </paper-dialog-scrollable>
 
-        <div class="footer">
-          Lewis Carroll
-        </div>
+      <element-table-cards id="item-cards" items="{{instagramMedia}}" view="poster"></element-table-cards>
 
-      </section>
     </div> -->
+    <template is="dom-if" if="[[opened]]" restamp="true">
+      <paper-header-panel mode="waterfall" class="fit">
+        <paper-toolbar>
+          <!-- <paper-icon-button icon="menu" paper-drawer-toggle></paper-icon-button> -->
+          <h2 class="flex">[[pageTitle]]</h2>
+          <!-- <paper-icon-button class="toggleViewButton" icon="[[viewIcon]]" on-tap="toggleView" hidden$="[[_forceCards]]"></paper-icon-button> -->
+          <!-- <paper-button dialog-dismiss>Cancel</paper-button> -->
+          <!-- <paper-button dialog-confirm>Accept</paper-button> -->
+          <paper-icon-button icon="clear" on-tap="_cancel"></paper-icon-button>
+          <paper-icon-button class="acceptButton" icon="save" on-tap="_accept" disabledFFFF$="[[!selectedItems.length]]"></paper-icon-button>
+        </paper-toolbar>
+        <div id="content">
+          <element-table-cards id="item-cards" items="{{instagramMedia}}" view="poster" label-path="item.user.username" media-path="item.images.low_resolution.url" multi="true" selected-items="{{selectedItems}}"></element-table-cards>
+        </div>
+      </paper-header-panel>
+    </template>
   </template>
 
   <script>
@@ -328,60 +364,92 @@
             type: String,
             notify: true
           },
-          open: {
+          opened: {
+            type: Boolean,
+            notify: true,
+            // observer: '_computeOpened',
+            reflectToAttribute: true,
+            // value: true
+          },
+
+          withBackdrop: {
             type: Boolean,
             notify: true,
             // reflectToAttribute: true,
-            // value: true
+            value: true
           },
           instagramMedia: {
             type: Array,
-            notify: true,
-            value: []
+            notify: true
           },
           selectedItems: {
             type: Array,
             notify: true,
-            value: []
+          },
+          pageTitle: {
+            type: Array,
+            notify: true,
+            value: 'Import - Instagram'
           }
 
         },
 
         behaviors: [
           // Polymer.PaperDialogBehavior
+          Polymer.IronOverlayBehavior
         ],
         observers: [
           // '_selecteditems(selectedItems)',
           '_computeInstagramResponse(_instagramResponse)',
           // '_open(open)',
-          // '_computeOpen(open)'
+          // '_computeOpen(open)',
+          // '_check(instagramMedia)'
         ],
         listeners: {
           'iron-overlay-closed': '_onIronOverlayClosed',
         },
-        _computeOpen: function(open) {
-          if (open) {
-            // console.log(this.$.dialog.open);
-            this.$.dialog.open();
-            this.$.dialog.backdropElement.style.zIndex = 0;
-          }
+
+        _check: function(arg) {
+          console.log('check(obj) ', arguments);
+        },
+        _computeOpened: function() {
+          // console.log(this.opened);
+
+        },
+        _cancel: function(argument) {
+          // this._onIronOverlayClosed(null, {
+          //   confirmed: true
+          // });
+
+          this.cancel();
+
+        },
+        _accept: function(argument) {
+          // this._onIronOverlayClosed(null, {
+          //   confirmed: true
+          // });
+
+          this.close(true);
+
         },
         _onIronOverlayClosed: function(_, e) {
-          // console.log(e);
-          // this.open = false;
-          if (e.confirmed) {
-            var arr = [];
-            for (var i = 0; i < this.selectedItems.length; i++) {
-              var selected = this.selectedItems[i];
-              // console.log(this.selectedItems[i]);
-              // console.log(this.instagramMedia[selected]);
-              arr.push(this.instagramMedia[this.selectedItems[i]]);
-              // this.push('selected', this.instagramMedia[i]._templateInstance.__data__.item);
-              // this.push('selected', this.instagramMedia[i]._templateInstance.__data__.item);
-            }
-            this.fire('media-selected', arr);
+          // console.log(!e.canceled, this.selectedItems);
+          if (!e.canceled && this.selectedItems) {
+            this.fire('media-selected', this.selectedItems);
+            this.opened = false;
+            // var arr = [];
+            // for (var i = 0; i < this.selectedItems.length; i++) {
+            // var selected = this.selectedItems[i];
+            // console.log(this.selectedItems[i]);
+            // console.log(this.instagramMedia[selected]);
+            // arr.push(this.instagramMedia[this.selectedItems[i]]);
+            // this.push('selected', this.instagramMedia[i]._templateInstance.__data__.item);
+            // this.push('selected', this.instagramMedia[i]._templateInstance.__data__.item);
+            // }
+            // this.fire('media-selected', arr);
+
           }
-          this.reset();
+          // this.reset();
         },
 
 
@@ -389,6 +457,7 @@
           this.set('instagramMedia', []);
           this.set('selectedItems', []);
           this.set('selected', []);
+          console.log(this.selectedItems);
         },
 
         // _open: function(open) {
@@ -401,7 +470,7 @@
         openFFFF: function(argument) {
           // this.$.dialog.open();
           // this.setAttribute("open", "true");
-          this.open = true;
+          this.opened = true;
         },
 
         _selecteditems: function(selectedItems) {
@@ -418,11 +487,11 @@
           }
         },
 
-        _computeInstagramAjax: function(token, open) {
-          // console.log(token, open);
+        _computeInstagramAjax: function(token, opened) {
+          // console.log(token, opened);
           // console.log('https://api.instagram.com/v1/users/self/media/recent/?access_token=' + token);
           // return 'https://api.instagram.com/v1/users/charlesielove/media/recent/?access_token=' + token;
-          if (token && open) {
+          if (token && opened) {
             return 'http://instagram-timeline.appspot.com/request/instagram?access_token=' + token + "&count=20";
           }
 
@@ -430,7 +499,7 @@
 
         _computeInstagramResponse: function(_instagramResponse) {
           // console.log(_instagramResponse.data[0].images.standard_resolution);
-          // console.log(_instagramResponse.data.length);
+          // console.log(_instagramResponse.data);
           if (_instagramResponse.data) {
             this.set('instagramMedia', _instagramResponse.data);
           }

@@ -9,6 +9,7 @@
       /*Cart Icon Styles*/
       --cart-item-icon-fill: rgba(0, 0, 0, 0.6);
       --cart-item-icon-background: white;
+      --cart-item-icon-button-ink-color: var(--accent-color);
       /*Paper Styles*/
       --paper-icon-button-ink-color: var(--cart-item-icon-button-ink-color);
       --iron-icon-fill-color: var(--cart-item-icon-fill);
@@ -17,6 +18,10 @@
     [present] {
       --cart-item-icon-background: var(--accent-color);
       --cart-item-icon-fill: rgba(0, 0, 0, 0.6);
+    }
+
+    paper-icon-button[present] {
+      --iron-icon-fill-color: var(--accent-color);
     }
 
     paper-button,
@@ -37,22 +42,26 @@
     .label {
       margin-left: 8px;
     }
+    [animateAll] {
+      transition: all 220ms;
+      transition-timing-function: var(--material-curve-320);
+    }
   </style>
   <template>
     <catalog-cart id="cart" on-item-added="_update" on-item-removed="_update" on-items-changed="_update"></catalog-cart>
     <!-- <iron-icon icon="[[_icon]]" title$="[[_label]]"></iron-icon> -->
     <template is="dom-if" if="{{paperIconButton}}" restamp="true">
-      <paper-icon-button id="iconButton" icon="[[_icon]]" title$="[[_label]]" on-tap="_tapped" present$="[[present]]"></paper-icon-button>
+      <paper-icon-button id="iconButton" icon="[[_icon]]" title$="[[_label]]" on-tap="_tapped" present$="[[present]]" animateAll></paper-icon-button>
       <!-- <span>[[_label]]</span> -->
     </template>
     <template is="dom-if" if="{{paperButton}}" restamp="true">
-      <paper-button id="labelButton" icon="[[_icon]]" title$="[[_label]]" on-tap="_tapped" present$="[[present]]">
+      <paper-button id="labelButton" icon="[[_icon]]" title$="[[_label]]" on-tap="_tapped" present$="[[present]]" animateAll>
         <iron-icon icon="[[_icon]]" title$="[[_label]]"></iron-icon>
         <span class="label">[[_label]]</span>
       </paper-button>
     </template>
     <template is="dom-if" if="[[paperFab]]" restamp="true">
-      <paper-fab id="cartFab" icon="[[_icon]]" title$="[[_label]]" on-tap="_tapped" present$="[[present]]"></paper-fab>
+      <paper-fab id="cartFab" icon="[[_icon]]" title$="[[_label]]" on-tap="_tapped" present$="[[present]]" animateAll></paper-fab>
     </template>
   </template>
 </dom-module>
@@ -122,6 +131,7 @@
       }
 
       this._setPresent(this.$.cart.includes(this.item));
+      this.updateStyles();
       // console.log(this.$.cart.includes(this.item));
 
       this._label = this.present ? this.presentLabel : this.absentLabel;

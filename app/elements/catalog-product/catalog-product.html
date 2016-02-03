@@ -38,7 +38,7 @@
       data: {
         type: Object,
         notify: true,
-        computed: 'getData(snap)'
+        // computed: 'getData(snap)'
       },
       snap: {
         type: Object,
@@ -49,9 +49,50 @@
       '_computeProductByShort(short)',
       '_updatePath(data.*, snap)',
       // '_check(data.*, snap)',
+      'getData(snap)'
     ],
     _check: function(changes, snap) {
       console.log(changes);
+    },
+
+    _addMedia: function(_mediaArray) {
+      var ref = new Fireproof(new Firebase('https://charlesiescom.firebaseio.com/'));
+      var update = {};
+      itemKey = this.key;
+
+      _mediaArray.forEach(function(_item) {
+        // console.log(_item);
+        // Create/Update Media Item's properties and relations
+        update['media/' + _item.id] = {
+          cached: _item,
+          src: _item.images.low_resolution.url,
+          height: _item.images.low_resolution.height,
+          width: _item.images.low_resolution.width,
+          createdAt: _item.created_time,
+          id: _item.id,
+          produtsById: {
+            itemKey: true
+          }
+        };
+        // Update Item's relations
+        update['products/' + itemKey + '/media/' + _item.id] = {
+          src: _item.images.low_resolution.url,
+          height: _item.images.low_resolution.height,
+          width: _item.images.low_resolution.width,
+          createdAt: _item.created_time,
+          id: _item.id
+        };
+      });
+      // console.log(update);
+      return ref.update(update);
+
+      // update["products/" + this.key + "/media/" + _option.key + "/" + _part] = _value;
+      // ref.update(update, function(error) {
+      //   if (error) {
+      //     console.log("Error updating data:", error);
+      //     return error;
+      //   }
+      // });
     },
 
     _updateOptions: function(changes) {
@@ -193,50 +234,45 @@
       data.optionsArray = this._computeItemOptions(data);
       data.mediaArray = this._computeItemMedia(data);
       // console.log(data);
-      return data;
+      // return data;
     },
     getData: function(snap) {
       // console.log('get data');
       var data = snap.val();
       data.key = snap.key();
-      this._computeItem(data);
-      // console.  log(data);
-      return data;
+      data.priceText = this._computeItemPriceText(data);
+      data.tagsArray = this._computeItemTags(data);
+      data.optionsArray = this._computeItemOptions(data);
+      data.mediaArray = this._computeItemMedia(data);
+      this.set('data', data);
     },
 
     _computeItemPriceText: function(item) {
-      // console.log(product.price);
-
-
+      // console.log(item.price);
       if (!item.price) {
         return "$0.00";
       }
-      var priceText = Number(item.price).formatMoney(2);
+      // var priceText = Number(item.price).formatMoney(2);
       // console.log('$' + priceText);
-      return '$' + priceText;
+      // return '$' + priceText;
+      return '$' + Number(item.price).formatMoney(2);
     },
 
 
     _computeItemTags: function(item) {
-      if (item.tags) {
-        // console.log(item.tags);
-        var _tags = [];
-        for (var tag in item.tags) {
-          if (item.tags.hasOwnProperty(tag)) {
-            // console.log(item.tags[tag]);
-            // this.push('tags', item.tags[tag]);
-            _tags.push(item.tags[tag]);
-          }
+      if (!item.tags) return [];
+      // console.log(item.tags);
+      var _tags = [];
+      for (var tag in item.tags) {
+        if (item.tags.hasOwnProperty(tag)) {
+          // console.log(item.tags[tag]);
+          // this.push('tags', item.tags[tag]);
+          _tags.push(item.tags[tag]);
         }
-        // this.set('tags', _tags);
-        // console.log(_tags);
-        return _tags;
       }
-
-      if (!item.tags) {
-        // console.log('none');
-        return [];
-      }
+      // this.set('item.tagsArray', _tags);
+      // console.log(_tags);
+      return _tags;
     },
 
     _computeItemOptions: function(item) {

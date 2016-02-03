@@ -160,7 +160,7 @@ gulp.task('html', function() {
   return gulp.src(['app/**/*.html', '!app/{elements,test}/**/*.html'])
     .pipe(inlinesource())
     // Replace path for build assets
-    // .pipe($.if('*.html', $.replace('elements/elements.html', 'elements/elements.build.html')))
+    .pipe($.if('*.html', $.replace('elements/elements.html', 'elements/elements.build.html')))
     .pipe(assets)
     // Concatenate And Minify JavaScript
     .pipe($.if('*.js', $.uglify({
@@ -270,7 +270,7 @@ gulp.task('default', ['clean'], function(cb) {
     ['copy', 'styles'],
     'elements', ['jshint', 'images', 'fonts', 'html'],
     // 'catalog:dist',
-    'polybuild',// 'clean:bower',
+    'polybuild', 'clean:bower',
     cb);
 });
 

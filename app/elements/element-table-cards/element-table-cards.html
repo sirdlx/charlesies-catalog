@@ -14,7 +14,11 @@
   <style>
     :host {
       display: block;
-      max-width: 920px;
+      /*max-width: 920px;*/
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+      @apply(--layout-vertical);
+      @apply(--layout-center);
     }
 
     #cards {
@@ -67,12 +71,12 @@
         width: 302px;
       }
       .grid-layout {
-        width: 940px;
+        width: 920px;
       }
     }
 
     .grid-layout paper-button {
-      margin: 0 8px 16px 0;
+      margin: 0 4px;
       width: 125px;
     }
 
@@ -95,49 +99,58 @@
     .imagePlaceholder {
       position: relative;
       /*height: 100%;*/
+      width: 205px;
+      height: 100%;
     }
 
     .imagePlaceholder .placeholderBg {
       /*color: rgba(0, 0, 0, 0.05);*/
-      width: 205px;
-      height: 100%;
+      /*width: 205px;
+      height: 100%;*/
     }
   </style>
   <template>
     <!-- <catalog-data package-map="{{packages}}"></catalog-data> -->
-    <!-- <firebase-collection id="products" location="https://charlesiescom.firebaseio.com/products" data="{{products}}" order-by-child="category/newone" equal-to=""></firebase-collection> -->
+    <!-- <firebase-collection id="items" location="https://charlesiescom.firebaseio.com/items" data="{{items}}" order-by-child="category/newone" equal-to=""></firebase-collection> -->
     <catalog-user id="catalogUser" user="{{user}}"></catalog-user>
     <div id="grid" class="grid-container">
 
-      <template is="dom-if" if="{{user.isAdmin}}">
+      <template is="dom-if" if="[[edit]]">
         <div class="grid-layout">
 
-          <paper-button id="new-button-catgeory" hiddenFFFF$="{{!edit}}" class="" raised on-tap="_tapNewProduct">
-            <span>{{category}}</span>
+          <paper-button id="new-button-catgeory" class="" raised on-tap="_tapNewCollectionItem">
 
             <div class="imagePlaceholder fullwidth layout horizontal center-center">
+              <span>New in {{byshort}}</span>
               <iron-icon class="placeholderBg" icon="note-add"></iron-icon>
             </div>
           </paper-button>
 
-          <paper-button id="new-button" class="" raised on-tap="_tapNewProduct">
+          <paper-button id="new-button" class="" raised on-tap="_tapNewCollectionItem" hidden$="[[!byshort]]">
             <div class="imagePlaceholder fullwidth layout horizontal center-center">
+              <span>New</span>
               <iron-icon class="placeholderBg" icon="note-add"></iron-icon>
             </div>
           </paper-button>
         </div>
       </template>
 
-
-      <div class="grid-layout">
-        <template name="element-cards-repeat" is="dom-repeat" items="[[products]]" initial-count="2" chunk-count="2">
-          <element-card viewFFFF="{{item.view}}" view="" item-key="[[item.key]]" color="[[_getColor(item)]]" package-symbol="[[_getCategorySymbol(item)]]" on-tap="_tapCard" adminFFFF="[[user.isAdmin]]"></element-card>
+      <!-- <div class="grid-layout">
+        <template name="element-cards-repeat" is="dom-repeat" items="{{items}}" initial-count="2" chunk-count="2">
+          <element-card item="{{item}}" label-path="[[labelPath]]" viewFFFF="{{item.view}}" view="[[view]]" item-key="[[item.key]]" color="[[_getColor(item)]]" package-symbol="[[_getCategorySymbol(item)]]" on-tap="_tapCard" adminFFFF="[[user.isAdmin]]"></element-card>
         </template>
-      </div>
+      </div> -->
+
+      <iron-selector multi$="[[multi]]" selected="{{selected}}" selected-items="{{selectedItems}}" class="grid-layout" id="grid">
+        <template name="element-cards-repeat" is="dom-repeat" items="{{items}}" initial-count="2" chunk-count="2">
+          <element-card select$="[[multi]]" label-path="[[labelPath]]" media-path="[[mediaPath]]" view="[[view]]" item-key="[[item.key]]" on-tap="_tapCard" adminFFFF$="[[user.isAdmin]]">
+          </element-card>
+        </template>
+      </iron-selector>
 
     </div>
     <!-- <div id="cards" on-tap="_tap">
-      <template name="element-cards-repeat" is="dom-repeat" items="[[products]]" initial-count="10" chunk-count="10">
+      <template name="element-cards-repeat" is="dom-repeat" items="[[items]]" initial-count="10" chunk-count="10">
         <element-card item="[[item]]" color="[[_getColor(item)]]" package-symbol="[[_getCategorySymbol(item)]]"></element-card>
       </template>
     </div> -->
@@ -148,16 +161,29 @@
     is: 'element-table-cards',
 
     properties: {
-      products: {
+      items: {
         type: Array,
+        notify: true,
         value: function() {
           return [];
         }
       },
 
-      elements: {
-        type: Array
+      selected: {
+        type: Object,
+        notify: true
       },
+
+      selectedItems: {
+        type: Array,
+        notify: true
+      },
+
+      collection: {
+        type: String,
+      },
+      newColelctionItem: Object,
+
 
       byshort: {
         type: String,
@@ -174,63 +200,60 @@
     observers: [
       // '_render(elements, packages, isAttached)'
       // '_render(byshort, isAttached)',
-      // 'check(user)',
-      '_getDataBy(byshort, bytag)'
+      // 'check(selectedItems)',
+      '_computeBy(byshort, bytag, collection)',
+      // '_computeByArray(items)'
     ],
-    check: function(e) {
-      console.log(e);
+    check: function(arg) {
+      console.log('check: ', arg);
+      for (var i = 0; i < arg.length; i++) {
+        console.log(arg[i].item);
+      }
     },
 
+    _computeBy: function(byshort, bytag, collection) {
+      // console.log('_compute:', arguments);
+      // if (this.items.length) {
+      //   this.splice('items', 0, this.items.length);
+      // }
 
-
-    _getDataBy: function(byshort, bytag) {
-      // console.log('_getData:', arguments);
-      if (this.products.length) {
-        this.splice('products', 0, this.products.length);
-      }
-
-      var _products = new Fireproof(new Firebase('https://charlesiescom.firebaseio.com/products/'));
+      var _collection = new Fireproof(new Firebase('https://charlesiescom.firebaseio.com/' + collection));
       if (byshort.length) {
-        _products.orderByChild('byshort/' + byshort).equalTo(true).on('child_added', function(snap) {
+        _collection.orderByChild('byshort/' + byshort).equalTo(true).on('child_added', function(snap) {
           // console.log(snap.val(), 'byshort');
           var _obj = snap.val();
           _obj.key = snap.key();
-
-          this.push('products', _obj);
+          this.push('items', _obj);
         }.bind(this));
-
-
       } else if (bytag.length) {
-
-        _products.orderByChild('bytag/' + bytag).equalTo(true).on('child_added', function(snap) {
+        _collection.orderByChild('bytag/' + bytag).equalTo(true).on('child_added', function(snap) {
           // console.log(snap.val(), 'bytag');
           var _obj = snap.val();
           _obj.key = snap.key();
-
-          this.push('products', _obj);
+          this.push('items', _obj);
         }.bind(this));
 
       } else {
         // console.log('no byShort, no tag');
-        _products.orderByPriority().on('child_added', function(snap) {
+        _collection.orderByPriority().on('child_added', function(snap) {
           // console.log(snap.val());
           var _obj = snap.val();
           _obj.key = snap.key();
 
-          this.push('products', _obj);
+          this.push('items', _obj);
         }.bind(this));
 
       }
 
 
 
-      _products.on('child_removed', function(snap) {
+      _collection.on('child_removed', function(snap) {
         // console.log(snap.val());
-        for (var index = 0; index < this.products.length; index++) {
+        for (var index = 0; index < this.items.length; index++) {
           // console.log('looking', this.categories[index]);
-          if (snap.key() === this.products[index].key) {
+          if (snap.key() === this.items[index].key) {
             // console.log('match');
-            this.splice('products', index, 1);
+            this.splice('items', index, 1);
             return;
           }
         }
@@ -238,13 +261,17 @@
 
     },
 
-    _tapNewProduct: function() {
+    //#byArray
+
+    _computeByArray: function(arr) {
+      // console.dir('_computeByArray: ', arr);
+    },
+
+    _tapNewCollectionItem: function() {
       // this.fire('new-item');
-      var _newProductItem = {
-        creadtedAt: Firebase.ServerValue.TIMESTAMP
-      };
-      var _products = new Fireproof(new Firebase('https://charlesiescom.firebaseio.com/products/'));
-      _products.push(_newProductItem).then(function(snap) {
+      var _newCollectionItem = this.newCollectionItem || {};
+      var _collection = new Fireproof(new Firebase('https://charlesiescom.firebaseio.com/' + this.collection));
+      _collection.push(_newCollectionItem).then(function(snap) {
         // console.log(snap);
       }.bind(this));
     },
@@ -275,11 +302,11 @@
     },
 
     _getColor: function(item) {
-      // return this.products[item.package].color;
+      // return this.collection[item.package].color;
     },
 
     _getCategorySymbol: function(item) {
-      // return this.products[item.package].symbol;
+      // return this.items[item.package].symbol;
     },
 
     _render: function(byshort) {

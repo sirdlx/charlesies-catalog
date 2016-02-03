@@ -1,6 +1,7 @@
 <link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../bower_components/paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../../bower_components/paper-toggle-button/paper-toggle-button.html">
 <link rel="import" href="../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../bower_components/paper-header-panel/paper-header-panel.html">
 <link rel="import" href="../../bower_components/paper-drawer-panel/paper-drawer-panel.html">
@@ -9,11 +10,10 @@
 <link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
 <link rel="import" href="../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../bower_components/paper-badge/paper-badge.html">
-<link rel="import" href="../../bower_components/paper-scroll-header-panel/paper-scroll-header-panel.html">
 <link rel="import" href="../../bower_components/paper-toolbar/paper-toolbar.html">
 <link rel="import" href="../../bower_components/paper-styles/color.html">
 <link rel="import" href="../../bower_components/paper-material/paper-material.html">
-
+<link rel="import" href="../../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 
 <link rel="import" href="../catalog-data/catalog-data.html">
@@ -28,11 +28,33 @@
 <link rel="import" href="../app-bar/app-bar.html">
 <link rel="import" href="../instagram-picker/instagram-picker.html">
 
+<!-- might use -->
+
+<!-- <link rel="import" href="../../bower_components/paper-scroll-header-panel/paper-scroll-header-panel.html"> -->
+<!-- <link rel="import" href="../../bower_components/paper-button/paper-button.html"> -->
+
 <dom-module id="page-item">
   <template>
     <style is="custom-style">
-      .spacer {
-        @apply(--layout-flex);
+    h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      a {
+        margin: 0;
+      }
+
+      :root {
+        --iron-image-placeholder: {
+          -webkit-border-top-left-radius: 4px;
+          -webkit-border-top-right-radius: 4px;
+          -moz-border-radius-topleft: 4px;
+          -moz-border-radius-topright: 4px;
+          border-top-left-radius: 4px;
+          border-top-right-radius: 4px;
+        }
       }
 
       paper-scroll-header-panel {
@@ -44,7 +66,7 @@
         /* background for toolbar when it is at its full size */
         /*background-image: url(media/bg4.jpg);*/
         --paper-scroll-header-panel-full-header: {
-          background-color: var(--paper-light-blue-600);
+          /*background-color: var(--paper-light-blue-600);*/
         }
         ;
         /* background for toolbar when it is condensed */
@@ -54,11 +76,10 @@
         ;
       }
 
-      paper-toolbar {
-        /* custom toolbar height */
-        /*height: 300px;*/
-        background-color: transparent;
-        overflow: visible;
+      #pageToolbar {
+        --paper-toolbar-background: transparent;
+        --paper-toolbar-title: {}
+        ;
       }
 
       paper-icon-button {
@@ -113,6 +134,8 @@
         -webkit-transition: all 0.3s, -webkit-transform 0.3s, opacity 0.3s;
         transition: all 0.3s, transform 0.3s, opacity 0.3s;
         width: 288px;
+        border-radius: 4px;
+        overflow: hidden;
       }
 
       .cartItemIcon {
@@ -132,6 +155,7 @@
 
       #mediaToolbar {
         @apply(--layout-fit);
+        z-index: 1;
       }
 
       #media .iron-selected {}
@@ -216,11 +240,14 @@
 
       #item-header {
         position: relative;
+        padding-bottom: 0;
       }
 
       #item-header .itemPrice {
         font-size: 20px;
         color: var(--paper-green-500);
+        line-height: 58px;
+        width: 56px;
       }
 
       #item-desc {}
@@ -249,9 +276,16 @@
       .body-item [header-text] {}
 
       section {
-        border-top: 1px solid #e5e5e5;
         padding-top: 16px;
         padding-bottom: 16px;
+      }
+
+      [edit] section {
+        border-top: 1px solid #e5e5e5;
+      }
+
+      [border-bottom] {
+        border-bottom: 1px solid rgba(107, 107, 107, 0.2);
       }
 
       .optionLabelValue {
@@ -262,36 +296,45 @@
         margin-right: 8px;
         width: 120px;
       }
+
+      .item-options .item-option {
+        cursor: pointer;
+        margin: 1px 8px 1px 8px;
+        padding: 4px 8px;
+        border-radius: 5px;
+        background-color: rgba(66, 66, 66, 0.09);
+        -webkit-transition: all 0.3s, -webkit-transform 0.3s, opacity 0.3s;
+        transition: all 0.3s, transform 0.3s, opacity 0.3s;
+      }
+
+      .item-options .iron-selected {
+        background-color: var(--paper-green-500);
+      }
+    }
     </style>
 
     <catalog-product id="catalogProduct" key="{{byId}}" data="{{item}}"></catalog-product>
     <catalog-category byshort="[[categoryByShort]]" data="{{category}}"></catalog-category>
     <catalog-user id="catalogUser" user="{{user}}" loggedin="{{loggedin}}"></catalog-user>
-    <instagram-picker id="instagramPicker" token="{{user.instagram.authCode}}" on-media-selected="_instagramMediaSelected" open="{{pickerOpen}}">
-    </instagram-picker>
-    <paper-scroll-header-panel fixed admin$="[[user.admin]]">
-      <paper-toolbar>
+    <instagram-picker id="instagramPicker" token="{{user.instagram.authCode}}" on-media-selected="_instagramMediaSelected" opened="{{pickerOpen}}"></instagram-picker>
+    <paper-header-panel mode="waterfall">
+      <paper-toolbar id="pageToolbar">
         <paper-icon-button icon="arrow-back"></paper-icon-button>
         <app-logo class="flex" tabindex="1" full="true"></app-logo>
-        <div class="spacer"></div>
-
+        <div class="flex"></div>
         <paper-menu-button vertical-align="top" horizontal-align="right">
 
-          <template is="dom-if" if="[[!loggedin]]" restamp="true">
-            <paper-icon-button icon="social:person" class="dropdown-trigger userIcon" alt="menu"></paper-icon-button>
+          <template is="dom-if" if="[[!user.loggedin]]" restamp="true">
+            <paper-icon-button icon="social:person" class="dropdown-trigger" alt="menu"></paper-icon-button>
           </template>
-          <template is="dom-if" if="[[loggedin]]" restamp="true">
-            <paper-icon-button src="{{user.profileImageURL}}" class="dropdown-trigger userIcon" alt="menu"></paper-icon-button>
+          <template is="dom-if" if="[[user.loggedin]]" restamp="true">
+            <paper-icon-button src="{{user.profileImageURL}}" class="dropdown-trigger" alt="menu"></paper-icon-button>
           </template>
 
           <paper-menu class="dropdown-content">
-            <!-- <paper-item link="cart" on-tap="_tapNav" hidden$="{{narrow}}">
-              <iron-icon icon="shopping-cart"></iron-icon>
-              <span>{{cartCount}}</span>
-            </paper-item> -->
-            <paper-item hidden={{!loggedin}} link="account" on-tap="_tapNav">[[user.displayName]]</paper-item>
-            <paper-item hidden={{!loggedin}} on-tap="_tapLogout">logout</paper-item>
-            <paper-item hidden={{loggedin}} link="login" on-tap="_tapLogin">login</paper-item>
+            <paper-item hidden={{!user.loggedin}} link="/account" on-tap="_tapNav">[[user.displayName]]</paper-item>
+            <paper-item hidden={{!user.loggedin}} on-tap="_tapLogout">logout</paper-item>
+            <paper-item hidden={{user.loggedin}} link="/login" on-tap="_tapLogin">login</paper-item>
           </paper-menu>
         </paper-menu-button>
         <cart-icon id="cart-toggle"></cart-icon>
@@ -304,21 +347,27 @@
 
       <div class="content">
 
-        <paper-material elevation="1">
+        <paper-material elevation="1" edit$="[[edit]]">
+          <template is="dom-if" if="{{user.isAdmin}}">
+            <div class="layout horizontal" style="padding-top:18px;">
+              <paper-toggle-button checked="{{edit}}"></paper-toggle-button>
+              <span class="flex"></span>
+              <!-- <paper-icon-button icon="editor:mode-edit" ></paper-icon-button> -->
+            </div>
+          </template>
 
-          <div id="media" class="media-container">
+          <div id="media" class="media-container" border-bottom>
 
-            <template is="dom-if" if="[[user.isAdmin]]" restamp="true">
+            <template is="dom-if" if="[[edit]]" restamp="true">
               <paper-toolbar id="mediaToolbar">
                 <span class="flex"></span>
                 <paper-icon-button icon="editor:mode-edit" on-tap="_tapEditMedia"></paper-icon-button>
               </paper-toolbar>
             </template>
 
-            <div class="media-list layout horizontal center-center">
-
+            <div class="media-list layout horizontal">
               <template is="dom-if" if="{{!item.mediaArray.length}}">
-                <div class="mediaPlaceholder">
+                <div class="media-container mediaPlaceholder layout center-center">
                   <iron-icon class="placeholderBg" icon="image:collections" hidden="{{edit}}"></iron-icon>
                   <!-- <div class="fit layout horizontal center-center">
                   <template is="dom-if" if="{{edit}}">
@@ -330,69 +379,76 @@
                 </div>
               </template>
 
-              <iron-selector attr-for-selected="item" selected="{{mediaelected}}" class=" layout horizontal">
-                <template is="dom-repeat" items="{{item.media}}">
-                  <div class="media-container">
-                    <iron-image class="media" src="{{item.media.low_resolution.url}}" fade preload sizingx="cover"></iron-image>
+              <iron-selector attr-for-selected="id" selected-items="{{selectedMedia}}" class="layout horizontal" multi$="[[edit]]">
+                <template is="dom-repeat" items="[[item.mediaArray]]" as="media">
+                  <div class="media-container" id="[[media.key]]" media="[[media.key]]">
+                    <iron-image class="media-item" src="[[media.src]]" fade preload sizing="contain"></iron-image>
                     <!-- <img class="media" src="{{item.src}}" height="100%" /> -->
                   </div>
                 </template>
               </iron-selector>
 
             </div>
+            <template is="dom-if" if="[[!edit]]" restamp="true">
+              <cart-item-icon class="cartItemIcon" id="cartItemIcon" item="[[item]]" view="paper-fab"></cart-item-icon>
+            </template>
           </div>
 
-          <template is="dom-if" if="[[!user.isAdmin]]" restamp="true">
-            <cart-item-icon class="cartItemIcon" id="cartItemIcon" item="[[item]]" view="paper-fab"></cart-item-icon>
-          </template>
-
-          <section id="item-title" class="">
-            <template is="dom-if" if="[[!user.isAdmin]]" restamp="true">
+          <section id="item-header">
+            <template is="dom-if" if="[[!edit]]" restamp="true">
               <div class="body-item layout horizontal">
-                <h2>[[item.label]]</h2>
+                <h2 id="item-title">[[item.label]]</h2>
                 <span class="flex"></span>
-                <h4 class="itemPrice">
+                <h4 id="item-price" class="itemPrice">
                   <span>[[item.priceText]]</span>
                 </h4>
               </div>
             </template>
 
-            <template is="dom-if" if="[[user.isAdmin]]" restamp="true">
+            <template is="dom-if" if="[[edit]]" restamp="true">
               <div class="body-item layout horizontal">
                 <paper-input id="data-label" placeholder="Label" value="{{item.label::change}}" label="Name" style="width:100%"></paper-input>
               </div>
             </template>
           </section>
 
-          <section id="item-desc">
+          <section id="item-desc" hidden$="[[_computeSectionDescription(item,user)]]">
             <div class="body-item">
               <template is="dom-if" if="[[item.description]]" restamp="true">
-                <template is="dom-if" if="[[!user.isAdmin]]" restamp="true">
+                <template is="dom-if" if="[[!edit]]" restamp="true">
                   <p>[[item.description]]</p>
                 </template>
               </template>
-              <template is="dom-if" if="[[user.isAdmin]]" restamp="true">
+              <template is="dom-if" if="[[edit]]" restamp="true">
                 <paper-textarea id="data-description" label="Description" value="{{item.description::input}}" rows="1" max-rows="5"></paper-textarea>
               </template>
             </div>
           </section>
 
 
-          <section id="item-options" class="shrinkable layout vertical">
+          <section id="item-options" class=" layout vertical" hidden$="[[_computeSectionOptions(item,user)]]">
             <div class="body-item layout horizontal">
               <h4>Options</h4>
               <span class="flex"></span>
-              <paper-icon-button icon="menu" in-fav on-tap="_tapMenuOptions" hidden$="[[!user.isAdmin]]"></paper-icon-button>
             </div>
-            <template is="dom-if" if="{{!user.isAdmin}}">
-              <div class="meta">
+
+            <template is="dom-if" if="{{!edit}}">
+              <iron-selector selected-items="{{selectedOptions}}" class="body-item item-options layout horizontal" multi>
                 <template is="dom-repeat" items="[[item.optionsArray]]" as="option">
-                  <paper-button id="optionButton" toggles>[[option.label]]</paper-button>
+                  <!-- <paper-button id="optionButton" toggles selected="[[item.selected]]">[[option.label]]</paper-button> -->
+                  <div class="item-option">
+                    <span>[[option.label]]</span>
+                  </div>
                 </template>
-              </div>
+              </iron-selector>
+              <!-- <div class="layout horizontal">
+                <template is="dom-repeat" items="[[item.optionsArray]]" as="option">
+                  <paper-button id="optionButton" toggles selected="[[item.selected]]">[[option.label]]</paper-button>
+                </template>
+              </div> -->
             </template>
 
-            <template is="dom-if" if="{{user.isAdmin}}">
+            <template is="dom-if" if="{{edit}}">
               <template is="dom-repeat" items="{{item.optionsArray}}" as="option">
                 <div class="body-item layout horizontal">
                   <paper-input class="optionLabelValue" value="{{option.label::input}}" label="Label" type="text" always-float-label>
@@ -421,35 +477,31 @@
           </section>
 
 
-          <section id="item-tags" class="shrinkable layout vertical">
+          <section id="item-tags" class=" layout vertical" hidden$="[[_computeSectionTags(item,user)]]">
             <div class="body-item layout horizontal">
-              <iron-icon header-icon icon="maps:local-offer" class=""></iron-icon>
+              <!-- <iron-icon header-icon icon="maps:local-offer" class=""></iron-icon> -->
               <h4 header-text>Tags</h4>
               <span class="flex"></span>
-              <paper-icon-button icon="menu" in-fav on-tap="_tapMenuTags" hidden$="[[!user.isAdmin]]"></paper-icon-button>
             </div>
 
 
             <div class="body-item">
               <template is="dom-repeat" items="[[item.tagsArray]]" as="tag">
-
-                <template is="dom-if" if="[[!user.isAdmin]]">
-                  <a is="app-link" class="tag" href="[[_tagLink]]" active$="[[_tagActive(tag,view)]]">
+                <template is="dom-if" if="[[!editTags]]">
+                  <a is="app-link" class="tag" href="[[_tagLink]]">
                     <span>#[[tag.label]]</span>
                   </a>
                 </template>
-
-                <template is="dom-if" if="[[user.isAdmin]]">
+                <template is="dom-if" if="[[editTags]]">
                   <paper-button on-tap="_tapRemoveTag" alt="Remove Tag" title="Remove Tag">
                     <span>#[[tag.label]]</span>
                     <iron-icon icon="clear"></iron-icon>
                   </paper-button>
                 </template>
-
               </template>
             </div>
 
-            <template is="dom-if" if="[[user.isAdmin]]" restamp="true">
+            <template is="dom-if" if="[[edit]]" restamp="true">
 
               <div class="layout horizontal body-item">
                 <paper-input class="tagLabelValue" value="{{addTagLabel}}" placeholder="Add tag" type="text" no-label-float on-change="_addTagChange" style="width:100%">
@@ -459,15 +511,11 @@
             </template>
           </section>
 
-
-
-
-
           <!-- Product Status -->
           <template is="dom-if" if="{{user.isAdmin}}">
-            <section class="body-item">
-              <paper-dropdown-menu class="productStatusSelector" label="Status" always-float-label>
-                <paper-menu class="dropdown-content" selected="{{_edit.status}}">
+            <section>
+              <paper-dropdown-menu class="productStatusSelector body-item" label="Status" always-float-label>
+                <paper-menu class="dropdown-content" selected="{{item.status}}">
                   <paper-item>Unpublished</paper-item>
                   <paper-item>Active</paper-item>
                   <paper-item>Sold Out</paper-item>
@@ -481,7 +529,7 @@
 
       </div>
 
-    </paper-scroll-header-panel>
+    </paper-header-panel>
 
   </template>
 </dom-module>
@@ -503,23 +551,26 @@
       },
       view: {
         type: String,
-        value: 'docs'
+        value: ''
       },
-      active: {
+      section: {
         type: String,
         value: ''
       },
+      // Edit
       pickerOpen: {
         type: Boolean,
         notify: true
       },
-      docBehaviors: Array,
-      docDemos: Array,
-      docs: Object,
+      edit: {
+        type: Boolean,
+        notify: true,
+        value: false
+      },
       categoryByShort: String,
       router: Object,
       q: String,
-      narrowDrawer: Boolean,
+      narrow: Boolean,
       addTagLabel: {
         type: String,
         notify: true
@@ -529,14 +580,35 @@
         notify: true,
         value: {}
       },
+
+      selectedOptions: {
+        type: Array
+      }
     },
     observers: [
-      'updateMeta(item,active)',
+      'updateMeta(item,selected)',
       'viewUpdated(view)',
       'search(q)',
       '_updateStyles(category)',
-      // '_check(addOption.*)',
+      // '_check(item,user)',
     ],
+
+    _check: function(arg) {
+      console.log('check(obj) ', arguments);
+    },
+
+    _instagramMediaSelected: function(_, _media) {
+      // console.log(_media);
+      var _mediaArray = [];
+      for (var i = 0; i < _media.length; i++) {
+        // console.log(_media[i].item);
+        _mediaArray.push(_media[i].item);
+      }
+      this.$.catalogProduct._addMedia(_mediaArray).then(function(arg) {
+        console.log(arg);
+      });
+
+    },
 
     _tapLogin: function() {
       this.fire('nav', {
@@ -548,16 +620,17 @@
       this.$.catalogUser.logout();
     },
 
-    _check: function(arg) {
-      console.log('check(obj) ', arguments);
-    },
-
     _tapEditMedia: function() {
       // console.log(this.pickerOpen);
       this.pickerOpen = !this.pickerOpen;
-
-
     },
+
+
+    _tapEditToggle: function() {
+      // console.log(this.pickerOpen);
+      this.edit = !this.edit;
+    },
+
 
     _addTagChange: function() {
       this.$.catalogProduct._addTag(this.addTagLabel)
@@ -592,31 +665,26 @@
     attached: function() {
       this.updateMeta();
     },
-    _link: function(active, view) {
-      return this.getURL(active, view);
+    _link: function(selected, view) {
+      return this.getURL(selected, view);
     },
-    _subLink: function(active, path) {
-      return this.getURL(active, 'demo:' + path, true);
+    _subLink: function(selected, path) {
+      return this.getURL(selected, path, true);
     },
-    _subActive: function(path) {
-      return this.view === 'demo:' + path;
-    },
-    _githubLink: function(source) {
-      return 'https://github.com/' + source;
-    },
-    getURL: function(active, view, force) {
+    getURL: function(selected, view, force) {
       var url = "/products/" + this.item.key;
       var qs = [];
       if (force || (view && view.length && view !== 'docs')) qs.push('view=' + view);
-      if (force || (active && active.length && active !== this.element)) qs.push('active=' + active);
+      if (force || (selected && selected.length && selected !== this.element)) qs.push('selected=' + selected);
       if (qs.length) url += "?" + qs.join("&");
       return url;
     },
-    updateMeta: function(item, active) {
+    updateMeta: function(item, section) {
       if (this.item) {
+        console.log('update-meta: ', this.item.label);
         // this.$.drawerPanel.closeDrawer();
         this.fire('page-meta', {
-          // title: (this.active && this.active.length) ? this.active : this.item.label
+          // title: (this.selected && this.selected.length) ? this.selected : this.item.label
           title: this.item.label
         });
       }
@@ -626,19 +694,10 @@
     viewUpdated: function() {
       // this.$.drawerPanel.closeDrawer();
     },
-    _categoryLink: function() {
-      return "/?category=" + this.category;
-    },
-    navToElement: function(e) {
-      this.router.go("/elements/" + e.currentTarget.getAttribute('name'));
-    },
     search: function(q) {
       if (q || this.q) {
         this.router.go('/?q=' + (q || this.q));
       }
-    },
-    cartAdd: function() {
-      this.fire('cart-add', this.element);
     },
     _oneOrFewer: function(arr1, arr2) {
       if (!arr1 || arr1.length === 0) {
@@ -655,12 +714,60 @@
     },
 
     _handleError: function() {
-      this.router.go('/404');
+      this.router.go('/error');
+    },
+    _getMode: function(narrow) {
+      // console.log(narrow ? 'waterfall' : 'scroll');
+      return narrow ? 'waterfall' : 'scroll';
     },
 
     _updateStyles: function(category) {
       console.log(category);
       // this.async(this.$.componentPage.updateStyles, 2);
     },
+
+    _tapNav: function function_name(e) {
+      // console.log(e.target.getAttribute('link'));
+      var link = e.target.getAttribute('link');
+      this.fire('nav', {
+        url: link
+      });
+    },
+
+    _computeSectionTags: function(item, user) {
+      if (user.isAdmin) {
+        return false;
+      }
+
+      if (!user.isAdmin && this._oneOrFewer(item.tagsArray)) {
+        return true;
+      }
+      return false;
+    },
+
+    _computeSectionOptions: function(item, user) {
+      // console.log(this._oneOrFewer(item.optionsArray));
+      if (user.isAdmin) {
+        return false;
+      }
+
+      if (!user.isAdmin && this._oneOrFewer(item.optionsArray)) {
+        return true;
+      }
+      this.selectedOptions = 0;
+      return false;
+    },
+    _computeSectionDescription: function(item, user) {
+      // console.log(item.description === true);
+      if (user.isAdmin) {
+        return false;
+      }
+
+      if (!user.isAdmin && !item.description) {
+        return true;
+      }
+
+      return false;
+    }
   });
 </script>

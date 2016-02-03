@@ -1,23 +1,19 @@
-<link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../bower_components/paper-toolbar/paper-toolbar.html">
-
 <link rel="import" href="../../bower_components/paper-header-panel/paper-header-panel.html">
-<link rel="import" href="../../bower_components/paper-drawer-panel/paper-drawer-panel.html">
-<link rel="import" href="../../bower_components/iron-component-page/iron-component-page.html">
 <link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
 <link rel="import" href="../../bower_components/paper-item/paper-item.html">
-<link rel="import" href="../../bower_components/paper-badge/paper-badge.html">
-
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
-
-<link rel="import" href="../../bower_components/paper-header-panel/paper-header-panel.html">
-
-<link rel="import" href="../../bower_components/paper-toolbar/paper-toolbar.html">
 <link rel="import" href="../../bower_components/paper-styles/color.html">
 <link rel="import" href="../../bower_components/paper-material/paper-material.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/gold-zip-input/gold-zip-input.html">
+<link rel="import" href="../../bower_components/google-apis/google-maps-api.html">
+<link rel="import" href="../../bower_components/gold-cc-input/gold-cc-input.html">
+<link rel="import" href="../../bower_components/gold-cc-expiration-input/gold-cc-expiration-input.html">
+<link rel="import" href="../../bower_components/gold-cc-cvc-input/gold-cc-cvc-input.html">
 
 <link rel="import" href="../catalog-data/catalog-data.html">
 <link rel="import" href="../catalog-user/catalog-user.html">
@@ -25,6 +21,10 @@
 <link rel="import" href="../cart-item-icon/cart-item-icon.html">
 <link rel="import" href="../app-logo/app-logo.html">
 <link rel="import" href="../app-bar/app-bar.html">
+
+<!-- might use -->
+<link rel="import" href="../../bower_components/paper-drawer-panel/paper-drawer-panel.html">
+<link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
 
 <dom-module id="page-account">
   <template>
@@ -35,6 +35,8 @@
       paper-header-panel {
         @apply(--layout-fit);
       }
+
+      paper-header-panel {}
 
       iron-pages {
         display: block;
@@ -47,20 +49,18 @@
         margin: 16px;
       }
 
-      paper-toolbar {
-        height: 256px;
+      #pageToolbar {
+        height: 320px;
+        --paper-toolbar-background: transparent var(--user-image);
+        background-repeat: no-repeat;
+        background-size: cover;
+        --paper-toolbar-title: {}
+        ;
       }
 
-      paper-material {
-        /*max-width: 304px;*/
-        margin: 0;
-        background-color: white;
-        overflow: hidden;
-        padding: 16px;
-      }
-
-      paper-material[wide] {
-        /*max-width: 584px;*/
+      #pageToolbar[med] {
+        height: 64px;
+        background: transparent;
       }
 
       .bottom-text {
@@ -68,6 +68,25 @@
         transform: translateZ(0);
         font-size: 20px;
         padding-bottom: 10px;
+        color: white;
+      }
+
+      #pageToolbar /deep/ #bottomBar {
+        padding-top: 4px;
+        background-color: rgba(0, 0, 0, 0.5);
+      }
+
+      #pageToolbar[med] /deep/ #bottomBar {
+        background: none;
+      }
+
+      .bodyToolbar {
+        --paper-toolbar-background: #ffffff;
+        background-size: cover;
+        --paper-toolbar-title: {
+          margin-left: 0;
+        }
+        ;
       }
 
       .subtitle {
@@ -85,8 +104,32 @@
         width: 48px;
       }
 
-      .indent {
+      paper-material {
+        mwidth: 324px;
+        margin: 0;
+        background-color: white;
+        overflow: hidden;
+        padding-bottom: 16px;
+        border-radius: 4px;
+        padding-top: 16px;
+      }
+
+      paper-material[med] {
+        width: 320px;
+        padding-top: 0;
+      }
+
+      paper-material[wide] {
+        width: 584px;
+        padding-top: 0;
+      }
+
+      .indentFFFF {
         margin-left: 60px;
+      }
+
+      .indent {
+        margin-left: 16px;
       }
 
       .user {
@@ -97,30 +140,50 @@
         padding: 16px;
       }
 
-      .section {
+      .body-item {
+        padding: 0 16px;
+      }
+
+      section {
         margin-bottom: 16px;
       }
 
-      .userIcon {
+      .header {
+        margin: 16px 0;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      a {
+        margin: 0;
+      }
+
+      #profileImage {
+        height: 320px;
+        width: 100%;
+        margin-bottom: 16px;
+      }
+
+      .userDisplayName {
+        margin: 0
+      }
+
+      .check-icon {
+        width: 12px;
+        height: 12px;
+        background: var(--paper-grey-300);
+        --iron-icon-fill-color: white;
         border-radius: 50%;
-        width: 100px;
-        height: 100px;
+        padding: 3px;
+        margin-left: 4px;
       }
 
-      .info {
-        margin: 8px;
-        /*padding: 16px 16px 32px 16px;*/
-        padding-left: 8px;
-        text-align: center;
-      }
-
-      .info .header {
-        margin: 0;
-      }
-
-      .info .subheader {
-        margin: 0;
-        color: #9E9E9E;
+      .check-icon[checked] {
+        background: var(--paper-green-300);
       }
 
       .headerIcon {
@@ -133,12 +196,12 @@
         transform: rotateY( 180deg);
       }
 
-      .cc_type {
+      .user-card-type {
         height: 100%;
         width: 70px;
       }
 
-      .cc_end {
+      .user-card-end {
         height: 100%;
         font-size: 26px;
         line-height: 42px;
@@ -149,21 +212,24 @@
       }
 
       .split {
-        @apply(--layout-vertical)
+        @apply(--layout-vertical);
       }
 
       [wide] .split {
-        @apply(--layout-horizontal)
+        @apply(--layout-horizontal);
       }
 
-      .card,
-      .address {
-        padding: 16px;
+      [wide] .split #profileImage {
+        height: 290px;
+        width: 290px;
       }
 
-      .card .header,
-      .address .header {
-        padding-bottom: 16px;
+      [wide] .split > section {
+        margin: 0 4px;
+      }
+
+      [wide] .split .userDisplayName {
+        margin-top: 24px;
       }
 
       [wide] .divider {
@@ -183,16 +249,6 @@
 
       .line1 {
         font-size: 18px;
-      }
-
-      .login-form {
-        background-color: white;
-        padding: 16px 16px 32px 16px;
-      }
-
-      .login-form[wide] {
-        width: 300px;
-        margin: 16px auto;
       }
 
       .form-submit {
@@ -237,21 +293,39 @@
         color: white;
       }
     </style>
-
-    <catalog-user id="catalogUser" loggedin="{{loggedin}}" wait="{{wait}}" user="{{user}}"></catalog-user>
+    <google-maps-api id="maps" libraries="places" on-api-loadFFFF="on_api_load"></google-maps-api>
+    <catalog-user id="catalogUser" wait="[[wait]]" user="{{user}}"></catalog-user>
+    <catalog-data id="catalogData" on-checkout-response="_handleCheckoutResponse"></catalog-data>
+    <iron-media-query query="(max-width: 320px)" query-matches="{{small}}"></iron-media-query>
+    <iron-media-query query="(min-width: 321px)" query-matches="{{med}}"></iron-media-query>
     <iron-media-query query="(min-width: 600px)" query-matches="{{wide}}"></iron-media-query>
 
-    <paper-header-panel modeFFFF="cover">
+    <paper-header-panel mode="waterfall">
 
-      <paper-toolbar>
+      <paper-toolbar id="pageToolbar" med$="{{med}}">
         <paper-icon-button icon="arrow-back"></paper-icon-button>
         <app-logo tabindex="1"></app-logo>
-        <h2 class="title">Account</h2>
+        <h2 class="title" hidden="[[small]]">[[pageText]]</h2>
         <div class="flex"></div>
 
+        <paper-menu-button vertical-align="top" horizontal-align="right">
+
+          <template is="dom-if" if="[[!user.loggedin]]" restamp="true">
+            <paper-icon-button icon="social:person" class="dropdown-trigger" alt="menu"></paper-icon-button>
+          </template>
+          <template is="dom-if" if="[[user.loggedin]]" restamp="true">
+            <paper-icon-button src="{{user.profileImageURL}}" class="dropdown-trigger" alt="menu"></paper-icon-button>
+          </template>
+
+          <paper-menu class="dropdown-content">
+            <paper-item hidden={{!user.loggedin}} link="/account" on-tap="_tapNav">[[user.displayName]]</paper-item>
+            <paper-item hidden={{!user.loggedin}} on-tap="_tapLogout">logout</paper-item>
+            <paper-item hidden={{user.loggedin}} link="/login" on-tap="_tapLogin">login</paper-item>
+          </paper-menu>
+        </paper-menu-button>
         <cart-icon id="cart-toggle"></cart-icon>
 
-        <div class="bottom indent bottom-text" self-end>
+        <div class="bottom indent bottom-text" self-end hidden$="[[med]]">
           <div>[[user.displayName]]</div>
           <div class="subtitle">[[user.provider]]</div>
         </div>
@@ -262,138 +336,252 @@
 
         <iron-pages selected="{{_page}}">
           <!-- #Login -->
-          <paper-material class="login-form layout vertical center-center" wide$="{{wide}}">
+          <div class="layout vertical center-center">
+            <paper-material wide$="[[wide]]" med$="[[med]]" class="body">
 
-            <h2 class="form-title">Login</h2>
-            <br>
-            <div class="layout vertical">
-              <form is="iron-form" id="loginform" method="post">
-                <paper-input tabindex="0" no-label-float maxlength="25" required name="email" label="email" type="email" value="{{email}}" disabled$="{{wait}}"></paper-input>
-                <paper-input no-label-float maxlength="25" required name="password" label="password" type="password" value="{{password}}" disabled$="{{wait}}"></paper-input>
-                <br>
-                <paper-button raised class="form-submit" on-tap="_loginPassword" disabled$="{{wait}}">login</paper-button>
-              </form>
-              <br>
-              <br>
-              <div class="">
-                <paper-button disabled$="{{wait}}" class="facebook" on-tap="_loginFacebook">
-                  <iron-icon src="/images/facebook-24.png"></iron-icon>
-                </paper-button>
-                <paper-button disabled$="{{wait}}" class="google" on-tap="_loginGoogle">
-                  <iron-icon src="/images/google-plus-24.png"></iron-icon>
-                </paper-button>
-                <paper-button disabled$="{{wait}}" class="twitter" on-tap="_loginTwitter">
-                  <iron-icon src="/images/twitter-24.png"></iron-icon>
-                </paper-button>
+              <section class=" layout vertical center-center">
+                <h3 class="header">Login</h3>
+              </section>
+
+              <div class="layout vertical">
+                <section class="body-item">
+
+                  <form is="iron-form" id="loginform" method="post">
+                    <paper-input tabindex="0" no-label-float maxlength="25" required name="email" label="email" type="email" value="{{email}}" disabled$="[[wait]]"></paper-input>
+                    <paper-input no-label-float maxlength="25" required name="password" label="password" type="password" value="{{password}}" disabled$="[[wait]]"></paper-input>
+                    <br>
+                    <paper-button raised class="form-submit" on-tap="_loginPassword" disabled$="[[wait]]">login</paper-button>
+                  </form>
+
+                </section>
+
+                <section class="layout horizontal center-center">
+                  <paper-button disabled$="[[wait]]" class="facebook" on-tap="_loginFacebook">
+                    <iron-icon src="/images/facebook-24.png"></iron-icon>
+                  </paper-button>
+                  <paper-button disabled$="[[wait]]" class="google" on-tap="_loginGoogle">
+                    <iron-icon src="/images/google-plus-24.png"></iron-icon>
+                  </paper-button>
+                  <paper-button disabled$="[[wait]]" class="twitter" on-tap="_loginTwitter">
+                    <iron-icon src="/images/twitter-24.png"></iron-icon>
+                  </paper-button>
+                </section>
+                <paper-button on-click="forgotClick" disabled$="[[wait]]">forgot password?</paper-button>
               </div>
-              <br>
-              <paper-button on-click="forgotClick" disabled$="{{wait}}">forgot password?</paper-button>
-            </div>
-          </paper-material>
-
-
+            </paper-material>
+          </div>
           <!-- #Account -->
-          <paper-material wide$="{{wide}}">
+          <div class="layout vertical center-center">
 
-            <!-- <div class=" section info">
-              <h3 class="header">[[user.displayName]]</h3>
-              <div class="subheader">
-                <span>[[user.provider]]</span>
-              </div>
-            </div> -->
+            <paper-material id="user" wide$="[[wide]]" med$="[[med]]">
+              <template is="dom-if" if="[[med]]" restamp="true">
+                <section id="userInfo" class="split">
 
-            <div class=" addons layout horizontal center-center">
+                  <iron-image id="profileImage" src="[[user.profileImageURL]]" preload sizing="cover"></iron-image>
+                  <div id="user-info" class="layout vertical">
 
-              <template is="dom-if" if="{{_computeAddonProvider(user)}}" restamp="true">
-                <paper-button class$="{{user.provider}}" raised disabled>
-                  <iron-icon src="{{_computeAddonProviderIcon(user)}}" class="icon"></iron-icon>
-                  <span>{{user.provider}}</span>
-                </paper-button>
+                    <section class="body-item">
+                      <h3 class="userDisplayName">[[user.displayName]]</h3>
+                      <div class="subtitle">[[user.provider]]</div>
+                    </section>
+
+                    <template is="dom-if" if="[[]]" restamp="true">
+                      <div id="addons" class="body-item layout horizontal center-centerFFFF">
+
+                        <template is="dom-if" if="{{_computeAddonProvider(user)}}" restamp="true">
+                          <paper-button class$="{{user.provider}}" raised disabled>
+                            <iron-icon src="{{_computeAddonProviderIcon(user)}}" class="icon"></iron-icon>
+                            <span>{{user.provider}}</span>
+                          </paper-button>
+                        </template>
+
+                        <paper-button class$="{{user.instagram}}" raised disabled$="{{user.instagram}}" on-tap="_instagramAuthTap" hidden$="{{!user.isAdmin}}">
+                          <iron-icon src="/images/Glyph_Logo_png.png" class="icon"></iron-icon>
+                          <span>Instagram</span>
+                        </paper-button>
+
+                      </div>
+
+                    </template>
+
+                  </div>
+
+                </section>
               </template>
 
-              <paper-button class$="{{user.instagram}}" raised disabled$="{{user.instagram}}" on-tap="_instagramAuthTap" hidden$="{{!user.isAdmin}}">
-                <iron-icon src="/images/Glyph_Logo_png.png" class="icon"></iron-icon>
-                <span>Instagram</span>
-              </paper-button>
+              <!-- <section id="addons" class="body-item layout horizontal center-centerFFFF">
 
-            </div>
-
-
-            <div class="split  layout">
-
-              <div class="address layout vertical flex">
-
-                <div class="header layout vertical center-center">
-                  Address
-                </div>
-
-                <template is="dom-if" if="{{!user.address}}" restamp="true">
-                  <div class="body layout vertical center-center">
-                    <paper-icon-button class="edit-action" icon="add" on-tap="_navAddressList"></paper-icon-button>
-                  </div>
+                <template is="dom-if" if="{{_computeAddonProvider(user)}}" restamp="true">
+                  <paper-button class$="{{user.provider}}" raised disabled>
+                    <iron-icon src="{{_computeAddonProviderIcon(user)}}" class="icon"></iron-icon>
+                    <span>{{user.provider}}</span>
+                  </paper-button>
                 </template>
 
+                <paper-button class$="{{user.instagram}}" raised disabled$="{{user.instagram}}" on-tap="_instagramAuthTap" hidden$="{{!user.isAdmin}}">
+                  <iron-icon src="/images/Glyph_Logo_png.png" class="icon"></iron-icon>
+                  <span>Instagram</span>
+                </paper-button>
 
-                <template is="dom-if" if="{{user.address}}" restamp="true">
-                  <paper-item>
-                    <paper-item-body two-line>
-                      <div class="line1">
-                        <span>[[user.address.add_street]]</span>
+              </section> -->
+
+
+              <div class="split">
+
+                <section id="Address" class=" layout vertical flex">
+
+                  <paper-toolbar class="bodyToolbar">
+                    <h2 class="title">Address
+                      <iron-icon icon="check" class="check-icon" checked$="[[addressFormOk]]"></iron-icon>
+                    </h2>
+                    <span class="flex"></span>
+                    <!-- <paper-icon-button class="edit-action" icon="editor:mode-edit" on-tap="_toggleEditAddress"></paper-icon-button> -->
+                  </paper-toolbar>
+
+
+                  <template is="dom-if" if="[[editAddress]]" restamp="true">
+                    <paper-item class="bottom">
+                      <paper-item-body two-line>
+                        <div class="line1">
+                          <span>[[user.address.street]]</span>
+                        </div>
+                        <div secondary>
+                          <span>[[user.address.city]]</span>,
+                          <span>[[user.address.state]]</span>,
+                          <span>[[user.address.zipcode]]</span>
+                        </div>
+                      </paper-item-body>
+                    </paper-item>
+                  </template>
+
+                  <template is="dom-if" if="[[!editAddress]]" restamp="true">
+                    <form id="user-address-form" class="" is="iron-form" method="post" action="/">
+                      <div class="body-item">
+                        <paper-input value="{{user.address.street}}" label="Street Address" class="field" id="street" required on-changeFFFF="on_change_place"></paper-input>
+                        <paper-input value="{{user.address.suite}}" label="Apt/Suite" class="field" id="line2"></paper-input>
+                        <paper-input value="{{user.address.city}}" label="City" class="field" id="city" required></paper-input>
+                        <paper-input value="{{user.address.state}}" label="State" class="field" id="state" required></paper-input>
+                        <gold-zip-input value="" id="zipcode" required></gold-zip-input>
                       </div>
-                      <div secondary>
-                        <span>[[user.address.add_city]]</span>,
-                        <span>[[user.address.add_state]]</span>,
-                        <span>[[user.address.add_zip]]</span>
-                      </div>
-                    </paper-item-body>
-                    <paper-icon-button class="edit-action" icon="editor:mode-edit" on-tap="_navAddressList"></paper-icon-button>
-                  </paper-item>
-                </template>
+                    </form>
+                  </template>
+                </section>
+
+                <div class="divider"></div>
+
+                <section id="Payment" class=" layout vertical flex">
+                  <!-- <iron-icon class="headerIcon" icon="icons:credit-card"></iron-icon> -->
+                  <paper-toolbar class="bodyToolbar">
+                    <h2>Payment</h2>
+                    <iron-icon icon="check" class="check-icon" checked$="[[paymentFormOk]]"></iron-icon>
+                    <span class="flex"></span>
+                    <!-- <paper-icon-button class="edit-action" icon="editor:mode-edit" on-tap="_toggleEditPayment"></paper-icon-button> -->
+                  </paper-toolbar>
+
+                  <form class="body-item" is="iron-form" id="user-card-form" method="post" action="/">
+                    <gold-cc-input id="user-card-num" class="field" card-type="{{user.card.type}}" value="{{user.card.num}}" required auto-validate></gold-cc-input>
+
+                    <div class="layout horizontal">
+                      <gold-cc-cvc-input id="user-card-cvc" card-type="[[user.card.type]]" value="{{user.card.cvc}}" required auto-validate></gold-cc-cvc-input>
+                      <span class="flex" style="margin-right:16px;"></span>
+                      <gold-cc-expiration-input id="user-card-exp" value="{{user.card.exp}}" required auto-validate></gold-cc-expiration-input>
+                    </div>
+
+                    <paper-input id="user-card-name" label="Name on card" class="field" required value="{{user.card.name}}" auto-validate></paper-input>
+                    <gold-zip-input id="user-card-zip" value="{{user.card.zipcode}}" required auto-validate></gold-zip-input>
+
+                  </form>
+
+                  <template is="dom-if" if="[[!editPayment]]" restamp="true">
+                  </template>
+                  <template is="dom-if" if="[[editPayment]]" restamp="true">
+                  </template>
+                </section>
 
               </div>
 
-              <div class="divider"></div>
-
-              <div class="card layout vertical flex">
-                <!-- <iron-icon class="headerIcon" icon="icons:credit-card"></iron-icon> -->
-                <div class="header layout vertical center-center">
-                  Card
-                </div>
+            </paper-material>
+          </div>
 
 
-                <template is="dom-if" if="{{!user.card}}" restamp="true">
-                  <div class="body layout vertical center-center">
-                    <paper-icon-button class="edit-action" icon="add" on-tap="_navCardList"></paper-icon-button>
+          <div class="layout vertical center-center">
+            <paper-material elevation="1" wide$="[[wide]]" med$="[[med]]">
+
+              <div class="split">
+
+                <section>
+                  <header>
+                    <h1>Thank You for your Order!</h1>
+                    <h2>Your Order will be ready at 8:24 PM</h2>
+                  </header>
+                  <div class="actions">
+                    <paper-button raised>
+                      <iron-icon class="sprite fav">Favorites</iron-icon>Add Order to My Favorites
+                    </paper-button>
+                    <paper-button raised>
+                      Continue Shopping
+                    </paper-button>
+                    <p style="padding-top: 20px;">
+                      What'd you think? Please take a moment to share your feedback on the new Donatos.com!
+                      <br>
+                      <paper-button>Take survey</paper-button>
+                    </p>
+                    <p style="padding-top: 20px;">
+                      Want to join the Donatos Email &amp; Text Club? Receive weekly deals by signing up
+                      <paper-button href="/emailandtext">here</paper-button>.
+                    </p>
                   </div>
-                </template>
+                </section>
+
+                <section>
+
+                  <h3>Your order will be delivered to</h3>
+                  <p>5353 Cleveland Ave Columbus, OH 43231</p>
+
+                  <h3>Delivery Store</h3>
+                  <p>North/Tamarack</p>
+
+                  <h3>Payment Type</h3>
+                  <p>Credit Card</p>
+
+                  <p>Driver only carries $20 in change. Please be respectful.</p>
+
+                  <h3>Questions? Need to change your order?</h3>
+                  <p>Call
+                    <span id="gc-number-0" class="gc-cs-link" title="Call with Google Voice">(614) 846-8411</span>
+                  </p>
 
 
-                <template is="dom-if" if="{{user.card}}" restamp="true">
-                  <paper-item>
-                    <paper-item-body>
-                      <div class="layout horizontal">
-                        <iron-icon class="cc_type margin-right-16" src$="[[_computeTypeIcon(user.card.cc_type)]]"></iron-icon>
-                        <div class="cc_end">{{user.card.cc_end}}</div>
-                      </div>
-                    </paper-item-body>
-                    <paper-icon-button class="edit-action" icon="editor:mode-edit" on-tap="_navAddressList"></paper-icon-button>
-                  </paper-item>
-                </template>
+                  <br>
 
+                  <span class="st_facebook_large" displaytext="Facebook" st_processed="yes">
+                    <span style="text-decoration:none;color:#000000;display:inline-block;cursor:pointer;" class="stButton">
+                      <span class="stLarge" style="background-image: url(&quot;https://ws.sharethis.com/images/facebook_32.png&quot;);"></span>
+                    </span>
+                  </span>
+                  <span class="st_twitter_large" displaytext="Tweet" st_processed="yes">
+                    <span style="text-decoration:none;color:#000000;display:inline-block;cursor:pointer;" class="stButton">
+                      <span class="stLarge" style="background-image: url(&quot;https://ws.sharethis.com/images/twitter_32.png&quot;);"></span>
+                    </span>
+                  </span>
+                  <span class="st_email_large" displaytext="Email" st_processed="yes">
+                    <span style="text-decoration:none;color:#000000;display:inline-block;cursor:pointer;" class="stButton">
+                      <span class="stLarge" style="background-image: url(&quot;https://ws.sharethis.com/images/email_32.png&quot;);"></span>
+                    </span>
+                  </span>
+
+                </section>
               </div>
 
-            </div>
 
-          </paper-material>
+            </paper-material>
+
+          </div>
 
         </iron-pages>
 
       </div>
     </paper-header-panel>
-
-
-
-
   </template>
 
   <script>
@@ -409,6 +597,22 @@
             type: Number,
             notify: true,
             value: 0
+          },
+          pageText: String,
+
+          _section: String,
+
+          // Account
+
+          editAddress: {
+            type: Boolean,
+            value: false
+          },
+          autocomplete: Object,
+          googleapi: Boolean,
+          editPayment: {
+            type: Boolean,
+            value: false
           },
 
           // User
@@ -426,10 +630,6 @@
             type: Boolean,
             notify: true,
           },
-          loggedin: {
-            type: Boolean,
-            notify: true
-          },
           user: {
             type: Object,
             notify: true,
@@ -442,33 +642,40 @@
         },
 
         observers: [
-          // '_checkAuth(wait, loggedin)',
           // 'newCardValue(card.*)',
           // 'newAddressValue(address.*)'
-          // '_check(Address)',
-          '_changePage(loggedin)',
-          // 'check(user)',
+          '_googleApi(googleapi, user, _page, editAddress)',
+          '_changePage(user)',
+          'check(user)',
         ],
 
-        check: function(user) {
-          console.log(user);
+        listeners: {
+          'api-load': 'on_api_load'
         },
 
-        _changePage: function(loggedin) {
-          // console.info('loggedin: ', loggedin);
+        check: function(user) {
+          console.dir(user);
+        },
 
-          if (loggedin) {
+        _changePage: function(user) {
+
+          console.log(user);
+
+          if (user.loggedin) {
             this._page = 1;
+            this.pageText = 'Account';
+            this.customStyle['--user-image'] = 'url(' + this.user.profileImageURL + ')';
+            this.updateStyles();
           } else {
             this._page = 0;
+            this.pageText = 'Login';
           }
         },
-
 
         _instagramAuthTap: function() {
           // console.log(window.location);
           // window.location.hostname === "localhost" ?
-          var loc = window.location.origin + "/?auth=instagram";
+          var loc = window.location.origin + "/auth/instagram";
           var opts = 'location=0,status=0,width=800,height=400';
           console.log(loc);
           this.debounce('_instagramAuthTapFFFF', function(argument) {
@@ -477,81 +684,8 @@
 
         },
 
-        _checkAuth: function(wait, loggedin) {
-          // console.log(wait, loggedin);
-
-          if (!loggedin && !wait) {
-            console.log('not logged in!');
-            this.fire('toast', {
-              text: 'Have to be logged in to view page'
-            });
-            this.debounce('nav_delay', function(argument) {
-              this.router.go('/login');
-            }, 0);
-
-            return;
-          }
-
-          // if (!user) {
-          //   this.debounce('nav_delay', function(argument) {
-          //     this.router.go('/login');
-          //   }, 0);
-          // }
-
-        },
-
         _computeTypeIcon: function(type) {
           return 'bower_components/gold-cc-input/images/' + type + '.png';
-        },
-
-        newCardValue: function(card) {
-          // console.log(cardRef.val());
-          // console.log(card);
-          if (card.length === 0) {
-            this.noCard = true;
-            return;
-          }
-          for (var i = 0; i < this.card.length; i++) {
-            // console.log(this.card[i].default_card);
-            if (this.card[i].default_card) {
-              this.user.card = this.card[i];
-              // console.log(this.defaultCard.cc_name);
-              return;
-            }
-          }
-        },
-
-        newAddressValue: function(address) {
-          // console.log(cardRef.val());
-          // console.log(this.card);
-          if (address.length === 0) {
-            this.noAddress = true;
-            return;
-          }
-
-          for (var i = 0; i < this.address.length; i++) {
-            // console.log(this.card[i].default_card);
-            if (this.address[i].default_address) {
-              this.defaultAddress = this.address[i];
-              // console.log(this.defaultAddress.add_street);
-              return;
-            }
-          }
-        },
-
-        _navCardList: function() {
-          // this.fire('nav', {
-          //   path: "/account/card"
-          // });
-          this.fire('open-card-dialog');
-        },
-
-        _navAddressList: function() {
-          // this.showAddressList = !this.showAddressList;
-          // this.fire('nav', {
-          //   path: "/account/address"
-          // });
-          this.fire('open-address-dialog');
         },
 
         // Login
@@ -570,7 +704,6 @@
 
         _computeAddonProvider: function(user) {
           return user.provider || 'Secure';
-
         },
         _computeAddonProviderIcon: function(user) {
           if (user.provider === 'facebook') {
@@ -580,7 +713,54 @@
           } else if (user.provider === 'twitter') {
             return '/images/twitter-24.png';
           }
-        }
+        },
+
+        _toggleEditAddress: function() {
+          this.editAddress = !this.editAddress;
+        },
+        _toggleEditPayment: function() {
+          this.editPayment = !this.editPayment;
+        },
+
+
+        // $Address
+        on_api_load: function() {
+          // this.autocomplete = new google.maps.places.Autocomplete(this.$.street_number);
+          this.googleapi = true;
+        },
+
+        _googleApi: function(googleapi, user, _page, editAddress) {
+          // console.log('_googleApi: ', arguments);
+          // if (editAddress) {
+          //   this.debounce('__googleApi', function(argument) {
+          //     // this.async(function(argument) {
+          //     this.autocomplete = new google.maps.places.Autocomplete(this.$$('#street').inputElement);
+          //     this.autocomplete.addListener('place_changed', this.on_change_place.bind(this));
+          //     // });
+          //   }, 0);
+          // }
+          if (_page === 1) {
+            this.debounce('__googleApi', function(argument) {
+              // this.async(function(argument) {
+              this.autocomplete = new google.maps.places.Autocomplete(this.$$('#street').inputElement);
+              this.autocomplete.addListener('place_changed', this.on_change_place.bind(this));
+              // });
+            }, 0);
+          }
+        },
+
+        on_change_place: function() {
+          this.$.catalogUser._updateAddress(this.autocomplete.getPlace());
+        },
+        _tapLogin: function() {
+          this.fire('nav', {
+            url: "/account"
+          });
+        },
+
+        _tapLogout: function() {
+          this.$.catalogUser.logout();
+        },
 
 
       });

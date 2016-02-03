@@ -5,6 +5,7 @@
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/paper-header-panel/paper-header-panel.html">
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
 
 <link rel="import" href="../../bower_components/fireproof-element/fireproof-element.html">
 
@@ -27,8 +28,6 @@
 <dom-module id="page-browse">
   <link rel="import" type="css" href="page-browse.css">
   <template>
-    <!-- <catalog-data data="{{catalog}}"></catalog-data> -->
-    <!-- <firebase-collection id="categories" location="https://charlesiescom.firebaseio.com/categories" data="{{_categories}}" order-by-priority="true" order-by-childFFF="sidemenu" equal-toFFF="sidemenu" logx></firebase-collection> -->
     <catalog-user id="catalogUser" user="{{user}}"></catalog-user>
     <catalog-category short="[[category]]" data="{{categoryInfo}}" id="catalogCategory"></catalog-category>
     <paper-drawer-panel id="drawerPanel" responsive-width="900px" narrow="{{narrowMode}}" drawer-width="272px" disable-edge-swipe>
@@ -62,7 +61,7 @@
                     <div class="layout horizontal center">
                       <package-symbol aria-hidden="true" symbol="[[menu.symbol]]" color="[[menu.color]]"></package-symbol>
                       <span class="title flex">[[menu.label]]</span>
-                      <template is="dom-if" if="[[user.isAdmin]]" restamp="true"></template>
+                      <template is="dom-if" if="[[menuEditor]]" restamp="true"></template>
                       <paper-icon-button suffix icon="clear" on-tap="_tapMenuEditor" item="[[menu]]"></paper-icon-button>
                     </div>
                   </a>
@@ -96,11 +95,30 @@
           </div>
         </div>
       </app-sidebar>
-      <paper-header-panel id="container" mode="[[_getMode(narrowMode)]]" view$="[[_actualView(view)]]" main>
+      <paper-header-panel id="container" modeFFFF="[[_getMode(narrowMode)]]" mode="waterfall" view$="[[_actualView(view)]]" main>
         <div class="paper-header">
           <paper-icon-button icon="menu" paper-drawer-toggle></paper-icon-button>
           <h2 class="flex">[[pageTitle]]</h2>
           <!-- <paper-icon-button class="toggleViewButton" icon="[[viewIcon]]" on-tap="toggleView" hidden$="[[_forceCards]]"></paper-icon-button> -->
+          <paper-menu-button vertical-align="top" horizontal-align="right">
+
+            <template is="dom-if" if="[[!user.loggedin]]" restamp="true">
+              <paper-icon-button icon="social:person" class="dropdown-trigger" alt="menu"></paper-icon-button>
+            </template>
+            <template is="dom-if" if="[[user.loggedin]]" restamp="true">
+              <paper-icon-button src="{{user.profileImageURL}}" class="dropdown-trigger" alt="menu"></paper-icon-button>
+            </template>
+
+            <paper-menu class="dropdown-content">
+              <!-- <paper-item link="cart" on-tap="_tapNav" hidden$="{{narrow}}">
+                <iron-icon icon="shopping-cart"></iron-icon>
+                <span>{{cartCount}}</span>
+              </paper-item> -->
+              <paper-item hidden={{!user.loggedin}} link="/account" on-tap="_tapNav">[[user.displayName]]</paper-item>
+              <paper-item hidden={{!user.loggedin}} on-tap="_tapLogout">logout</paper-item>
+              <paper-item hidden={{user.loggedin}} link="/login" on-tap="_tapLogin">login</paper-item>
+            </paper-menu>
+          </paper-menu-button>
           <cart-icon class="cartButton" id="cart-toggle" icon="stars" on-tap="cartOpen"></cart-icon>
         </div>
         <div id="content">
@@ -109,11 +127,7 @@
           </div>
 
           <template is="dom-if" if="[[_stampCards(view)]]" restamp>
-            <element-table-cards id="element-cards" elements="[[_filteredElements]]" byshort="[[category]]"></element-table-cards>
-          </template>
-
-          <template is="dom-if" if="[[_stampTable(view)]]" restamp>
-            <element-table color="[[_getColor(categoryInfo)]]" elements="[[_filteredElements]]" on-tag-selected="updateTag"></element-table>
+            <element-table-cards id="element-cards" byshort$="[[category]]" collection="[[collection]]" new-buttons="true"></element-table-cards>
           </template>
 
         </div>
@@ -189,6 +203,10 @@
           notify: true,
           value: '',
           observer: '_qChanged'
+        },
+        collection: {
+          type: String,
+          value: 'products'
         },
         tag: {
           type: String,
@@ -481,8 +499,7 @@
         if (this.q && this.q.length) out.push("q=" + this.q);
         if (this.tag && this.tag.length) out.push("tag=" + this.tag);
         if (this.category && this.category.length) out.push("category=" + this.package);
-        if (this.view !== 'table') out.push("view=" + this.view);
-
+        // if (this.view !== 'table') out.push("view=" + this.view);
         return out.join("&");
       },
       _handleParamsUpdate: function(_, params) {
@@ -508,30 +525,25 @@
       },
       updateURL: function(q, category, tag) {
         // console.log(q, category, tag);
-
-        if (!q || !category || !tag) {
-          return;
-        }
         var qs = this._buildQueryString();
-        console.log(qs);
+        // console.log(qs);
         if (qs !== _lastNavigated && this.router) {
           _lastNavigated = qs;
           // this.router.go('/browse' + (qs.length ? '?' + qs : ''), {replace: true});
-          // this.router.go('/' + (qs.length ? '?' + qs : ''), {replace: true});
+          this.router.go('/' + (qs.length ? '?' + qs : ''), {
+            replace: true
+          });
         }
         this.updateMeta(category, this.categoryInfo);
 
-        // if (this.elements) {
-        //   this._filteredElements = this.elements.filter(this.filter.bind(this));
-        //   this._elementCount = this._filteredElements.length;
-        // }
+
         this.scrollToTop();
       },
       updateMeta: function(category, categoryInfo) {
         // console.log(category, categoryInfo);
         if (this.q && this.q.length) {
-          var t = "'" + this.q + "' ";
-          t += (categoryInfo && categoryInfo.label) ? categoryInfo.label : "Products";
+          var t = "Search '" + this.q + "' ";
+          t += (categoryInfo && categoryInfo.label) ? categoryInfo.label : "";
           this.pageTitle = t;
         } else if (category.length && categoryInfo && categoryInfo.label) {
           this.pageTitle = categoryInfo.label;
@@ -573,6 +585,7 @@
       onSearch: function(e) {
         // when a user clicks on the (x) button we need to be sure to
         // clear the query
+        // console.log('searching: ', this.$.query.value);
         this.q = this.$.query.value;
       },
       scrollToTop: function() {
@@ -600,7 +613,16 @@
       _getMode: function(narrow) {
         // console.log(narrow ? 'waterfall' : 'scroll');
         return narrow ? 'waterfall' : 'scroll';
-      }
+      },
+      _tapLogin: function() {
+        this.fire('nav', {
+          url: "/account"
+        });
+      },
+
+      _tapLogout: function() {
+        this.$.catalogUser.logout();
+      },
     });
   })();
 </script>

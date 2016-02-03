@@ -1,11 +1,11 @@
-:host {
+:hostFFFF {
   background: #fafafa;
 }
 a {
   color: black;
   text-decoration: none;
 }
-#container {
+#containerFFFF {
   background: #fafafa;
 }
 .paper-header [paper-drawer-toggle] {

@@ -8,16 +8,12 @@
   <template>
     <firebase-auth id="firebaseLogin" user="{{_userAuth}}" status-known="{{statusKnown}}" location="https://charlesiescom.firebaseio.com" provider="{{provider}}" on-error="errorHandler" on-user-created="userSuccessHandler" on-password-changed="userSuccessHandler"
     on-password-reset="userSuccessHandler" on-user-removed="userSuccessHandler"></firebase-auth>
-    <!-- <firebase-document id="firebaseFavorites" location$="{{_favLocation(user)}}" data="{{_favs}}"></firebase-document> -->
     <firebase-document id="fbUserProfile" location$="{{_userProfileLocation(_userAuth)}}" data="{{_userProfile}}" on-firebase-value="_computeUser"></firebase-document>
-    <!-- <firebase-collection id="fbCard" location$="[[_computeCardLocation(user, loggedin)]]" data="{{_card}}" on-firebase-value="_computeCard"></firebase-collection> -->
-    <!-- <firebase-collection id="fbAddress" location$="[[_computeAddressLocation(user, loggedin, _user)]]" data="{{_address}}" on-firebase-value="_computeAddress"></firebase-collection> -->
   </template>
   <script>
     (function() {
 
       var _instances = [];
-      var _card = [];
 
       var _add = function(type, item) {
         // console.log('_computeUser._add - ', 'type: ', type);
@@ -127,37 +123,6 @@
             notify: true
           },
 
-          // _card: {
-          //   type: Array,
-          //   notify: true,
-          // },
-          _card: {
-            type: Object,
-            notify: true,
-          },
-
-          Card: {
-            type: Object,
-            notify: true,
-            value: {
-              'cc_num': '5555 5555 5555 5559'
-            }
-          },
-
-          // _address: {
-          //   type: Array,
-          //   notify: true,
-          // },
-          _address: {
-            type: Object,
-            notify: true,
-          },
-
-          Address: {
-            type: Object,
-            notify: true,
-          },
-
         },
         observers: [
           // '_computeUser(_user)',
@@ -172,12 +137,7 @@
         check: function(user) {
           console.log(user);
         },
-        // Favorites
 
-        _favLocation: function(user) {
-          // console.log(user.uid);
-          return 'https://charlesiescom.firebaseio.com/users/' + user.uid + '/favorites';
-        },
         _userProfileLocation: function(user) {
           // console.log(user.uid);
           if (!user) {
@@ -208,7 +168,7 @@
           // console.log(ref);
           if (!ref) return;
           var userDetails = ref.val() || {};
-          var user = this._user || {};
+          var user = {};
           // user = this._userAuth[this._userAuth.provider];
           user.accessToken = this._userAuth[this._userAuth.provider].accessToken;
           user.cachedUserProfile = this._userAuth[this._userAuth.provider].cachedUserProfile;
@@ -219,12 +179,30 @@
           user.provider = this._userAuth.provider;
           // console.log(userDetails);
           user.isAdmin = userDetails.isAdmin || false;
-          user.instagram = userDetails.instagram || false;
+          user.loggedin = true;
+          // Instagram
+          user.instagram = userDetails.instagram || null;
           this.set('_userProfile', user);
 
           // local use properties
           user.uid = this._userAuth.auth.uid;
           user.token = this._userAuth.token;
+          // compute address for gold-zip-input
+          var _address = userDetails.address || {
+            zipcode: ''
+          };
+          if (!_address.zipcode) {
+            _address.zipcode = '';
+          }
+          user.address = _address;
+          // compute card for gold-elements
+          user.card = userDetails.card || {
+            num: '',
+            cvc: '',
+            type: '',
+            exp: '',
+            zipcode: ''
+          };
           // send it up
           this.set('user', user);
         },
@@ -250,7 +228,6 @@
           if (provider === 'google') {
             var scope = ['https://www.googleapis.com/auth/photos', 'https://www.googleapis.com/auth/drive', 'email', 'profile'];
             params.scope = scope;
-
           }
           // console.log('login: ', provider, params);
           this.$.firebaseLogin.provider = provider;
@@ -259,8 +236,7 @@
         logout: function() {
           this.$.firebaseLogin.logout();
           // this._computeUser();
-          this.set('user', {});
-          this.loggedin = false;
+          this.set('user', this._computeGuest());
           this.wait = false;
           // console.log('logout!');
           this.fire('toast', {
@@ -299,12 +275,12 @@
         },
 
         checkstatus: function(statusKnown, _user) {
-          // console.log(statusKnown);
 
           if (statusKnown && _user) {
             // console.log('statusKnown: ', _user, statusKnown);
             // console.log('logged in');
-            this.loggedin = true;
+            // console.log(_user);
+            _user.loggedin = true;
             this.wait = false;
             return true;
           }
@@ -314,145 +290,116 @@
             // login annonomusly
 
             // this.login('anonymous');
-            this.loggedin = false;
-            this.wait = false;
 
             if (!_user) {
-              _user = {};
-              _user.uid = 'guest_' + Date.now();
-              _user.displayName = 'Guest';
-              _user.isAdmin = false;
-              this.set('user', _user);
+              this.set('user', this._computeGuest());
+              this.wait = false;
             }
             // console.log(_user);
 
-            return false;
+            // return false;
           }
           // console.log('Unknown (checking status...)');
-          this.loggedin = false;
           this.wait = true;
           // return 'Unknown (checking status...)';
         },
 
-        _computeCardLocation: function(user, loggedin) {
-          if (loggedin) {
-            return 'https://charlesiescom.firebaseio.com/users/' + this.user.uid + '/card';
+
+        _computeGuest: function() {
+          var _user = {};
+          _user.uid = 'guest_' + Date.now();
+          _user.displayName = 'Guest';
+          _user.isAdmin = false;
+          _user.loggedin = false;
+          _user.address = {
+            zipcode: ''
+          };
+          _user.card = {
+            num: '',
+            cvc: '',
+            type: '',
+            exp: '',
+            zipcode: ''
+          };
+          // console.log(_user);
+
+          return _user;
+        },
+
+        _updateAddress: function(_place) {
+          var componentForm = {
+            street_number: 'short_name',
+            route: 'long_name',
+            locality: 'long_name',
+            administrative_area_level_1: 'short_name',
+            country: 'long_name',
+            postal_code: 'short_name'
+          };
+          var _out = {
+            zipcode: ''
+          };
+
+
+          if (!_place) {
+            return _out;
           }
-          return;
-        },
 
-        _computeAddressLocation: function(user, loggedin) {
-          // console.log(user.uid, loggedin);
-          if (loggedin) {
-            return 'https://charlesiescom.firebaseio.com/users/' + user.uid + '/address';
-          }
-        },
-
-        _computeAddress: function(_, userSetting) {
-          // console.log(userSetting, this.userSetting);
-          // console.log(this._address.length);
-          // if (this._address.length > 0) {
-          //   for (var i = 0; i < this._address.length; i++) {
-          //     // console.log(this._address[i].__firebaseKey__ === this.userSetting.default_address );
-          //     if (this._address[i].__firebaseKey__ === this.userSetting.default_address) {
-          //       // console.log(this._address[i]);
-          //       this._address[i].isDefault = true;
-          //     }
-          //   }
-          // }
-          this.address = this._address;
-        },
-
-        _computeDefaultAddress: function(userSetting, address) {
-          // console.log(userSetting, address);
-          if (this._address.length > 0) {
-            for (var i = 0; i < this._address.length; i++) {
-              // console.log(this._address[i].__firebaseKey__ === this.userSetting.default_address );
-              if (this._address[i].__firebaseKey__ === this.userSetting.default_address) {
-                // console.log(this._address[i]);
-                return this._address[i];
-              }
+          if (_place.geometry) {
+            if (typeof _place.geometry.location.lat === 'function') {
+              _place.geometry.location.lat = _place.geometry.location.lat();
+            }
+            if (typeof _place.geometry.location.lng === 'function') {
+              _place.geometry.location.lng = _place.geometry.location.lng();
             }
           }
 
-        },
+          for (var i = 0; i < _place.address_components.length; i++) {
+            var addressType = _place.address_components[i].types[0];
+            if (componentForm[addressType]) {
 
-        // Save Address
+              var val = _place.address_components[i][componentForm[addressType]];
+              // console.log(addressType, val);
+              if (addressType === 'street_number') {
+                // this.formatted_address_1 = val;
+                _place.street = val;
+              }
 
-        save_address: function(newAddress) {
-          // If logged in, add to database
-          if (!this.loggedin) {
-            _add('address', newAddress);
-            return true;
+              if (addressType === 'route') {
+                // this.formatted_address_1 += ' ' + val;
+                // console.log(this.formatted_address_1);
+                _place.street += ' ' + val;
+
+              }
+
+              if (addressType === 'locality') {
+                // this.formatted_address_2 = val;
+                _place.city = val;
+              }
+
+              if (addressType === 'administrative_area_level_1') {
+                // this.formatted_address_2 += ', ' + val;
+                _place.state = val;
+              }
+
+              if (addressType === 'postal_code') {
+                // this.formatted_address_2 += ', ' + val;
+                // console.log(this.formatted_address_2);
+                _place.zipcode = val.toString();
+              }
+
+            }
           }
 
-          var key;
-          if (!newAddress.id) {
-            console.log(newAddress.id);
-            // console.dir(this.$.fbAddress);
-          } else {
-            key = this.$.fbAddress.add(newAddress).key();
-          }
-
-          this.fire('toast', {
-            text: 'New address added!'
-          });
-          return true;
-          // console.log(this.$.fbAddress.add(this.newAddress).key());
+          this.set('_userProfile.address', _place);
         },
 
-        // Save Card
+        _computeCard: function() {
 
-        save_card: function function_name(newCard) {
-          // console.log(this.loggedin);
-          // If logged in, add to database
-          if (!this.loggedin) {
-            // If guest, add to guest card array
-            _add('card', newCard);
-            return true;
-          }
-
-          // console.log('loggedin, saved to db');
-          var key = this.$.fbCard.add(newCard).key();
-
-          this.fire('toast', {
-            text: 'New card added!'
-          });
-          return true;
-          // console.log(this.$.fbAddress.add(this.newAddress).key());
 
         },
-
-        _computeCard: function(_, cardRef) {
-          // console.log(cardRef.val());
-          // console.log(this._card);
-          // var card = cardRef.val();
-          // if (this._card.length === 0) {
-          //   this.Card = null;
-          //   return;
-          // }
-
-          // console.log(this._user.default_card);
-
-          // for (var i = 0; i < this._card.length; i++) {
-          //   // console.log(this.card[i].default_card);
-          //   if (this._card[i].default_card) {
-          //     this._Card = this._card[i];
-          //     console.log(this.Card.cc_name);
-          //     return;
-          //   }
-          // }
-
-          // this.card = this._card;
-          this.Card = this._card;
-
-        },
-
-
 
 
         // Instagram
-
 
         authInstagram: function(authCode) {
           console.log(authCode);
@@ -462,11 +409,11 @@
           };
 
           var urlRef = 'https://charlesiescom.firebaseio.com';
-          var ref = new Firebase(urlRef);
-          var updates = {};
+          var ref = FireProof(new Firebase(urlRef));
+          var update = {};
           var uid = this.user.uid;
-          updates['/users/' + uid + '/instagram/'] = _instagram;
-          ref.update(updates);
+          update['/users/' + uid + '/instagram/'] = _instagram;
+          ref.update(update);
           return true;
         },
 
