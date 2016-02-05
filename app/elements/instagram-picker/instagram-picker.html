@@ -23,16 +23,6 @@
   <template>
 
     <style is="custom-style" media="screen">
-      :hostFFFF {
-        box-sizing: border-box;
-        height: 100%;
-        width: 100%;
-        background-color: white;
-        display: block;
-        position: fixed;
-        z-index: 2;
-      }
-
       :host {
         height: 90vh;
         width: 320px;
@@ -40,10 +30,6 @@
         background-color: white;
         box-shadow: rgba(0, 0, 0, 0.24) -2.3408942051048403px 5.524510324047423px 12.090680100755666px 0px, rgba(0, 0, 0, 0.12) 0px 0px 12px 0px;
         /*display: none;*/
-      }
-
-      :hostFFFF[opened] {
-        display: -webkit-box;
       }
 
       .container {
@@ -326,7 +312,7 @@
           </div>
         </paper-dialog-scrollable>
 
-      <element-table-cards id="item-cards" items="{{instagramMedia}}" view="poster"></element-table-cards>
+      <item-table-cards id="item-cards" items="{{instagramMedia}}" view="poster"></item-table-cards>
 
     </div> -->
     <template is="dom-if" if="[[opened]]" restamp="true">
@@ -341,7 +327,7 @@
           <paper-icon-button class="acceptButton" icon="save" on-tap="_accept" disabledFFFF$="[[!selectedItems.length]]"></paper-icon-button>
         </paper-toolbar>
         <div id="content">
-          <element-table-cards id="item-cards" items="{{instagramMedia}}" view="poster" label-path="item.user.username" media-path="item.images.low_resolution.url" multi="true" selected-items="{{selectedItems}}"></element-table-cards>
+          <item-table-cards id="item-cards" items="{{instagramMedia}}" view="poster" label-path="item.user.username" media-path="item.images.low_resolution.url" multi="true" selected-items="{{selectedItems}}"></item-table-cards>
         </div>
       </paper-header-panel>
     </template>
@@ -492,7 +478,7 @@
           // console.log('https://api.instagram.com/v1/users/self/media/recent/?access_token=' + token);
           // return 'https://api.instagram.com/v1/users/charlesielove/media/recent/?access_token=' + token;
           if (token && opened) {
-            return 'http://instagram-timeline.appspot.com/request/instagram?access_token=' + token + "&count=20";
+            return 'http://instagram-timeline.appspot.com/request/instagram?access_token=' + token + "&count=21";
           }
 
         },

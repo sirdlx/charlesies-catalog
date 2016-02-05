@@ -8,10 +8,10 @@
 <link rel="import" href="../catalog-category/catalog-category.html">
 <link rel="import" href="../hero-image/hero-image.html">
 <link rel="import" href="../package-symbol/package-symbol.html">
-<link rel="import" href="../element-action-menu/element-action-menu.html">
+<link rel="import" href="../item-action-menu/item-action-menu.html">
 <link rel="import" href="../cart-item-icon/cart-item-icon.html">
 
-<dom-module id="element-card">
+<dom-module id="item-card">
   <template>
     <style>
       :host {
@@ -30,7 +30,7 @@
         -webkit-transition-properties: all;
         -webkit-transition-duration: 0.4s;
         width: 266px;
-        margin-bottom: 20px;
+        padding-bottom: 20px;
         background-color: white;
         position: relative;
       }
@@ -100,6 +100,12 @@
         height: 100%;
         /*background-color: #212121;*/
         /*background-color: white;*/
+      }
+
+      .hero-bg {
+        width: 100%;
+        height: 100%;
+        opacity: .1;
       }
 
       #hero.tall {
@@ -265,7 +271,7 @@
       }
     </style>
 
-    <catalog-product id="catalogProduct" data="{{item}}" key="{{itemKey}}"></catalog-product>
+    <catalog-product id="catalogProduct" data="{{_item}}" key="{{itemKey}}"></catalog-product>
 
     <div class="vertical layout">
       <!-- <div id="el" view="docs"> -->
@@ -275,8 +281,12 @@
 
       <a href$="[[_getItemLink(item.key)]]">
         <div id="hero" style$="[[_computeStyle(color)]]" on-mouseenterFFFF="_mouseEnter" on-mouseleaveFFFF="_mouseLeave">
-          <!-- <img src="[[_getImageSrc(item)]]"> -->
-          <iron-image fade src="[[mediaSrc]]" sizing="{{sizing}}" preload placeholderFFFF=""></iron-image>
+          <template is="dom-if" if="[[_computeHeroBG(mediaSrc, mediaPlaceholder)]]" restamp="true">
+            <iron-icon class="hero-bg" icon="[[mediaIcon]]"></iron-icon>
+
+          </template>
+
+          <iron-image fade src="[[mediaSrc]]" sizing="{{sizing}}" preload placeholder="{{mediaPlaceholder}}"></iron-image>
         </div>
         <!-- <h3 id="title">[[item.label]]</h3> -->
         <template is="dom-if" if="[[!body]]" restamp="true">
@@ -297,16 +307,17 @@
         <!-- </div> -->
 
         <template is="dom-if" if="[[body]]" restamp="true">
+          <template is="dom-if" if="[[item]]" restamp="true">
+            <div class="body-item card-actions layout horizontal ">
+              <cart-item-icon id="cartItemIcon" item="[[item]]" view="paper-icon-button"></cart-item-icon>
+              <span class="flex"></span>
+              <h4 class="item-price">
+                <span>[[item.priceText]]</span>
+              </h4>
+            </div>
+          </template>
 
-          <div class="body-item card-actions layout horizontal ">
-            <cart-item-icon id="cartItemIcon" item="[[item]]" view="paper-icon-button"></cart-item-icon>
-            <span class="flex"></span>
-            <h4 class="item-price">
-              <span>[[item.priceText]]</span>
-            </h4>
-          </div>
-
-          <!-- <element-action-menu key="[[item.__firebaseKey__]]" icons-onlyFFFF="true"></element-action-menu> -->
+          <!-- <item-action-menu key="[[item.__firebaseKey__]]" icons-onlyFFFF="true"></item-action-menu> -->
 
           <div id="item-label">
             <template is="dom-if" if="[[itemLabel]]" restamp="true">
@@ -317,7 +328,7 @@
 
             <template is="dom-if" if="[[!itemLabel]]" restamp="true">
               <template is="dom-if" if="[[!admin]]" restamp="true">
-                <h3 id="label">Add Label</h3>
+                <h3 id="label">No label</h3>
               </template>
             </template>
 
@@ -335,7 +346,7 @@
 
             <template is="dom-if" if="[[!item.description]]" restamp="true">
               <template is="dom-if" if="[[!admin]]" restamp="true">
-                <p id="description">Add Description</p>
+                <p id="description">No description</p>
               </template>
             </template>
 
@@ -358,7 +369,6 @@
             <template is="dom-repeat" items="[[item.tagsArray]]" as="tag">
               <a is="app-link" class="item-tag" href="[[_computeTagLink(tag)]]">
                 <!-- active$="[[_tagActive(tag,view)]]" -->
-                s
                 <span>#[[tag.label]]</span>
               </a>
               <!-- <template is="dom-if" if="{{admin}}" restamp="true">
@@ -408,7 +418,7 @@
     }
 
     Polymer({
-      is: 'element-card',
+      is: 'item-card',
       enableCustomStyleProperties: true,
       properties: {
         // Data
@@ -437,6 +447,14 @@
           // notify: true,
           value: ''
         },
+        mediaPlaceholder: {
+          type: String,
+          value: null
+        },
+        mediaIcon: {
+          type: String,
+          value: 'image:collections'
+        },
         // View
         view: String,
         body: {
@@ -457,17 +475,25 @@
         '_computeView(view)',
         '_computeItemLabel(item, labelPath)',
         '_computeMediaSrc(item, mediaPath)',
-        // '_checkItem(_item)',
+        '_computeByKey(_item)',
+        '_computeLabel(label)',
+        // 'check(itemKey)'
       ],
-      _checkItem: function(item) {
+      check: function(item) {
+        console.log(item);
+      },
+      _computeByKey: function(item) {
         this.set('item', item);
-        console.log(this.item.tags);
+      },
+
+      _computeLabel: function(label) {
+        this.set('itemLabel', label);
       },
 
       _computeItemLabel: function(item, labelPath) {
+        // console.log(labelPath);
         if (labelPath) {
           var label = goDeep(item, labelPath.split('item.')[1]);
-          // console.log(_labelpath);
           this.set('itemLabel', label);
           return;
         }
@@ -475,6 +501,7 @@
       },
 
       _computeMediaSrc: function(item, mediaPath) {
+        // console.log(mediaPath);
         var _mediaPath = mediaPath.split('item.')[1];
         this.set('mediaSrc', goDeep(item, _mediaPath));
       },
@@ -536,11 +563,14 @@
         }
 
       },
-      _getImageSrc: function(item) {
-        if (!item.media) {
-          return '/images/hero/random-' + Math.ceil(Math.random() * 4) + '.svg';
+      _computeHeroBG: function(src, ph) {
+        if (!src && !ph) {
+          return true;
         }
-
+        return false;
+        // if (!src) {
+        //   return '/images/hero/random-' + Math.ceil(Math.random() * 4) + '.svg';
+        // }
         // return '/images/hero/random-4.svg';
         // return 'https://i1.sndcdn.com/artworks-000141692329-15r585-t500x500.jpg';
         // return 'https://www.cinematerial.com/media/posters/md/cr/cr6n9ota.jpg?v=1448549115';
@@ -571,11 +601,8 @@
         var left = this.$.hero.offsetLeft;
         var width = this.$.hero.offsetWidth;
 
-
-
-
         if (!sharedActionMenu) {
-          sharedActionMenu = document.createElement('element-action-menu');
+          sharedActionMenu = document.createElement('item-action-menu');
           sharedActionMenu.classList.add('cards');
           sharedActionMenu.classList.add('hidden');
           sharedActionMenu.addEventListener('mouseenter', mouseEnter);

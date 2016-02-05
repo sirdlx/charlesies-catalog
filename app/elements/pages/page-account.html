@@ -239,10 +239,6 @@
         box-shadow: -1px 0px 1px 0px rgba(0, 0, 0, 0.17);
       }
 
-      paper-item {
-        min-height: 72px;
-      }
-
       .edit-action {
         margin-left: 16px;
       }
@@ -305,7 +301,7 @@
       <paper-toolbar id="pageToolbar" med$="{{med}}">
         <paper-icon-button icon="arrow-back"></paper-icon-button>
         <app-logo tabindex="1"></app-logo>
-        <h2 class="title" hidden="[[small]]">[[pageText]]</h2>
+        <h2 hidden="[[small]]">[[pageText]]</h2>
         <div class="flex"></div>
 
         <paper-menu-button vertical-align="top" horizontal-align="right">
@@ -646,7 +642,7 @@
           // 'newAddressValue(address.*)'
           '_googleApi(googleapi, user, _page, editAddress)',
           '_changePage(user)',
-          'check(user)',
+          // 'check(user)',
         ],
 
         listeners: {
@@ -658,9 +654,7 @@
         },
 
         _changePage: function(user) {
-
-          console.log(user);
-
+          // console.log(user);
           if (user.loggedin) {
             this._page = 1;
             this.pageText = 'Account';

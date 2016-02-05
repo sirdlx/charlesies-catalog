@@ -82,6 +82,10 @@
         ;
       }
 
+      #navBackButton {
+        margin-left: 0;
+      }
+
       paper-icon-button {
         margin: 0 8px;
         /*--paper-icon-button-ink-color: white;*/
@@ -156,6 +160,10 @@
       #mediaToolbar {
         @apply(--layout-fit);
         z-index: 1;
+      }
+
+      #mediaToolbar /deep/ #topBar {
+        background-color: rgba(245, 245, 245, 0.68);
       }
 
       #media .iron-selected {}
@@ -317,11 +325,16 @@
     <catalog-category byshort="[[categoryByShort]]" data="{{category}}"></catalog-category>
     <catalog-user id="catalogUser" user="{{user}}" loggedin="{{loggedin}}"></catalog-user>
     <instagram-picker id="instagramPicker" token="{{user.instagram.authCode}}" on-media-selected="_instagramMediaSelected" opened="{{pickerOpen}}"></instagram-picker>
+    <iron-media-query query="max-width: 599px" query-matches="{{narrow}}">
+    </iron-media-query>
     <paper-header-panel mode="waterfall">
       <paper-toolbar id="pageToolbar">
-        <paper-icon-button icon="arrow-back"></paper-icon-button>
-        <app-logo class="flex" tabindex="1" full="true"></app-logo>
+        <paper-icon-button icon="arrow-back" id="navBackButton" on-tap="_tapNavBackButton"></paper-icon-button>
+        <app-logo class="flex" tabindex="1" full$="[[!narrow]]"></app-logo>
         <div class="flex"></div>
+        <template is="dom-if" if="{{user.isAdmin}}">
+          <paper-toggle-button checked="{{edit}}"></paper-toggle-button>
+        </template>
         <paper-menu-button vertical-align="top" horizontal-align="right">
 
           <template is="dom-if" if="[[!user.loggedin]]" restamp="true">
@@ -348,13 +361,6 @@
       <div class="content">
 
         <paper-material elevation="1" edit$="[[edit]]">
-          <template is="dom-if" if="{{user.isAdmin}}">
-            <div class="layout horizontal" style="padding-top:18px;">
-              <paper-toggle-button checked="{{edit}}"></paper-toggle-button>
-              <span class="flex"></span>
-              <!-- <paper-icon-button icon="editor:mode-edit" ></paper-icon-button> -->
-            </div>
-          </template>
 
           <div id="media" class="media-container" border-bottom>
 
@@ -463,10 +469,10 @@
               </template>
 
               <div class="layout horizontal body-item">
-                <paper-input class="optionLabelValue" value="{{addOption.label}}" label="Label" type="text" always-float-label placeholderFFFF="New">
+                <paper-input class="optionLabelValue" value="{{addOption.label::change}}" label="Label" type="text" always-float-label placeholderFFFF="New">
                 </paper-input>
                 <span class="flex"></span>
-                <paper-input class="optionPriceValue" value="{{addOption.price}}" label="Price" type="number" no-label-floatFFFF always-float-label placeholder="0">
+                <paper-input class="optionPriceValue" value="{{addOption.price::change}}" label="Price" type="number" no-label-floatFFFF always-float-label placeholder="0">
                   <div prefix>$</div>
                 </paper-input>
                 <paper-icon-button on-tap="_tapAddOption" icon="add" alt="add option" title="Add Option" style="margin-top: 20px;">
@@ -487,12 +493,12 @@
 
             <div class="body-item">
               <template is="dom-repeat" items="[[item.tagsArray]]" as="tag">
-                <template is="dom-if" if="[[!editTags]]">
-                  <a is="app-link" class="tag" href="[[_tagLink]]">
+                <template is="dom-if" if="[[!edit]]">
+                  <a is="app-link" class="item-tag" href="[[_computeTagLink(tag)]]">
                     <span>#[[tag.label]]</span>
                   </a>
                 </template>
-                <template is="dom-if" if="[[editTags]]">
+                <template is="dom-if" if="[[edit]]">
                   <paper-button on-tap="_tapRemoveTag" alt="Remove Tag" title="Remove Tag">
                     <span>#[[tag.label]]</span>
                     <iron-icon icon="clear"></iron-icon>
@@ -605,9 +611,19 @@
         _mediaArray.push(_media[i].item);
       }
       this.$.catalogProduct._addMedia(_mediaArray).then(function(arg) {
-        console.log(arg);
+        // console.log(arg);
       });
 
+    },
+
+    _tapNavBackButton: function() {
+      var _url = '/';
+      if (this.category) {
+        _url = '';
+      }
+      this.fire('nav', {
+        url: _url
+      });
     },
 
     _tapLogin: function() {
@@ -615,7 +631,6 @@
         url: "/account"
       });
     },
-
     _tapLogout: function() {
       this.$.catalogUser.logout();
     },
@@ -624,8 +639,6 @@
       // console.log(this.pickerOpen);
       this.pickerOpen = !this.pickerOpen;
     },
-
-
     _tapEditToggle: function() {
       // console.log(this.pickerOpen);
       this.edit = !this.edit;
@@ -648,11 +661,12 @@
     },
 
     _tapAddOption: function(e) {
-      this.$.catalogProduct._addOption(this.addOption)
+      var _add = this.addOption;
+      this.addOption = {};
+      this.$.catalogProduct._addOption(_add)
         .then(function(err) {
-          // console.log(err);
-          this.addOption = {};
-        });
+          console.log(err);
+        }.bind(this));
     },
     _tapRemoveOption: function(item) {
       // console.log(item.model.__data__);
@@ -739,10 +753,15 @@
         return false;
       }
 
-      if (!user.isAdmin && this._oneOrFewer(item.tagsArray)) {
-        return true;
+      if (!user.isAdmin && item.tags) {
+        return false;
       }
-      return false;
+      return true;
+    },
+    _computeTagLink: function(tag) {
+      // console.log(tag);
+      // + '&view=cards';
+      return '/?tag=' + tag.short;
     },
 
     _computeSectionOptions: function(item, user) {
@@ -751,11 +770,11 @@
         return false;
       }
 
-      if (!user.isAdmin && this._oneOrFewer(item.optionsArray)) {
-        return true;
+      if (!user.isAdmin && item.options) {
+        return false;
       }
       this.selectedOptions = 0;
-      return false;
+      return true;
     },
     _computeSectionDescription: function(item, user) {
       // console.log(item.description === true);

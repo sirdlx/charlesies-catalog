@@ -41,14 +41,16 @@
     },
     _computeCategoryByShort: function(short) {
       // console.log(short);
-      if (short) {
-        var catloc = new Fireproof(new Firebase('https://charlesiescom.firebaseio.com/categories/'));
-        catloc.orderByChild('short').equalTo(short).then(function(snap) {
+      if (short && short !== 'undefined') {
+        var ref = new Fireproof(new Firebase('https://charlesiescom.firebaseio.com/'));
+        ref.child('categories').orderByChild('short').equalTo(short).then(function(snap) {
           // console.log(snap.val());
           // console.log(Object.keys(snap.val())[0]);
           this.set('key', Object.keys(snap.val())[0]);
           // this.set('data', snap.val()[Object.keys(snap.val())[0]]);
           // return Object.keys(snap.val())[0];
+        }.bind(this), function(reason) {
+          console.log(this.fire('toast', {text:' Firebase Error - '+ reason}));
         }.bind(this));
 
       }
@@ -56,7 +58,7 @@
     },
     _computeData: function(e, snap) {
       // console.log(this._data);
-      var _value =this.edit;
+      var _value = this.edit;
       _value.key = snap.key();
       this.set('data', this.edit);
     },

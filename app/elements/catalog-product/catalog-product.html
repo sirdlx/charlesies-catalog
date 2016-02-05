@@ -2,7 +2,7 @@
 
 <dom-module id="catalog-product">
   <template>
-    <!-- <catalog-data element-map="{{_elements}}"></catalog-data> -->
+    <!-- <catalog-data item-map="{{_elements}}"></catalog-data> -->
     <firebase-document location$="{{_computeProductLocation(key)}}" data="{{edit}}" on-firebase-value="_computeData"></firebase-document>
   </template>
 </dom-module>
@@ -56,12 +56,18 @@
     },
 
     _addMedia: function(_mediaArray) {
+      // console.log(_mediaArray);
+      if (!_mediaArray.length) return false;
       var ref = new Fireproof(new Firebase('https://charlesiescom.firebaseio.com/'));
       var update = {};
       itemKey = this.key;
 
       _mediaArray.forEach(function(_item) {
-        // console.log(_item);
+        if (!_item) {
+          this.fire('toast', {
+            text: 'Error: selected info had no data'
+          });
+        }
         // Create/Update Media Item's properties and relations
         update['media/' + _item.id] = {
           cached: _item,
@@ -70,10 +76,7 @@
           width: _item.images.low_resolution.width,
           createdAt: _item.created_time,
           id: _item.id,
-          produtsById: {
-            itemKey: true
-          }
-        };
+        }['produtsById/' + itemKey] = true;
         // Update Item's relations
         update['products/' + itemKey + '/media/' + _item.id] = {
           src: _item.images.low_resolution.url,
@@ -82,7 +85,7 @@
           createdAt: _item.created_time,
           id: _item.id
         };
-      });
+      }.bind(this));
       // console.log(update);
       return ref.update(update);
 
@@ -219,7 +222,7 @@
 
     },
     _computeData: function(e, snap) {
-      // console.log(this.edit);
+      // console.log('_computeData');
       // if (!snap.val()) return;
       // var _value = this.edit;
       // _value.key = snap.key();
@@ -237,13 +240,14 @@
       // return data;
     },
     getData: function(snap) {
-      // console.log('get data');
+
       var data = snap.val();
       data.key = snap.key();
       data.priceText = this._computeItemPriceText(data);
       data.tagsArray = this._computeItemTags(data);
       data.optionsArray = this._computeItemOptions(data);
       data.mediaArray = this._computeItemMedia(data);
+      data.cover = this._computeItemCover(data);
       this.set('data', data);
     },
 
@@ -320,6 +324,28 @@
       if (!item.media) {
         // console.log('none');
         return [];
+      }
+    },
+
+    _computeItemCover: function(item) {
+      if (item.media) {
+        // console.log(item.media);
+        var _media = [];
+        for (var _key in item.media) {
+          if (item.media.hasOwnProperty(_key)) {
+            // console.log(item.tags[tag]);
+            // this.push('tags', item.tags[tag]);
+            var obj = item.media[_key];
+            obj.key = _key;
+            // console.log(obj);
+            return obj;
+          }
+        }
+      }
+
+      if (!item.media) {
+        // console.log('none');
+        return {};
       }
     },
 

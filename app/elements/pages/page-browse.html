@@ -18,9 +18,9 @@
 <link rel="import" href="../package-symbol/package-symbol.html">
 <link rel="import" href="../tag-link/tag-link.html">
 <link rel="import" href="../theme-color/theme-color.html">
-<link rel="import" href="../element-action-menu/element-action-menu.html">
-<link rel="import" href="../element-table/element-table.html">
-<link rel="import" href="../element-table-cards/element-table-cards.html">
+<link rel="import" href="../item-action-menu/item-action-menu.html">
+<link rel="import" href="../item-table/item-table.html">
+<link rel="import" href="../item-table-cards/item-table-cards.html">
 <link rel="import" href="../responsive-element/responsive-element.html">
 
 <link rel="import" href="../catalog-user/catalog-user.html">
@@ -61,8 +61,9 @@
                     <div class="layout horizontal center">
                       <package-symbol aria-hidden="true" symbol="[[menu.symbol]]" color="[[menu.color]]"></package-symbol>
                       <span class="title flex">[[menu.label]]</span>
-                      <template is="dom-if" if="[[menuEditor]]" restamp="true"></template>
-                      <paper-icon-button suffix icon="clear" on-tap="_tapMenuEditor" item="[[menu]]"></paper-icon-button>
+                      <template is="dom-if" if="[[menuEditor]]" restamp="true">
+                        <paper-icon-button suffix icon="clear" on-tap="_tapMenuEditor" item="[[menu]]"></paper-icon-button>
+                      </template>
                     </div>
                   </a>
                 </template>
@@ -127,7 +128,7 @@
           </div>
 
           <template is="dom-if" if="[[_stampCards(view)]]" restamp>
-            <element-table-cards id="element-cards" byshort$="[[category]]" collection="[[collection]]" new-buttons="true"></element-table-cards>
+            <item-table-cards id="item-cards" byshort$="[[category]]" bytag$="[[tag]]" collection="[[collection]]" new-buttons="true" media-path="item.cover.src" edit="[[user.isAdmin]]" new-collection-item="{{newCollectionItem}}"></item-table-cards>
           </template>
 
         </div>
@@ -208,6 +209,14 @@
           type: String,
           value: 'products'
         },
+
+        newCollectionItem: {
+          type: Object,
+          notify: true,
+          value: {
+            status: 1
+          }
+        },
         tag: {
           type: String,
           notify: true,
@@ -267,8 +276,6 @@
 
         elements: Array,
 
-        _filteredElements: Array,
-        _elementCount: Number,
         _forceCards: {
           type: Boolean
         },
@@ -291,7 +298,7 @@
         // '_auth(auth, user)',
         // '_check(view)',
         // '_computeCategoryLocation(category)'
-        // '_check(user)'
+        // '_check(newCollectionItem)'
       ],
       listeners: {
         'update-params': '_handleParamsUpdate',
@@ -403,8 +410,6 @@
 
       },
 
-
-
       _newLabelChange: function(e) {
         // console.log(e);
         // console.log(this.newCategory);
@@ -498,7 +503,7 @@
         var out = [];
         if (this.q && this.q.length) out.push("q=" + this.q);
         if (this.tag && this.tag.length) out.push("tag=" + this.tag);
-        if (this.category && this.category.length) out.push("category=" + this.package);
+        if (this.category && this.category.length) out.push("category=" + this.category);
         // if (this.view !== 'table') out.push("view=" + this.view);
         return out.join("&");
       },
@@ -534,9 +539,7 @@
             replace: true
           });
         }
-        this.updateMeta(category, this.categoryInfo);
-
-
+        // this.updateMeta(category, this.categoryInfo);
         this.scrollToTop();
       },
       updateMeta: function(category, categoryInfo) {

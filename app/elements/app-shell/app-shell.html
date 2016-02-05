@@ -55,6 +55,7 @@
 </dom-module>
 <script>
   var _lastNavigated = '';
+
   Polymer({
     is: 'app-shell',
     listeners: {
@@ -77,7 +78,7 @@
     },
     handleNav: function(_, nav) {
       if (nav.url !== _lastNavigated && nav.url !== window.location.href) {
-        // _lastNavigated = nav.url;
+        _lastNavigated = nav.url;
         this.$.router.go(nav.url);
         this.$.cartpanel.closeDrawer();
       }

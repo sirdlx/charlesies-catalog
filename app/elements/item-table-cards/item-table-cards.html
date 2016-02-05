@@ -6,11 +6,11 @@
 <link rel="import" href="../../bower_components/iron-icons/image-icons.html">
 
 
-<link rel="import" href="../element-card/element-card.html">
+<link rel="import" href="../item-card/item-card.html">
 <link rel="import" href="../catalog-data/catalog-data.html">
 <link rel="import" href="../catalog-user/catalog-user.html">
 
-<dom-module id="element-table-cards">
+<dom-module id="item-table-cards">
   <style>
     :host {
       display: block;
@@ -80,87 +80,60 @@
       width: 125px;
     }
 
-    #new-button-catgeory {
-      background-color: white;
+    #new-button-category {
+      /*background-color: white;*/
     }
 
-    #new-button-catgeory .placeholderBg {
-      color: var(--paper-green-500);
+    #new-button-category .placeholderBg {
+      color: var(--category-color);
     }
 
     #new-button {
-      background-color: white;
+      /*background-color: white;*/
     }
 
     #new-button .placeholderBg {
       color: var(--paper-grey-800);
-    }
-
-    .imagePlaceholder {
-      position: relative;
-      /*height: 100%;*/
-      width: 205px;
-      height: 100%;
-    }
-
-    .imagePlaceholder .placeholderBg {
-      /*color: rgba(0, 0, 0, 0.05);*/
-      /*width: 205px;
-      height: 100%;*/
     }
   </style>
   <template>
     <!-- <catalog-data package-map="{{packages}}"></catalog-data> -->
     <!-- <firebase-collection id="items" location="https://charlesiescom.firebaseio.com/items" data="{{items}}" order-by-child="category/newone" equal-to=""></firebase-collection> -->
     <catalog-user id="catalogUser" user="{{user}}"></catalog-user>
+
     <div id="grid" class="grid-container">
-
       <template is="dom-if" if="[[edit]]">
+        <!-- <h2>New</h2> -->
         <div class="grid-layout">
-
-          <paper-button id="new-button-catgeory" class="" raised on-tap="_tapNewCollectionItem">
-
-            <div class="imagePlaceholder fullwidth layout horizontal center-center">
-              <span>New in {{byshort}}</span>
-              <iron-icon class="placeholderBg" icon="note-add"></iron-icon>
-            </div>
-          </paper-button>
-
-          <paper-button id="new-button" class="" raised on-tap="_tapNewCollectionItem" hidden$="[[!byshort]]">
-            <div class="imagePlaceholder fullwidth layout horizontal center-center">
-              <span>New</span>
-              <iron-icon class="placeholderBg" icon="note-add"></iron-icon>
-            </div>
-          </paper-button>
+          <item-card id="new-button-category" label="Add to [[byshort]]" media-icon="note-add" on-tap="_tapNewCollectionItemCategory" hidden$="[[!byshort]]">
+          </item-card>
+          <item-card id="new-button" label="Add" media-icon="note-add" on-tap="_tapNewCollectionItem">
+          </item-card>
         </div>
       </template>
 
-      <!-- <div class="grid-layout">
-        <template name="element-cards-repeat" is="dom-repeat" items="{{items}}" initial-count="2" chunk-count="2">
-          <element-card item="{{item}}" label-path="[[labelPath]]" viewFFFF="{{item.view}}" view="[[view]]" item-key="[[item.key]]" color="[[_getColor(item)]]" package-symbol="[[_getCategorySymbol(item)]]" on-tap="_tapCard" adminFFFF="[[user.isAdmin]]"></element-card>
-        </template>
-      </div> -->
-
       <iron-selector multi$="[[multi]]" selected="{{selected}}" selected-items="{{selectedItems}}" class="grid-layout" id="grid">
-        <template name="element-cards-repeat" is="dom-repeat" items="{{items}}" initial-count="2" chunk-count="2">
-          <element-card select$="[[multi]]" label-path="[[labelPath]]" media-path="[[mediaPath]]" view="[[view]]" item-key="[[item.key]]" on-tap="_tapCard" adminFFFF$="[[user.isAdmin]]">
-          </element-card>
+
+        <template name="item-cards-repeat" is="dom-repeat" items="{{items}}" initial-count="10" chunk-count="20">
+          <item-card select$="[[multi]]" label-path="[[labelPath]]" media-path="[[mediaPath]]" view="[[view]]" item-key$="[[item.key]]" on-tap="_tapCard" adminFFFF$="[[user.isAdmin]]" item="{{item}}">
+          </item-card>
         </template>
       </iron-selector>
 
     </div>
     <!-- <div id="cards" on-tap="_tap">
-      <template name="element-cards-repeat" is="dom-repeat" items="[[items]]" initial-count="10" chunk-count="10">
-        <element-card item="[[item]]" color="[[_getColor(item)]]" package-symbol="[[_getCategorySymbol(item)]]"></element-card>
+      <template name="item-cards-repeat" is="dom-repeat" items="[[items]]" initial-count="10" chunk-count="10">
+        <item-card item="[[item]]" color="[[_getColor(item)]]" package-symbol="[[_getCategorySymbol(item)]]"></item-card>
       </template>
     </div> -->
   </template>
 </dom-module>
 <script>
   Polymer({
-    is: 'element-table-cards',
+    is: 'item-table-cards',
 
     properties: {
+
       items: {
         type: Array,
         notify: true,
@@ -173,7 +146,6 @@
         type: Object,
         notify: true
       },
-
       selectedItems: {
         type: Array,
         notify: true
@@ -182,7 +154,7 @@
       collection: {
         type: String,
       },
-      newColelctionItem: Object,
+      newCollectionItem: Object,
 
 
       byshort: {
@@ -198,24 +170,28 @@
     },
 
     observers: [
+      // 'check(items)',
       // '_render(elements, packages, isAttached)'
       // '_render(byshort, isAttached)',
-      // 'check(selectedItems)',
       '_computeBy(byshort, bytag, collection)',
       // '_computeByArray(items)'
     ],
     check: function(arg) {
       console.log('check: ', arg);
       for (var i = 0; i < arg.length; i++) {
-        console.log(arg[i].item);
+        console.log(arg[i]);
       }
     },
 
+    reset: function() {
+      this.splice('items', 0, this.items.length);
+    },
+
     _computeBy: function(byshort, bytag, collection) {
-      // console.log('_compute:', arguments);
-      // if (this.items.length) {
-      //   this.splice('items', 0, this.items.length);
-      // }
+      // console.log('_computeBy:', arguments);
+      if (this.items.length) {
+        this.reset();
+      }
 
       var _collection = new Fireproof(new Firebase('https://charlesiescom.firebaseio.com/' + collection));
       if (byshort.length) {
@@ -235,7 +211,8 @@
 
       } else {
         // console.log('no byShort, no tag');
-        _collection.orderByPriority().on('child_added', function(snap) {
+        // _collection.orderByPriority().on('child_added', function(snap) {
+        _collection.orderByChild('status').equalTo(1).on('child_added', function(snap) {
           // console.log(snap.val());
           var _obj = snap.val();
           _obj.key = snap.key();
@@ -244,8 +221,6 @@
         }.bind(this));
 
       }
-
-
 
       _collection.on('child_removed', function(snap) {
         // console.log(snap.val());
@@ -269,7 +244,7 @@
 
     _tapNewCollectionItem: function() {
       // this.fire('new-item');
-      var _newCollectionItem = this.newCollectionItem || {};
+      var _newCollectionItem = this.newCollectionItem;
       var _collection = new Fireproof(new Firebase('https://charlesiescom.firebaseio.com/' + this.collection));
       _collection.push(_newCollectionItem).then(function(snap) {
         // console.log(snap);
@@ -328,7 +303,7 @@
           var lastHead = firstHead + batchSize;
 
           for (; head < lastHead; head++) {
-            el = document.createElement('element-card');
+            el = document.createElement('item-card');
             el.item = elements[head];
             el.color = packages[el.item.package].color;
             el.packageSymbol = packages[el.item.package].symbol;

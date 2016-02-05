@@ -1,9 +1,9 @@
 <link rel="import" href="../../bower_components/paper-styles/paper-styles.html">
 
-<link rel="import" href="../element-action-menu/element-action-menu.html">
+<link rel="import" href="../item-action-menu/item-action-menu.html">
 <link rel="import" href="../tag-link/tag-link.html">
 
-<dom-module id="element-table">
+<dom-module id="item-table">
   <template>
     <style>
       :host {
@@ -90,7 +90,7 @@
         text-overflow: ellipsis;
       }
 
-      #actions element-action-menu {
+      #actions item-action-menu {
         right: 0;
       }
 
@@ -114,7 +114,7 @@
 </dom-module>
 <script>
   Polymer({
-    is: 'element-table',
+    is: 'item-table',
 
     properties: {
       elements: {
@@ -186,7 +186,7 @@
       var rowOffsetTop = row.offsetTop;
 
       if (!sharedActionMenu) {
-        this._sharedActionMenu = document.createElement('element-action-menu');
+        this._sharedActionMenu = document.createElement('item-action-menu');
         this._sharedActionMenu.classList.add('hidden');
         Polymer.dom(this.$.actions).appendChild(this._sharedActionMenu);
         sharedActionMenu = this._sharedActionMenu;
