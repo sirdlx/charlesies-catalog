@@ -9,6 +9,7 @@
 <link rel="import" href="../item-card/item-card.html">
 <link rel="import" href="../catalog-data/catalog-data.html">
 <link rel="import" href="../catalog-user/catalog-user.html">
+<link rel="import" href="../dlx-square/dlx-square.html">
 
 <dom-module id="item-table-cards">
   <style>
@@ -216,7 +217,6 @@
           // console.log(snap.val());
           var _obj = snap.val();
           _obj.key = snap.key();
-
           this.push('items', _obj);
         }.bind(this));
 
@@ -239,7 +239,7 @@
     //#byArray
 
     _computeByArray: function(arr) {
-      // console.dir('_computeByArray: ', arr);
+      console.dir('_computeByArray: ', arr);
     },
 
     _tapNewCollectionItem: function() {

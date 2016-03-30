@@ -1,0 +1,126 @@
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+
+<dom-module id="dlx-square">
+  <template>
+    <iron-ajax auto id="sqrLocations" headers="{{headers}}" url$="{{_computeLocationsURL(baseurl)}}" handle-as="json" on-response="_computeLocations"></iron-ajax auto>
+    <iron-ajax auto id="sqrCategories" headers="{{headers}}" url$="{{_computeCategoriesURL(baseurl, selectedLocation)}}" handle-as="json" on-response="_computeCategories" verbose></iron-ajax>
+    <iron-ajax auto id="sqrProducts" headers="{{headers}}" url$="{{_computeProductsURL(baseurl, selectedLocation)}}" handle-as="json" on-response="_computeProducts" verbose></iron-ajax>
+    <!-- <iron-ajax auto id="sqrProduct" headers="{{headers}}" url$="{{_computeProductURL(baseurl, selectedLocation, productid)}}" handle-as="json" on-response="_computeProduct" verbose></iron-ajax> -->
+    <iron-ajax auto id="sqrselectedItemVariations" headers="{{headers}}" url$="{{_computeselectedItemVariationsURL(baseurl, selectedLocation, selectedItem)}}" handle-as="json" on-response="_computeselectedItemVariations" verbose></iron-ajax>
+  </template>
+</dom-module>
+
+<script>
+  Polymer({
+    is: 'dlx-square',
+    properties: {
+      data: {
+        type: Object,
+        notify: true,
+      },
+
+      headers: {
+        type: Object,
+        // notify: true,
+        computed: '_computeHeaders(accessToken)'
+      },
+
+      baseurl: {
+        type: String,
+        notify: true,
+        value: 'https://connect.squareup.com/v1/'
+      },
+      accessToken: {
+        type: String,
+        notify: true
+      },
+      selectedLocation: {
+        type: Object,
+        notify: true,
+      },
+      categories: {
+        type: Array,
+        notify: true,
+      },
+      products: {
+        type: Array,
+        notify: true,
+      },
+      productid: {
+        type: String,
+        notify: true,
+      },
+      selectedItem: {
+        type: Object,
+        notify: true,
+      },
+      selectedItemVariations: {
+        type: Array,
+        notify: true,
+      },
+    },
+
+    observers: [
+
+    ],
+    _computeHeaders: function(accessToken) {
+      // console.log('headers');
+      return {
+        'Authorization': 'Bearer ' + accessToken,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      };
+    },
+    _computeLocationsURL: function(baseurl) {
+      // console.log(baseurl + 'me/locations');
+      return baseurl + 'me/locations';
+    },
+    _computeCategoriesURL: function(baseurl, selectedLocation) {
+      // console.log(baseurl + selectedLocation.id + '/categories');
+      return baseurl + selectedLocation.id + '/categories';
+    },
+    _computeProductsURL: function(baseurl, selectedLocation) {
+      // console.log(baseurl + selectedLocation.id + '/items');
+      return baseurl + selectedLocation.id + '/items';
+    },
+    _computeProductURLFFFF: function(baseurl, selectedLocation, productid) {
+      console.log(baseurl + selectedLocation.id + '/items');
+      return baseurl + selectedLocation.id + '/items/' + productid;
+    },
+    _computeselectedItemVariationsURL: function(baseurl, selectedItem) {
+      // console.log(baseurl + selectedLocation.id + '/items/' + selectedItem + '/variations');
+      return baseurl + selectedLocation.id + '/items/' + selectedItem + '/variations';
+    },
+    _computeLocations: function(_, req) {
+      // console.log(req.response);
+      this.set('selectedLocation', req.response[0]);
+    },
+    _computeCategories: function(_, req) {
+      // console.log(req.response);
+      this.set('categories', req.response);
+    },
+    _computeProducts: function(_, req) {
+      // console.log(req.response);
+      this.set('products', req.response);
+    },
+    _computeProductFFFF: function(_, req) {
+      console.log(req.response);
+      this.set('data', req.response);
+    },
+    _computeProduct: function(products, productid) {
+      for (var i = 0; i < products.length; i++) {
+        if (products[i].id === productid) {
+          console.log(products[i]);
+          this.set('product', products[i]);
+          return;
+        }
+      }
+    },
+    _computeselectedItemVariations: function(_, req) {
+      // console.log(req.response);
+      this.set('selectedItemVariations', req.response);
+    }
+
+
+  });
+</script>

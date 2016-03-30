@@ -18,9 +18,9 @@
 <link rel="import" href="../catalog-data/catalog-data.html">
 <link rel="import" href="../catalog-user/catalog-user.html">
 <link rel="import" href="../cart-icon/cart-icon.html">
-<link rel="import" href="../cart-item-icon/cart-item-icon.html">
 <link rel="import" href="../app-logo/app-logo.html">
 <link rel="import" href="../app-bar/app-bar.html">
+<link rel="import" href="../pages/page-styles.html">
 
 <!-- might use -->
 <link rel="import" href="../../bower_components/paper-drawer-panel/paper-drawer-panel.html">
@@ -28,25 +28,18 @@
 
 <dom-module id="page-account">
   <template>
-
+    <style include="page-styles"></style>
     <style media="screen" is="custom-style">
       :host {}
-
-      paper-header-panel {
-        @apply(--layout-fit);
-      }
-
-      paper-header-panel {}
 
       iron-pages {
         display: block;
         width: 100%;
       }
 
-      .content {
-        @apply(--layout-vertical);
-        @apply(--layout-center);
-        margin: 16px;
+      section {
+        margin: 0;
+        padding: 0;
       }
 
       #pageToolbar {
@@ -89,6 +82,15 @@
         ;
       }
 
+
+
+      .bottom-text {
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+        font-size: 20px;
+        padding-bottom: 10px;
+      }
+
       .subtitle {
         padding-top: 4px;
         font-size: 16px;
@@ -102,6 +104,10 @@
         fill: #4285f4;
         height: 48px;
         width: 48px;
+      }
+
+      .indent {
+        margin-left: 60px;
       }
 
       paper-material {
@@ -126,40 +132,6 @@
 
       .indentFFFF {
         margin-left: 60px;
-      }
-
-      .indent {
-        margin-left: 16px;
-      }
-
-      .user {
-        padding-top: 26px;
-      }
-
-      .body {
-        padding: 16px;
-      }
-
-      .body-item {
-        padding: 0 16px;
-      }
-
-      section {
-        margin-bottom: 16px;
-      }
-
-      .header {
-        margin: 16px 0;
-      }
-
-      h1,
-      h2,
-      h3,
-      h4,
-      h5,
-      h6,
-      a {
-        margin: 0;
       }
 
       #profileImage {
@@ -207,37 +179,15 @@
         line-height: 42px;
       }
 
-      .margin-right-16 {
-        margin-right: 16px;
-      }
-
-      .split {
-        @apply(--layout-vertical);
-      }
-
-      [wide] .split {
-        @apply(--layout-horizontal);
-      }
-
       [wide] .split #profileImage {
         height: 290px;
         width: 290px;
-      }
-
-      [wide] .split > section {
-        margin: 0 4px;
       }
 
       [wide] .split .userDisplayName {
         margin-top: 24px;
       }
 
-      [wide] .divider {
-        width: 1px;
-        -webkit-box-shadow: -1px 0px 1px 0px rgba(0, 0, 0, 0.17);
-        -moz-box-shadow: -1px 0px 1px 0px rgba(0, 0, 0, 0.17);
-        box-shadow: -1px 0px 1px 0px rgba(0, 0, 0, 0.17);
-      }
 
       .edit-action {
         margin-left: 16px;
@@ -299,7 +249,7 @@
     <paper-header-panel mode="waterfall">
 
       <paper-toolbar id="pageToolbar" med$="{{med}}">
-        <paper-icon-button icon="arrow-back"></paper-icon-button>
+        <paper-icon-button icon="arrow-back" id="navBackButton" on-tap="_tapNavBackButton"></paper-icon-button>
         <app-logo tabindex="1"></app-logo>
         <h2 hidden="[[small]]">[[pageText]]</h2>
         <div class="flex"></div>
@@ -325,7 +275,6 @@
           <div>[[user.displayName]]</div>
           <div class="subtitle">[[user.provider]]</div>
         </div>
-        <!-- <cart-item-icon class="bottom fab" id="cartItemIcon" item="[[item]]" view="paper-fab"></cart-item-icon> -->
       </paper-toolbar>
 
       <div class="content cover">
@@ -553,17 +502,17 @@
                   <span class="st_facebook_large" displaytext="Facebook" st_processed="yes">
                     <span style="text-decoration:none;color:#000000;display:inline-block;cursor:pointer;" class="stButton">
                       <span class="stLarge" style="background-image: url(&quot;https://ws.sharethis.com/images/facebook_32.png&quot;);"></span>
-                    </span>
+                  </span>
                   </span>
                   <span class="st_twitter_large" displaytext="Tweet" st_processed="yes">
                     <span style="text-decoration:none;color:#000000;display:inline-block;cursor:pointer;" class="stButton">
                       <span class="stLarge" style="background-image: url(&quot;https://ws.sharethis.com/images/twitter_32.png&quot;);"></span>
-                    </span>
+                  </span>
                   </span>
                   <span class="st_email_large" displaytext="Email" st_processed="yes">
                     <span style="text-decoration:none;color:#000000;display:inline-block;cursor:pointer;" class="stButton">
                       <span class="stLarge" style="background-image: url(&quot;https://ws.sharethis.com/images/email_32.png&quot;);"></span>
-                    </span>
+                  </span>
                   </span>
 
                 </section>

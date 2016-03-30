@@ -96,8 +96,8 @@
     cartOpen: function() {
       this.$.cartpanel.openDrawer();
     },
-    cartAdd: function(e, el) {
-      this.$.cart.add(el);
+    cartAdd: function(_, item) {
+      this.$.cart.add(item);
     },
     cartRemove: function(e, el) {
       this.$.cart.remove(el);

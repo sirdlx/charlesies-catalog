@@ -103,9 +103,10 @@
       }
 
       .hero-bg {
-        width: 100%;
-        height: 100%;
+        width: 70%;
+        height: 70%;
         opacity: .1;
+        padding: 32px;
       }
 
       #hero.tall {
@@ -279,13 +280,11 @@
         <iron-icon icon="check" class="check-icon" checked$="[[addressFormOk]]"></iron-icon>
       </template>
 
-      <a href$="[[_getItemLink(item.key)]]">
+      <a href$="[[_getItemLink(item)]]">
         <div id="hero" style$="[[_computeStyle(color)]]" on-mouseenterFFFF="_mouseEnter" on-mouseleaveFFFF="_mouseLeave">
           <template is="dom-if" if="[[_computeHeroBG(mediaSrc, mediaPlaceholder)]]" restamp="true">
             <iron-icon class="hero-bg" icon="[[mediaIcon]]"></iron-icon>
-
           </template>
-
           <iron-image fade src="[[mediaSrc]]" sizing="{{sizing}}" preload placeholder="{{mediaPlaceholder}}"></iron-image>
         </div>
         <!-- <h3 id="title">[[item.label]]</h3> -->
@@ -392,6 +391,11 @@
   (function() {
 
     function goDeep(obj, path) {
+      var _path = path.split('item.')[1];
+      if (!_path) {
+        var txt = "path dosen't exist: " + path;
+        // console.warn(txt);
+      }
       var parts = path.split('.'),
         rv,
         index;
@@ -430,7 +434,7 @@
         // #Label
         labelPath: {
           type: String,
-          value: 'item.label'
+          value: 'item.name'
         },
         itemLabel: {
           type: String,
@@ -477,7 +481,7 @@
         '_computeMediaSrc(item, mediaPath)',
         '_computeByKey(_item)',
         '_computeLabel(label)',
-        // 'check(itemKey)'
+        // 'check(itemLabel)'
       ],
       check: function(item) {
         console.log(item);
@@ -487,14 +491,15 @@
       },
 
       _computeLabel: function(label) {
+        console.log(label);
         this.set('itemLabel', label);
       },
 
       _computeItemLabel: function(item, labelPath) {
         // console.log(labelPath);
         if (labelPath) {
-          var label = goDeep(item, labelPath.split('item.')[1]);
-          this.set('itemLabel', label);
+          var _itemLabelPath = labelPath.split('item.')[1];
+          this.set('itemLabel', item[_itemLabelPath]);
           return;
         }
         this.set('itemLabel', 'No Label');
@@ -557,9 +562,14 @@
       _computeStyle: function(color) {
         return 'background-color:' + color;
       },
-      _getItemLink: function(_key) {
-        if (this.item.key) {
-          return '/products/' + _key;
+      _getItemLink: function(item) {
+
+        if (item.key) {
+          return '/products/' + item.key;
+        }
+
+        if (item.id) {
+          return '/products/' + item.id;
         }
 
       },
@@ -614,7 +624,6 @@
 
         // top += this.$.hero.offsetHeight - sharedActionMenu.offsetHeight;
         console.log('Top: ', top);
-
         sharedActionMenu.element = this.item.name;
         sharedActionMenu.style.top = top + 'px';
         sharedActionMenu.style.left = left + 'px';
