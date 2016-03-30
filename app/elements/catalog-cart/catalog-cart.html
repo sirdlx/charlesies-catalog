@@ -70,7 +70,7 @@
       var check = _instances[0];
       var removeAt = _item;
       for (var i = 0; i < check.items.length; i++) {
-        if (check.items[i].key === _item.key) {
+        if (check.items[i].id === _item.id) {
           removeAt = i;
         }
       }
@@ -80,7 +80,7 @@
         _instances.forEach(function(instance) {
           // console.log('item-removed');
           instance.splice('items', removeAt, 1);
-          instance.fire('item-removed', _item.label, {
+          instance.fire('item-removed', _item.name, {
             bubbles: false
           });
         });
@@ -162,8 +162,7 @@
         if (!item) return;
         for (var i = 0; i < this.items.length; i++) {
           // console.log(this.items[i].__firebaseKey__ === item.__firebaseKey__);
-          // console.log(this.items[i]);
-          if (this.items[i] === item) return true;
+          if (this.items[i].id === item.id) return true;
         }
         return false;
       }

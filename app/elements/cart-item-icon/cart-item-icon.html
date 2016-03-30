@@ -42,6 +42,7 @@
     .label {
       margin-left: 8px;
     }
+
     [animateAll] {
       transition: all 220ms;
       transition-timing-function: var(--material-curve-320);
@@ -126,13 +127,13 @@
       // this._update();
     },
     _update: function() {
+
       if (!this.item) {
         return;
       }
 
       this._setPresent(this.$.cart.includes(this.item));
       this.updateStyles();
-      // console.log(this.$.cart.includes(this.item));
 
       this._label = this.present ? this.presentLabel : this.absentLabel;
       this.setAttribute('aria-label', this._label);
@@ -145,6 +146,7 @@
       this.fire(this.present ? 'cart-remove' : 'cart-add', this.item);
     },
     _tapped: function(e) {
+
       e.stopPropagation();
       e.preventDefault();
       this.toggle();

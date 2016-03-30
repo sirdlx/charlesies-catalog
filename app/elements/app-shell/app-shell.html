@@ -8,24 +8,20 @@
 <link rel="import" href="../app-link/app-link.html">
 <link rel="import" href="../app-logo/app-logo.html">
 <link rel="import" href="../app-cart/app-cart.html">
-<link rel="import" href="../search-bar/search-bar.html">
+<link rel="import" href="../app-bar/app-bar.html">
 <link rel="import" href="../app-sidebar/app-sidebar.html">
 
 <link rel="import" href="../pages/page-packages.html">
 <link rel="import" href="../pages/page-browse.html">
-<link rel="import" href="../pages/page-item.html">
-<link rel="import" href="../pages/page-account.html">
-<!-- <link rel="import" href="../pages/page-guide.html"> -->
-<link rel="import" href="../pages/item-not-found.html">
-
-
+<link rel="import" href="../pages/page-element.html">
+<link rel="import" href="../pages/page-guide.html">
+<link rel="import" href="../pages/page-not-found.html">
 
 <dom-module id="app-shell">
   <style>
     #cartpanel::shadow > #scrim {
       z-index: 4;
     }
-
     #cartpanel::shadow > #drawer {
       z-index: 5;
     }
@@ -35,18 +31,14 @@
     }
   </style>
   <template>
-    <catalog-user id="catalogUser" user="{{user}}"></catalog-user>
     <paper-drawer-panel id="cartpanel" class="flex" force-narrow right-drawer disable-edge-swipe disable-swipe drawer-width="320px">
-      <div id="main" main>
+      <div id="main"  main>
         <app-router id="router" class="flex" mode="pushstate" on-activate-route-end="trackPageview">
-          <app-route path="/" element="page-browse" bindRouter></app-route>
-          <app-route path="/products/:byId" element="page-item" bindRouter onUrlChange="updateModel"></app-route>
-          <app-route path="/category/:category" element="page-item" bindRouter onUrlChange="updateModel"></app-route>
+          <app-route path="/" element="page-packages" bindRouter></app-route>
+          <app-route path="/browse" element="page-browse" bindRouter onUrlChange="updateModel"></app-route>
+          <app-route path="/products/:productid" element="page-element" bindRouter onUrlChange="updateModel"></app-route>
           <app-route path="/guides/:name" element="page-guide" bindRouter></app-route>
-          <app-route path="/account" element="page-account" bindRouter></app-route>
-          <!-- <app-route path="/m/:mediaId" element="page-item" bindRouter onUrlChange="updateModel"></app-route> -->
-          <!-- <app-route path="/*" element="page-browse" bindRouter onUrlChange="updateModel"></app-route> -->
-          <app-route path="*" element="item-not-found"></app-route>
+          <app-route path="*" element="page-not-found"></app-route>
         </app-router>
       </div>
       <app-cart id="cart" drawer></app-cart>
@@ -54,8 +46,6 @@
   </template>
 </dom-module>
 <script>
-  var _lastNavigated = '';
-
   Polymer({
     is: 'app-shell',
     listeners: {
@@ -74,20 +64,17 @@
     },
     performSearch: function(e) {
       e.preventDefault();
-      if (this.query.length) this.$.router.go('/?q=' + this.query);
+      if (this.query.length) this.$.router.go('/elements?q=' + this.query);
     },
     handleNav: function(_, nav) {
-      if (nav.url !== _lastNavigated && nav.url !== window.location.href) {
-        _lastNavigated = nav.url;
-        this.$.router.go(nav.url);
-        this.$.cartpanel.closeDrawer();
-      }
+      this.$.router.go(nav.url);
+      this.$.cartpanel.closeDrawer();
     },
     updateTitle: function(_, detail) {
       if (detail.title && detail.title.length) {
-        document.title = detail.title + " - Charleies.com Catalog";
+        document.title = detail.title + " - Polymer Element Catalog";
       } else {
-        document.title = "Charleies.com Catalog";
+        document.title = "Polymer Element Catalog";
       }
     },
     cartClose: function() {
@@ -96,8 +83,8 @@
     cartOpen: function() {
       this.$.cartpanel.openDrawer();
     },
-    cartAdd: function(_, item) {
-      this.$.cart.add(item);
+    cartAdd: function(e, el) {
+      this.$.cart.add(el);
     },
     cartRemove: function(e, el) {
       this.$.cart.remove(el);
@@ -112,9 +99,6 @@
     },
 
     trackPageview: function(e, detail) {
-      if (window.location.href !== _lastNavigated) {
-        _lastNavigated = window.location.href;
-      }
       this.debounce('pageview', function() {
         var loc = window.location.pathname + window.location.search;
         ga('send', 'pageview', {

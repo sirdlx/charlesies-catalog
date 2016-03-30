@@ -1,13 +1,10 @@
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
-<link rel="import" href="../../bower_components/firebase-element/firebase-document.html">
-<link rel="import" href="../../bower_components/firebase-element/firebase-collection.html">
-<link rel="import" href="../../bower_components/fireproof-element/fireproof-element.html">
+<link rel="import" href="../dlx-square/dlx-square.html">
 
 <dom-module id="catalog-data">
   <template>
     <!-- <iron-ajax id="req" url="/catalog.json" method="get" handle-as="json" on-response="_handleResponse"></iron-ajax> -->
-    <firebase-collection id="categories" location$="{{_computeCategoriesLocation(_fetchData)}}" data="{{_categories}}" on-firebase-value="_computeCategories"></firebase-collection>
-    <firebase-collection id="categories" location$="{{_computeProductsLocation(_fetchData)}}" data="{{_products}}" on-firebase-value="_computeProducts"></firebase-collection>
+    <dlx-square access-token="75ZsGfOQ64_tO04xUjEwYQ" products="{{products}}" categories="{{categories}}" categories-map="{{categoriesMap}}" products-map="{{productsMap}}"></dlx-square>
   </template>
 </dom-module>
 
@@ -24,251 +21,112 @@
       return out;
     };
 
-    var _setData = function(itemName, itemValue) {
-      _data = main || {};
-      // console.log(el._categoriesArray);
+    var _setCatalogData = function(data) {
+      _data = data || {};
       if (data) {
-        // _data.products = _generateMap(data.products);
-        // _data.categoriesMap = _generateMap(data.categories);
-        // console.log(_data);
-        // _data.guideMap = _generateMap(data.guides);
-        // _data.behaviorMap = {};
-        // _data.elements.forEach(function(el) {
-        //   el.behaviors.forEach(function(be) {
-        //     _data.behaviorMap[be] = el.name;
-        //   });
-        // });
-        _els.forEach(function(el) {
-          // el.load(_data);
-          // el._setCategories(main._categoriesArray);
-          // console.log(itemValue);
-
-          el.set(itemName, itemValue);
-          console.log(itemName, el[itemName]);
-
+        _data.productsMap = _generateMap(data.products);
+        _data.categoriesMap = _generateMap(data.categories);
+        _data.guideMap = _generateMap(data.guides);
+        _data.behaviorMap = {};
+        _data.products.forEach(function(el) {
+          el.behaviors.forEach(function(be) {
+            _data.behaviorMap[be] = el.name;
+          });
         });
       }
-
-    };
-
-    var _retrieve = function() {
-      try {
-        return _data;
-      } catch (e) {
-        console.log('error retrieving catalog data from _data.', e);
-        return {};
-      }
+      _els.forEach(function(el) {
+        el.load(_data);
+      });
     };
 
     Polymer({
       is: 'catalog-data',
-
-
-      ready: function() {
-
-
-      },
-      attached: function() {
-        // console.log(_els.length);
-        if (_els.length) {
-          // console.log('loading exiting data');
-          // this.load(_data);
-        } else {
-          // console.log('first run');
-          this._fetchData = true;
-          // this.$.req.generateRequest();
-        }
-        _els.push(this);
-      },
-      detached: function() {
-        _els.splice(_els.indexOf(this), 1);
-      },
       properties: {
-        packages: {
-          type: Array,
-          readOnly: true,
-          notify: true
-        },
-        packageMap: {
-          type: Object,
-          readOnly: true,
-          notify: true
-        },
-        elements: {
-          type: Array,
-          readOnly: true,
-          notify: true
-        },
-        elementMap: {
-          type: Object,
-          readOnly: true,
-          notify: true
-        },
-        guides: {
-          type: Array,
-          readOnly: true,
-          notify: true
-        },
-        guideMap: {
-          type: Object,
-          readOnly: true,
-          notify: true
-        },
-        tags: {
-          type: Object,
-          readOnly: true,
-          notify: true
-        },
-        behaviorMap: {
-          type: Object,
-          readOnly: true,
-          notify: true
-        },
-        // DLX
-        data: {
-          type: Object,
-          notify: true,
-          // readOnly: true,
-          value: function() {
-            return _retrieve();
-          }
-        },
-        _fetchData: {
-          type: Boolean,
-          notify: true,
-          value: false
-        },
         categories: {
           type: Array,
-          notify: true,
+          notify: true
         },
-        _categories: {
-          type: Array,
+        categoriesMap: {
+          type: Object,
           notify: true
         },
         products: {
           type: Array,
           notify: true
         },
+        productsMap: {
+          type: Object,
+          notify: true
+        }
       },
 
       observers: [
-        // '_computeReady(_readyCategories, _readyProducts)',
-        // '_updateData(_categories.*)',
-        // '_updateData(_productsArray.*)',
-        'check(categories.*)'
+        // 'check(categories)',
+        // 'check(products)'
+        // 'check(categoriesMap)'
       ],
 
-      check: function(dat) {
-        console.log('dat: ', dat);
-        this.data.categories = this.categories;
+      check: function(obj) {
+        console.log('catalog-data check obj', obj);
       },
-      _updateData: function(data) {
-        console.log(data);
-        var itemPath = data.path.split('.');
-        // console.log(itemPath.length-1);
-        if (itemPath.length - 1 === 0) return;
-        var itemName = itemPath[0].split('_')[1];
-        var itemType = itemPath[1];
-        // console.log(itemType);
-        // if (itemType === 'splices') {
-        // console.log(itemName);
-        //   var dataItem = data.path.split('.')[0];
-        // _setData(itemName, data.base);
-        _data[itemName] = data.base;
-        _els.forEach(function(el) {
-          // el.load(_data);
-          // el.set(itemName, data.base);
-          // el[itemName] = data.base;
-          console.log(itemValue);
-          // console.log(itemName, el[itemName]);
-        });
-        // }
+      readyFFFF: function() {
+        this.load(_data);
       },
-
-      load: function(_data) {
-        // console.log('load called');
-        this.data = _retrieve();
-        // this.set(itemName, itemValue);
-        // this[itemName] = itemValue;
-
-        // if (data.path) {
-        //   console.log(data.path.split('.')[0]);
-        //   var dataItem = data.path.split('.')[0];
-        //   this.set(dataItem, data.base);
+      attached: function() {
+        // if (_els.length === 0 && !_data.products) {
+        //   this.$.req.generateRequest();
         // }
-
-        // if (data._categoriesArray) {
-        //   // this.set('categories', data._categoriesArray);
-        //   console.log(this.categories, this);
-        // }
-        // if (data._productsArray) {
-        //   this._setProducts(data._productsArray);
-        // }
+        _els.push(this);
       },
-
-      _handleResponse: function(_, req) {
-        // _setPackageData(req.response);
-        // console.log(req.response);
-        _data.elements = [];
-        for (var i = 0; i < req.response.elements.length; i++) {
-          // console.log(req.response.elements[i]);
-          _data.elements.push(req.response.elements[i]);
+      detached: function() {
+        _els.splice(_els.indexOf(this), 1);
+      },
+      properties: {
+        products: {
+          type: Array,
+          notify: true
+        },
+        productsMap: {
+          type: Object,
+          notify: true
+        },
+        categories: {
+          type: Array,
+          notify: true
+        },
+        categoriesMap: {
+          type: Object,
+          notify: true
+        },
+        guides: {
+          type: Array,
+          notify: true
+        },
+        guideMap: {
+          type: Object,
+          notify: true
+        },
+        tags: {
+          type: Object,
+          notify: true
+        },
+        behaviorMap: {
+          type: Object,
+          notify: true
         }
       },
-
-
-
-
-      _computeProductsLocation: function(_fetchData) {
-        // console.log(_fetchData);
-        if (_fetchData) {
-          return 'https://charlesiescom.firebaseio.com/products';
+      load: function(data) {
+        // console.dir(this);
+        if (data.loaded) {
+          this._setproducts(data.products);
+          this._setproductsMap(data.productsMap);
+          this._setCategories(data.categories);
+          this._setcategoriesMap(data.categoriesMap);
+          this._setGuides(data.guides);
+          this._setGuideMap(data.guideMap);
+          this._setBehaviorMap(data.behaviorMap);
+          this._setTags(data.tags);
         }
-      },
-
-      _computeProducts: function(_, snap) {
-        // console.log(snap.val());
-        // this._readyProducts = true;
-        this.set('products', this._products);
-      },
-
-
-
-
-
-      _computeCategoriesLocation: function(_fetchData) {
-        if (_fetchData) {
-          // console.log(_fetchData);
-          return 'https://charlesiescom.firebaseio.com/categories';
-        }
-      },
-
-      _computeCategories: function(_, snap) {
-        // console.log(snap.val());
-        // this._readyCategories = true;
-        // this.set('categories', this._categories);
-        // _data['/categories/'] = this._categories;
-        // console.log(_data.categories[0]);
-        // console.log(_data);
-        // console.log(this);
-        // _data['categories'] = this._categories;
-        // _els.forEach(function(el) {
-        //   // el.data = _retrieve();
-        //   console.log(el.data);
-        // });
-      },
-
-
-
-
-
-
-      _computeReady: function(_readyCategories, _readyProducts) {
-        // console.log(_readyCategories, _readyProducts);
-        if (!_readyCategories) return;
-        if (!_readyProducts) return;
-        // _setData(this);
       }
     });
   })();

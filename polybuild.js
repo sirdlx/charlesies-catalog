@@ -24,11 +24,11 @@ var htmlPipe = lazypipe()
   .pipe(vulcanize, {
     inlineScripts: true,
     inlineCss: true,
-    stripComments: false,
+    stripComments: true,
     stripExcludes: ['bower_components/hydrolysis/hydrolysis-analyzer.html']
   })
   // remove whitespace from inline css
-  .pipe(polyclean.cleanCss)
+  //.pipe(polyclean.cleanCss)
 ;
 
   // remove javascript whitespace

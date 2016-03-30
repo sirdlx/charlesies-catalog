@@ -1,5 +1,5 @@
 {
-  "firebase": "charlesiescom",
+  "firebase": "sizzling-inferno-6187",
   "public": "dist",
   "ignore": [
     "firebase.json",
@@ -7,10 +7,7 @@
     "**/node_modules/**"
   ],
   "rewrites": [{
-    "source": "**/fonts/niconne-regular-charlesies.ttf",
-    "destination": "/fonts/niconne-regular-charlesies.ttf"
-  }, {
-    "source": "**",
-    "destination": "/index.html"
+    "source":"**",
+    "destination":"/index.html"
   }]
 }

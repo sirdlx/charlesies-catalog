@@ -4,7 +4,7 @@
   <template>
     <!-- <catalog-data item-map="{{_elements}}"></catalog-data> -->
     <!-- <firebase-document location$="{{_computeProductLocation(key)}}" data="{{edit}}" on-firebase-value="_computeData"></firebase-document> -->
-    <!-- <dlx-square access-token="75ZsGfOQ64_tO04xUjEwYQ" data="{{product}}" productid="{{key}}"></dlx-square> -->
+    <dlx-square access-token="75ZsGfOQ64_tO04xUjEwYQ" product="{{product}}" productid="{{key}}"></dlx-square>
   </template>
 </dom-module>
 <script>
@@ -31,7 +31,7 @@
         type: String,
         notify: true
       },
-      edit: {
+      item: {
         type: Object,
         notify: true,
       },
@@ -39,21 +39,21 @@
       data: {
         type: Object,
         notify: true,
-        // computed: 'getData(snap)'
+        // computed: '_computeData(product)'
       },
-      snap: {
+      product: {
         type: Object,
         notify: true,
       }
     },
     observers: [
       '_computeProductByShort(short)',
-      '_updatePath(data.*, snap)',
-      // '_check(data.*, snap)',
-      'getData(snap)'
+      // '_updatePath(data.*, snap)',
+      // '_check(product)',
+      // 'getData(snap)'
     ],
-    _check: function(changes, snap) {
-      console.log(changes);
+    _check: function(obj) {
+
     },
 
     _addMedia: function(_mediaArray) {
@@ -222,13 +222,17 @@
       }
 
     },
-    _computeData: function(e, snap) {
+    _computeData: function(product) {
       // console.log('_computeData');
       // if (!snap.val()) return;
       // var _value = this.edit;
       // _value.key = snap.key();
       // this.snap = snap;
-      this.set('snap', snap);
+      // console.log(product.variations[0].price_money.amount);
+      // var priceText = this._computeItemPriceText(product.variations[0].price_money.amount);
+      // console.log(price);
+      product.priceText = this._computeItemPriceText(product.variations[0].price_money.amount);
+      return product;
     },
 
     _computeItem: function(data) {
@@ -252,7 +256,29 @@
       this.set('data', data);
     },
 
-    _computeItemPriceText: function(item) {
+    _computeItemPriceText: function(price) {
+      // console.log(price);
+      if (!price || price === 0) {
+        return "$0.00";
+      }
+      var priceText = Number(price/100).formatMoney(2);
+      // console.log('$' + priceText);
+      return '$' + priceText;
+      // return '$' + Number(price).formatMoney(2);
+    },
+
+    _computeItemPriceTextFFF: function(price) {
+      // console.log(item.price);
+      if (price) {
+        return "$0.00";
+      }
+      // var priceText = Number(item.price).formatMoney(2);
+      // console.log('$' + priceText);
+      // return '$' + priceText;
+      return '$' + Number(price).formatMoney(2);
+    },
+
+    _computeItemPriceTextFFF: function(item) {
       // console.log(item.price);
       if (!item.price) {
         return "$0.00";

@@ -4,305 +4,45 @@
 <link rel="import" href="../../bower_components/paper-drawer-panel/paper-drawer-panel.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/paper-header-panel/paper-header-panel.html">
-<link rel="import" href="../../bower_components/paper-input/paper-input.html">
-<link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
-
-<link rel="import" href="../../bower_components/fireproof-element/fireproof-element.html">
 
 <link rel="import" href="../app-sidebar/app-sidebar.html">
 <link rel="import" href="../app-logo/app-logo.html">
-<link rel="import" href="../search-bar/search-bar.html">
+<link rel="import" href="../app-bar/app-bar.html">
 <link rel="import" href="../cart-icon/cart-icon.html">
 <link rel="import" href="../catalog-data/catalog-data.html">
-<link rel="import" href="../catalog-category/catalog-category.html">
+<link rel="import" href="../catalog-package/catalog-package.html">
 <link rel="import" href="../package-symbol/package-symbol.html">
 <link rel="import" href="../tag-link/tag-link.html">
 <link rel="import" href="../theme-color/theme-color.html">
-<link rel="import" href="../item-action-menu/item-action-menu.html">
-<link rel="import" href="../item-table/item-table.html">
-<link rel="import" href="../item-table-cards/item-table-cards.html">
+<link rel="import" href="../element-action-menu/element-action-menu.html">
+<link rel="import" href="../element-table/element-table.html">
+<link rel="import" href="../element-table-cards/element-table-cards.html">
 <link rel="import" href="../responsive-element/responsive-element.html">
-<link rel="import" href="../pages/page-styles.html">
-<link rel="import" href="../catalog-user/catalog-user.html">
-<link rel="import" href="../dlx-square/dlx-square.html">
-<link rel="import" href="../pages/page-styles.html">
+<link rel="import" href="../item-table-cards/item-table-cards.html">
 
 <dom-module id="page-browse">
+  <link rel="import" type="css" href="page-browse.css">
   <template>
-    <style include="page-styles"></style>
-    <style media="screen" is="custom-style">
-      #content {
-        overflow: auto;
-        -webkit-overflow-scrolling: touch;
-        padding: 0 10px;
-      }
-
-      search-bar .menu-icon {
-        margin-right: 15px;
-      }
-
-      .elements-title h2 {
-        @apply(--paper-font-title);
-        color: #424242;
-      }
-
-      .elements-title iron-icon,
-      .elements-title cart-icon {
-        cursor: pointer;
-        margin-left: 16px;
-      }
-
-      .elements-title > [paper-drawer-toggle] {
-        margin: 0 16px 0 0;
-      }
-
-      #package-heading .description {
-        font-size: 16px;
-        color: var(--paper-grey-600);
-      }
-
-      #element-cards,
-      element-table,
-      .elements-title,
-      #package-heading {
-        max-width: 920px;
-        margin: 20px auto;
-      }
-
-      #package-heading {
-        margin: 0px auto 16px;
-      }
-
-      [size=xs] > * {
-        display: none;
-      }
-
-      responsive-element[size=xs].layout {
-        -ms-flex-direction: column;
-        -webkit-flex-direction: column;
-        flex-direction: column;
-      }
-
-      [size=xs] app-sidebar {
-        min-width: 100%;
-        height: auto;
-      }
-
-      [size=xs] app-sidebar paper-toolbar /deep/ #topBar {
-        padding: 0 16px;
-      }
-
-      app-sidebar paper-toolbar {
-        --paper-toolbar-background: white;
-        --paper-toolbar: {
-          box-sizing: border-box;
-        }
-      }
-
-      #package-tag {
-        display: none;
-      }
-
-      #package-info {
-        position: relative;
-      }
-
-      #package-header {
-        position: relative;
-        padding: 16px 24px 0 24px;
-        overflow: hidden;
-      }
-
-      #package-header iron-icon {
-        cursor: pointer;
-      }
-
-      #package-header package-symbol {
-        display: inline-block;
-        margin: 0;
-        transform: translate(-50px, 0);
-        opacity: 0;
-        transition: var(--material-curve-320);
-      }
-
-      #package-title {
-        @apply(--paper-font-title);
-        margin: 0 0 20px;
-        transform: translate(-50px, 0);
-        opacity: 0;
-        transition: var(--material-curve-320);
-      }
-
-      #package-tagline {
-        margin: 0;
-        padding-right: 80px;
-        transform: translate(-50px, 0);
-        opacity: 0;
-        transition: var(--material-curve-320);
-        font-size: 13px;
-        line-height: 20px;
-      }
-
-      #package-version {
-        position: absolute;
-        top: 24px;
-        right: 16px;
-        transform: translate(50px, 0);
-        opacity: 0;
-        transition: var(--material-curve-320);
-      }
-
-      #package-desc {
-        margin: 0;
-      }
-
-      [size=xs] #package-title {
-        margin-bottom: 0;
-      }
-
-      [size=xs] #package-tagline {
-        display: none;
-      }
-
-      [size=xs] #package-tagline {
-        margin-top: 0;
-      }
-
-      .active #package-header package-symbol,
-      .active #package-title,
-      .active #package-tagline {
-        transform: translate(0, 0);
-        opacity: 1;
-      }
-
-      .active #package-version {
-        transform: translate(0, 0);
-        opacity: 0.6;
-      }
-
-      #search {
-        height: 48px;
-        line-height: 48px;
-        margin-bottom: 12px;
-        position: relative;
-      }
-
-      #search iron-icon {
-        margin-left: 16px;
-        margin-right: 8px;
-        position: absolute;
-        top: 12px;
-        left: 2px;
-      }
-
-      #search input {
-        height: 46px;
-        -webkit-appearance: none;
-        line-height: 46px;
-        border: 0;
-        margin: 0;
-        padding-left: 50px;
-        border-bottom: 1px solid #e5e5e5;
-        border-top: 1px solid #e5e5e5;
-        @apply(--paper-font-body1);
-      }
-
-      #search input:focus {
-        outline: 0;
-        background-color: #eceff1;
-        border-color: #cfd8dc;
-      }
-
-      #search input::-webkit-search-cancel-button {
-        position: relative;
-        right: 15px;
-      }
-
-      #package-list {
-        padding: 0 0 10px;
-      }
-
-      #package-list h5 {
-        margin: 10px 0;
-        padding: 0 16px;
-        color: rgba(0, 0, 0, .54);
-        font-weight: 500;
-      }
-
-      #package-list .package {
-        display: block;
-        padding: 9px 16px;
-        font-weight: 500;
-        color: rgba(0, 0, 0, .87);
-        text-transform: none;
-        border-width: 1px 0;
-      }
-
-      #package-list a {
-        cursor: pointer;
-      }
-
-      #package-list .package[active] {
-        background: var(--paper-blue-grey-50);
-      }
-
-      #package-list .package .all-symbol {
-        padding: 5px;
-      }
-
-      #package-list .package package-symbol,
-      #package-list .package .all-symbol {
-        margin-right: 15px;
-      }
-
-      #current-tag {
-        background: #2196F3;
-        color: rgba(255, 255, 255, 0.87);
-        padding: 12px;
-        font-size: 16px;
-      }
-
-      #current-tag b {
-        margin-right: 6px;
-      }
-
-      #current-tag span {
-        text-transform: uppercase;
-      }
-
-      .tags tag-link:last-of-type + span {
-        display: none;
-      }
-
-      [view=cards] element-table {
-        display: none;
-      }
-
-      [view=table] #element-cards {
-        display: none;
-      }
-    </style>
-    <catalog-user id="catalogUser" user="{{user}}"></catalog-user>
-    <catalog-category short="[[category]]" data="{{categoryInfo}}" id="catalogCategory"></catalog-category>
-    <dlx-square access-token="75ZsGfOQ64_tO04xUjEwYQ" products="{{products}}" categories="{{categories}}"></dlx-square>
+    <catalog-data products="{{products}}" categories="{{categories}}"></catalog-data>
+    <catalog-package name="[[category]]" data="{{categoryInfo}}"></catalog-package>
     <paper-drawer-panel id="drawerPanel" responsive-width="900px" narrow="{{narrowMode}}" drawer-width="272px" disable-edge-swipe>
       <app-sidebar drawer>
         <paper-toolbar>
-          <app-logo class="flex" tabindex="1" full="true"></app-logo>
-          <search-bar class="horizontal layout center end-justified" no-search></search-bar>
+          <app-logo class="flex" tabindex="1"></app-logo>
+          <app-bar class="horizontal layout center end-justified" no-search></app-bar>
         </paper-toolbar>
         <div id="search" class="layout horizontal center">
           <iron-icon icon="search"></iron-icon>
-          <input id="query" type="search" autocomplete="off" value="{{q::keyup}}" placeholder="Search" class="flex" on-search="onSearch">
+          <input id="query" type="search" autocomplete="off" value="{{q::keyup}}" placeholder="Search Products" class="flex" on-search="onSearch">
         </div>
-        <div class="">
+        <div class="content">
           <div id="package-tag" hidden$="[[!tag]]">
             <span>[[tag]]</span>
             <iron-icon icon="clear" on-tap="clearTag"></iron-icon>
           </div>
           <div id="package-list">
             <nav>
-              <a class="package" is="app-link" href="/" active$="[[_isEqual(package,'')]]" tabindex="1">
+              <a class="menu-item" is="app-link" href="/browse?category=" active$="[[_isEqual(category,'')]]" tabindex="1">
                 <div class="layout horizontal center">
                   <div class="all-symbol" aria-hidden="true">
                     <iron-icon icon="apps"></iron-icon>
@@ -310,138 +50,60 @@
                   <span class="title flex">All Products</span>
                 </div>
               </a>
-              <template is="dom-repeat" items="{{categories}}" as="menu">
-                <template is="dom-if" if="{{!menu.editor}}" restamp="true">
-                  <a class="package" is="app-link" href$="[[_categoriesLink(menu.name)]]" active$="[[_isEqual(package,menu.name)]]" tabindex="1">
-                    <div class="layout horizontal center">
-                      <package-symbol aria-hidden="true" symbol="[[menu.symbol]]" color="[[menu.color]]"></package-symbol>
-                      <span class="title flex">[[menu.name]]</span>
-                      <template is="dom-if" if="[[menuEditor]]" restamp="true">
-                        <paper-icon-button suffix icon="clear" on-tap="_tapMenuEditor" item="[[menu]]"></paper-icon-button>
-                      </template>
-                    </div>
-                  </a>
-                </template>
 
-                <template is="dom-if" if="{{menu.editor}}" restamp="true">
-                  <div class="layout horizontal center" style="padding-left: 16px;padding-right: 16px;">
-                    <package-symbol aria-hidden="true" symbol="[[menu.symbol]]" color="[[menu.color]]" style="margin-right: 16px;"></package-symbol>
-                    <paper-input class="flex" tab-index="0" value="{{menu.label::change}}" on-change="_categoryLabelChange" no-label-float disabledx$="{{user.isAdmin}}">
-                      <template is="dom-if" if="{{user.isAdmin}}" restamp="true">
-                        <paper-icon-button suffix icon="clear" on-tap="_tapClear" item="[[menu]]"></paper-icon-button>
-                      </template>
-                    </paper-input>
-                  </div>
-                </template>
-              </template>
-              <template is="dom-if" if="{{user.isAdmin}}" restamp="true">
-                <div class="package" tabindex="1">
-                  <div class="layout horizontal center">
-                    <package-symbol aria-hidden="true" symbol="[[item.symbol]]" color="[[item.color]]"></package-symbol>
-                    <paper-input id="newCategoryInput" class="flex" tab-index="0" value="{{newCategory}}" labelx="{{item.label}}" on-change="_newLabelChange" no-label-float Placeholder="New"></paper-input>
+              <template is="dom-repeat" items="[[categories]]" as="category">
+                <div class="menu-section">
+                  <h5 class="menu-header flex">{{category.name}}</h5>
+                  <div>
+                    <template is="dom-repeat" items="[[category.items]]">
+                      <a class="menu-item" is="app-link" href$="[[_categoryLink(item.url)]]" active$="[[_isEqual(category,item.name)]]" tabindex="1">
+                        <div class="layout horizontal center">
+                          <package-symbol aria-hidden="true" category="{{item}}"></package-symbol>
+                          <span class="title flex">[[item.name]]</span>
+                        </div>
+                      </a>
+                    </template>
                   </div>
                 </div>
               </template>
+
             </nav>
           </div>
           <div hidden$="[[!tag]]" id="current-tag" class="horizontal layout center">
-            <b>Tag:</b>
-            <span class="flex">[[tag]]</span>
+            <b>Tag:</b> <span class="flex">[[tag]]</span>
             <iron-icon icon="clear" on-tap="clearTag"></iron-icon>
           </div>
         </div>
       </app-sidebar>
-      <paper-header-panel id="container" modeFFFF="[[_getMode(narrowMode)]]" mode="waterfall" view$="[[_actualView(view)]]" main>
-        <paper-toolbar>
+      <paper-header-panel id="container" mode="[[_getMode(narrowMode)]]" view$="[[_actualView(view)]]" main>
+        <div class="paper-header">
           <paper-icon-button icon="menu" paper-drawer-toggle></paper-icon-button>
           <h2 class="flex">[[pageTitle]]</h2>
           <!-- <paper-icon-button class="toggleViewButton" icon="[[viewIcon]]" on-tap="toggleView" hidden$="[[_forceCards]]"></paper-icon-button> -->
-          <paper-menu-button vertical-align="top" horizontal-align="right">
-            <template is="dom-if" if="[[!user.loggedin]]" restamp="true">
-              <paper-icon-button icon="social:person" class="dropdown-trigger" alt="menu"></paper-icon-button>
-            </template>
-            <template is="dom-if" if="[[user.loggedin]]" restamp="true">
-              <paper-icon-button src="{{user.profileImageURL}}" class="dropdown-trigger" alt="menu"></paper-icon-button>
-            </template>
-            <paper-menu class="dropdown-content">
-              <!-- <paper-item link="cart" on-tap="_tapNav" hidden$="{{narrow}}">
-                  <iron-icon icon="shopping-cart"></iron-icon>
-                  <span>{{cartCount}}</span>
-                </paper-item> -->
-              <paper-item hidden={{!user.loggedin}} link="/account" on-tap="_tapNav">[[user.displayName]]</paper-item>
-              <paper-item hidden={{!user.loggedin}} on-tap="_tapLogout">logout</paper-item>
-              <paper-item hidden={{user.loggedin}} link="/login" on-tap="_tapLogin">login</paper-item>
-            </paper-menu>
-          </paper-menu-button>
           <cart-icon class="cartButton" id="cart-toggle" icon="stars" on-tap="cartOpen"></cart-icon>
-        </paper-toolbar>
-
+        </div>
         <div id="content">
-          <div id="package-heading" hidden$="[[!categoryInfo]]">
+          <div id="package-heading" hidden$="[[!packageInfo]]">
             <div class="description">[[categoryInfo.description]]</div>
           </div>
 
-          <template is="dom-if" if="[[_stampCards(view)]]" restamp>
-            <item-table-cards id="product-cards" items="{{products}}" new-buttons="true" media-path="item.master_image.url" edit="[[user.isAdmin]]" new-collection-item="{{_newProduct}}"></item-table-cards>
+          <!-- <template is="dom-if" if="[[_stampCards(view)]]" restamp>
+            <element-table-cards id="element-cards" products="[[_filteredProducts]]"></element-table-cards>
           </template>
+          <template is="dom-if" if="[[_stampTable(view)]]" restamp>
+            <element-table color="[[_getColor(categoryInfo)]]" products="[[_filteredProducts]]" on-tag-selected="updateTag"></element-table>
+          </template> -->
 
+          <item-table-cards id="product-cards" items="{{_filteredProducts}}" new-buttons="true" media-path="item.master_image.url" edit="[[user.isAdmin]]" new-collection-item="{{_newProduct}}"></item-table-cards>
         </div>
       </paper-header-panel>
     </paper-drawer-panel>
   </template>
 </dom-module>
-
+<script type="text/javascript" src="../../bower_components/defiant/dist/defiant.min.js">
+</script>
 <script>
   (function() {
-
-
-    function joinPaths(id, paths, callback) {
-      var returnCount = 0;
-      var expectedCount = paths.length;
-      var mergedObject = {};
-
-      paths.forEach(function(p) {
-        fb.child(p + '/' + id).once('value',
-          // success
-          function(snap) {
-            // add it to the merged data
-            extend(mergedObject, snap.val());
-
-            // when all paths have resolved, we invoke
-            // the callback (jQuery.when would be handy here)
-            if (++returnCount === expectedCount) {
-              callback(null, mergedObject);
-            }
-          },
-          // error
-          function(error) {
-            returnCount = expectedCount + 1; // abort counters
-            callback(error, null);
-          }
-        );
-      });
-    }
-
-    function loadCategory(categoryId) {
-      joinPaths(categoryId, ['category', 'media'], function(data) {
-        console.log(data);
-      });
-    }
-
-    function extend(base) {
-      var parts = Array.prototype.slice.call(arguments, 1);
-      parts.forEach(function(p) {
-        if (p && typeof(p) === 'object') {
-          for (var k in p) {
-            if (p.hasOwnProperty(k)) {
-              base[k] = p[k];
-            }
-          }
-        }
-      });
-      return base;
-    }
-
     var _lastNavigated = null;
     Polymer({
       is: 'page-browse',
@@ -459,27 +121,19 @@
           value: '',
           observer: '_qChanged'
         },
-        collection: {
-          type: String,
-          value: 'products'
-        },
-
-        _newProduct: {
-          type: Object,
-          notify: true,
-          value: {
-            status: 1
-          }
-        },
         tag: {
           type: String,
           notify: true,
           value: ''
         },
-
-        view: {
+        category: {
           type: String,
           notify: true,
+          value: ''
+        },
+        view: {
+          type: String,
+          notify: true
         },
 
         tagList: {
@@ -489,9 +143,9 @@
             return [];
           }
         },
-        categories: {
+        categoryList: {
           type: Array,
-          // computed: 'arrayParam(package)',
+          computed: 'arrayParam(category)',
           value: function() {
             return [];
           }
@@ -502,185 +156,87 @@
           computed: 'computeViewIcon(view)',
           value: 'view-module'
         },
-
-        catalog: {
-          type: Object,
-          notify: true
-        },
-
-        category: {
-          type: String,
-          notify: true,
-          value: ''
-        },
+        categories: Array,
         categoryInfo: {
           type: Object,
           value: {}
         },
-        editCategory: {
-          type: Boolean,
-          notify: true,
-          value: false
-        },
-        newCategory: {
-          type: String,
-          notify: true,
-          value: ''
-        },
+        products: Array,
 
-        elements: Array,
-
+        _filteredProducts: Array,
+        _productCount: Number,
         _forceCards: {
           type: Boolean
         },
-
-        // DLX
-        user: {
-          type: Object,
-          notify: true
-        },
-        loading: {
-          type: Boolean,
-          notify: true,
-          value: true
-        },
       },
       observers: [
-        'updateURL(q,category)', //tag, view, elements
+        'updateURL(q,category, tag, view, products)',
         'updateMeta(category, categoryInfo)',
-        'scrollToTop(package)',
-        // '_auth(auth, user)',
-        // '_check(view)',
+        'scrollToTop(category)',
+        // 'check(products)'
       ],
       listeners: {
-        'update-params': '_handleParamsUpdate',
-        'new-item': '_newItem'
+        'update-params': '_handleParamsUpdate'
       },
 
-      _check: function(obj) {
-        console.log(obj);
+      check: function(obj) {
+        console.log('page-browse');
+        console.log('checking obj: ', obj);
       },
 
       ready: function() {
-
-
-      },
-
-
-      attached: function() {
-        // console.log('attached');
-        // this.view = this._forceCards ? 'cards' : 'table';
         this.view = 'cards';
+        //this.view = this._forceCards ? 'cards' : 'table';
       },
 
+      filter: function(product) {
 
-      _auth: function(auth, user) {
-        console.log(auth);
-        if (auth === 'instagram') {
-          // console.log(window.location.hash.split('#access_token=')[1]);
-          var done = this.$.catalogUser.authInstagram(window.location.hash.split('#access_token=')[1]);
-          // console.log(done);
-          if (done) {
-            this.debounce('authInstagramFFFF', function(argument) {
-              window.close();
-            });
+        // if (this.q && this.q.length && product.name.indexOf(this.q) < 0) {
+        //   return false;
+        // }
+
+        if (this.q && this.q.length) {
+          res = JSON.search(product, "//*[contains(text(),'" + this.q + "')]");
+          // console.log(res);
+          if (!res.length) {
+            // console.log(false);
+            return false;
+          } else {
+            return true;
           }
         }
-      },
 
-
-      _tapClear: function(e) {
-        // console.log('clear');
-        // console.dir(e);
-        var _clear = new Fireproof(new Firebase('https://charlesiescom.firebaseio.com/categories/' + e.model.__data__.item.key + '/'));
-        // _clear.set(null);
-        _clear.remove();
-      },
-
-      _newItem: function() {
-        // var _newProductItem = {
-        //   "creadtedAt": {
-        //     ".sv": "timestamp"
-        //   }
-        // };
-
-        var _newProductItem = {
-          creadtedAt: Firebase.ServerValue.TIMESTAMP
-        };
-
-        _newProductItem.edit = true;
-        if (this.category) {
-          // Add category to
-          // _newProductItem['categories'] = {};
-          // _newProductItem.categories[this.categoryInfo.key] = true;
-          _newProductItem.category = this.categoryInfo.short;
-          _newProductItem.active = 1;
-          // console.log(this.categoryInfo);
-        }
-        var _products = new Fireproof(new Firebase('https://charlesiescom.firebaseio.com/products/'));
-        _products.push(_newProductItem).then(function(snap) {
-          // console.log(snap);
-          console.log();
-        }.bind(this));
-
-      },
-
-
-
-      _categoryLabelChange: function(e) {
-        // console.log(e.model.item);
-        var item = e.model.item;
-        var label = item.label;
-        // var short = label.replace(/[^\w-]/g, '').toLowerCase();
-        var short = label.replace(/[^\w-]/g, '');
-        item.short = label.replace(/[^\w-]/g, '');
-        // console.log('label: ', label);
-        // console.log('short: ', short);
-        item.key = null;
-        var _edit = new Fireproof(new Firebase('https://charlesiescom.firebaseio.com/categories/' + item.key + '/'));
-        // _edit.child('short').set(short);
-        _edit.set(item);
-
-      },
-
-      _newLabelChange: function(e) {
-        // console.log(e);
-        // console.log(this.newCategory);
-        var label = this.newCategory;
-        var short = label.replace(/[^\w-]/g, '').toLowerCase();
-
-        if (short.length) {
-          // console.log(short);
-          var _newC = {};
-          _newC.label = label;
-          _newC.short = short;
-          _newC.active = 1;
-          var _newCat = new Fireproof(new Firebase('https://charlesiescom.firebaseio.com/categories/'));
-          _newCat.push(_newC).then(function(snap) {
-            this.newCategory = '';
-          }.bind(this));
-        }
-      },
-
-
-
-
-      filter: function(element) {
-        if (this.q && this.q.length && element.name.indexOf(this.q) < 0) {
-          return false;
+        if (this.categoryList.length && product.category) {
+          // console.log(this.category);
+          res = JSON.search(product, "//category[cleanText='" + this.category + "']");
+          // console.log(res);
+          if (!res.length) {
+            return false;
+          }
         }
 
-        if (this.packageList.length && this.packageList.indexOf(element.package) < 0) {
-          return false;
-        }
 
         if (this.tagList.length) {
-          var match = false;
-          for (var i = 0; i < this.tagList.length; i++) {
-            if (element.tags.join(' ').indexOf(this.tagList[i]) >= 0) match = true;
+          console.log(this.tagList);
+          res = JSON.search(product, "//category[cleanText='" + this.category + "']");
+          console.log(res);
+          if (!res.length) {
+            return false;
           }
-          if (!match) return false;
         }
+
+        // console.log(this.categoryList.indexOf(product.category.cleanText));
+        // if (this.categoryList.length && product.category && this.categoryList.indexOf(product.category.cleanText) < 0) {
+        //   return false;
+        // }
+
+        // if (this.tagList.length) {
+        //   var match = false;
+        //   for (var i = 0; i < this.tagList.length; i++) {
+        //     if (product.tags.join(' ').indexOf(this.tagList[i]) >= 0) match = true;
+        //   }
+        //   if (!match) return false;
+        // }
 
         return true;
       },
@@ -696,7 +252,25 @@
       clearTag: function() {
         this.tag = null;
       },
-
+      updatePackage: function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        var newPkg = e.currentTarget.name;
+        var p = this.categoryList.slice(0);
+        if (p.indexOf(newPkg) < 0) p.push(newPkg);
+        this.category = p.join(',');
+      },
+      clearPackage: function() {
+        this.category = null;
+      },
+      togglePackages: function() {
+        if (this.category) {
+          this.prevPackage = this.category;
+          this.clearPackage();
+        } else {
+          this.category = this.prevPackage;
+        }
+      },
       _parseQueryString: function() {
         var query = window.location.search.substring(1);
         var params = query.split('&');
@@ -709,57 +283,65 @@
       },
       _buildQueryString: function() {
         var out = [];
-        if (this.q && this.q.length) out.push("q=" + this.q);
-        if (this.tag && this.tag.length) out.push("tag=" + this.tag);
-        if (this.category && this.category.length) out.push("category=" + this.category);
+        if (this.q && this.q.length > 1) {
+          out.push("q=" + this.q);
+          return out.join("&");
+        }
+        if (this.tag && this.tag.length) {
+          out.push("tag=" + this.tag);
+          return out.join("&");;
+        }
+        if (this.category && this.category.length) {
+          out.push("category=" + this.category);
+          return out.join("&");;
+        }
         // if (this.view !== 'table') out.push("view=" + this.view);
+
         return out.join("&");
       },
       _handleParamsUpdate: function(_, params) {
-        console.log(params);
         for (var key in params) {
           this[key] = params[key];
         }
       },
-      _categoriesLink: function(name) {
-        // return "/browse?package=" + name;
-        return "/?category=" + name;
+      _categoryLink: function(url) {
+        return url;
       },
       _qChanged: function(q) {
         if (q) {
           this.async(function() {
             this.$.query.focus();
-
             // make sure to force the cursor to the end of the
             // input. Only an issue in Firefox.
             this.$.query.setSelectionRange(q.length, q.length);
           });
         }
       },
-      updateURL: function(q, category, tag) {
-        // console.log(q, category, tag);
+      updateURL: function(q, categoryName, categoryInfo, tag, view) {
         var qs = this._buildQueryString();
-        // console.log(qs);
         if (qs !== _lastNavigated && this.router) {
           _lastNavigated = qs;
-          // this.router.go('/browse' + (qs.length ? '?' + qs : ''), {replace: true});
-          this.router.go('/' + (qs.length ? '?' + qs : ''), {
+          this.router.go('/browse' + (qs.length ? '?' + qs : ''), {
             replace: true
           });
         }
-        // this.updateMeta(category, this.categoryInfo);
+        this.updateMeta(categoryName, this.categoryInfo);
+
+        if (this.products) {
+          this._filteredProducts = this.products.filter(this.filter.bind(this));
+          this._productCount = this._filteredProducts.length;
+        }
         this.scrollToTop();
       },
-      updateMeta: function(category, categoryInfo) {
-        // console.log(category, categoryInfo);
+      updateMeta: function(categoryName, categoryInfo) {
         if (this.q && this.q.length) {
-          var t = "Search '" + this.q + "' ";
-          t += (categoryInfo && categoryInfo.label) ? categoryInfo.label : "";
+          var t = "'" + this.q + "' ";
+          t += (categoryInfo && categoryInfo.name) ? categoryInfo.name : "Products";
           this.pageTitle = t;
-        } else if (category.length && categoryInfo && categoryInfo.label) {
-          this.pageTitle = categoryInfo.label;
+        } else if (categoryInfo && categoryInfo.name) {
+          this.pageTitle = categoryInfo.name;
         } else if (this.tagList.length) {
-          this.pageTitle = "Tagged '" + this.tagList.join("' or '") + "'";
+          this.pageTitle = "Products Tagged '" + this.tagList.join("' or '") + "'";
         } else {
           this.pageTitle = "All Products";
         }
@@ -784,7 +366,6 @@
         }
       },
       arrayParam: function(param) {
-        // console.log('arrayParam', param);
         if (!param || !param.length) {
           return [];
         }
@@ -796,14 +377,12 @@
       onSearch: function(e) {
         // when a user clicks on the (x) button we need to be sure to
         // clear the query
-        // console.log('searching: ', this.$.query.value);
         this.q = this.$.query.value;
       },
       scrollToTop: function() {
         this.$.container.scroller.scrollTop = 0;
       },
       _stampCards: function(view) {
-        // console.log(view);
         return view === 'cards';
       },
       _stampTable: function(view) {
@@ -823,18 +402,8 @@
       },
 
       _getMode: function(narrow) {
-        // console.log(narrow ? 'waterfall' : 'scroll');
         return narrow ? 'waterfall' : 'scroll';
-      },
-      _tapLogin: function() {
-        this.fire('nav', {
-          url: "/account"
-        });
-      },
-
-      _tapLogout: function() {
-        this.$.catalogUser.logout();
-      },
+      }
     });
   })();
 </script>

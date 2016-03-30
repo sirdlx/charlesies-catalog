@@ -1,16 +1,16 @@
-<link rel="import" href="../catalog-product/catalog-product.html">
+<link rel="import" href="../catalog-package/catalog-package.html">
 <link rel="import" href="../theme-color/theme-color.html">
 
 <dom-module id="package-tile">
   <link rel="import" type="css" href="package-tile.css">
   <template>
-    <catalog-product name="[[name]]" data="{{package}}"></catalog-product>
-    <theme-color id="content" color="[[package.color]]" class="vertical layout" themed themed-border>
-      <span class="version">[[package.version]]</span>
-      <h2 class="symbol">[[package.symbol]]</h2>
-      <h3 class="title" extended$="[[_extendedTitle(package)]]">[[package.title]]</h3>
-      <hr themed-reverse>
-      <p class="tagline">[[package.tagline]]</p>
+    <catalog-package categoryname="[[name]]" category="{{category}}"></catalog-package>
+    <theme-color id="content" color="[[category.color]]" class="vertical layout" themed themed-border>
+      <!-- <span class="version">[[category.version]]</span> -->
+      <h2 class="symbol">[[_computeAbbr(category)]]</h2>
+      <!-- <h3 class="title" extended$="[[_extendedTitle(category)]]">[[category.name]]</h3> -->
+      <!-- <hr themed-reverse> -->
+      <!-- <p class="tagline">[[category.tagline]]</p> -->
     </theme-color>
   </template>
 </dom-module>
@@ -20,9 +20,24 @@
     is: 'package-tile',
     enableCustomStyleProperties: true,
     properties: {
-      name: {type: String, notify: true},
-      package: {type: Object}
+      name: {
+        type: String,
+        notify: true
+      },
+      category: {
+        type: Object,
+        notify: true
+      }
     },
+
+    observers: [
+      // 'check(category)'
+    ],
+    check: function(obj) {
+      console.log(obj);
+    },
+
+
     attached: function() {
       var tiles = this.parentNode.querySelectorAll('package-tile');
       var index = Array.prototype.indexOf.call(tiles, this);
@@ -30,8 +45,11 @@
         this.classList.add('active');
       }.bind(this), (index + 1) * 50);
     },
+    _computeAbbr: function(c) {
+      return c.name;
+    },
     _extendedTitle: function(p) {
-      if (p.title.length > 20) return true;
+      if (p.name.length > 20) return true;
     }
   });
 </script>

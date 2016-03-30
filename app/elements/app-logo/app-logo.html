@@ -39,9 +39,9 @@
   </style>
   <template>
     <a href="/" is="pushstate-anchor" class="horizontal layout center">
-      <img src="/images/polymer.svg" width="36" alt="Polymer Logo">
-      <h1 hidden$="[[!full]]">Polymer Catalog</h1>
-      <h1 hidden$="[[full]]">Catalog</h1>
+      <!-- <img src="/images/polymer.svg" width="36" alt="Polymer Logo"> -->
+      <h1 hidden$="[[full]]">Polymer Catalog</h1>
+      <h1 hidden$="[[!full]]">Catalog</h1>
     </a>
   </template>
 </dom-module>
@@ -58,6 +58,9 @@
     }
   });
 </script>
+
+
+
 
 <dom-module id="app-logo">
   <style is="custom-style">
@@ -140,7 +143,7 @@
       properties: {
         full: {
           type: Boolean,
-          value: false
+          value: true
         }
       },
 

@@ -113,12 +113,21 @@
         </div>
       </template>
 
-      <iron-selector multi$="[[multi]]" selected="{{selected}}" selected-items="{{selectedItems}}" class="grid-layout" id="grid">
 
-        <template name="item-cards-repeat" is="dom-repeat" items="{{items}}" initial-count="10" chunk-count="20">
-          <item-card select$="[[multi]]" label-path="[[labelPath]]" media-path="[[mediaPath]]" view="[[view]]" item-key$="[[item.key]]" on-tap="_tapCard" adminFFFF$="[[user.isAdmin]]" item="{{item}}">
-          </item-card>
+
+      <iron-selector multi$="[[multi]]" selected="{{selected}}" selected-items="{{selectedItems}}" class="grid-layout" id="items">
+        <!-- <div class="item-tmpl">
+          <content id="templates" select=".grid-item,[grid-item]">
+          </content>
+        </div> -->
+        <template name="item-cards-repeat" is="dom-repeat" items="{{items}}" initial-count="10" chunk-count="20" restamp>
+          <template is="dom-if" if="{{!countDestinationInsertionPoints}}">
+            <item-card select$="[[multi]]" label-path="[[labelPath]]" media-path="[[mediaPath]]" view="[[view]]" item-key$="[[item.key]]" on-tap="_tapCard" adminFFFF$="[[user.isAdmin]]" item="{{item}}">
+            </item-card>
+          </template>
         </template>
+
+
       </iron-selector>
 
     </div>
@@ -137,10 +146,7 @@
 
       items: {
         type: Array,
-        notify: true,
-        value: function() {
-          return [];
-        }
+        notify: true
       },
 
       selected: {
@@ -168,6 +174,17 @@
         value: ''
       },
 
+      view: {
+        type: String,
+        notify: true
+      },
+
+    },
+    behaviors: [
+      Polymer.Templatizer
+    ],
+    parameters: {
+      collection: Object
     },
 
     observers: [
@@ -175,7 +192,8 @@
       // '_render(elements, packages, isAttached)'
       // '_render(byshort, isAttached)',
       '_computeBy(byshort, bytag, collection)',
-      // '_computeByArray(items)'
+      '_computeByArray(items)',
+
     ],
     check: function(arg) {
       console.log('check: ', arg);
@@ -239,7 +257,23 @@
     //#byArray
 
     _computeByArray: function(arr) {
-      console.dir('_computeByArray: ', arr);
+      var templateNode = Polymer.dom(this.$.templates).getDistributedNodes()[0];
+      this.set('countDestinationInsertionPoints', templateNode ? true : false);
+      // console.log(this.countDestinationInsertionPoints);
+    },
+
+    _computeByArrayFFFReal: function(arr) {
+
+      var templateNode = Polymer.dom(this.$.templates).getDistributedNodes()[0];
+
+      console.log(templateNode ? true : false);
+      for (var i = 0; i < arr.length; i++) {
+        var clone = this.stamp(templateNode, {});
+        clone.item = arr[i];
+        // append clone.root to DOM instead
+        Polymer.dom(this.$.repeater).appendChild(clone.root);
+      }
+      this.set('countDestinationInsertionPoints', templateNode ? true : false);
     },
 
     _tapNewCollectionItem: function() {

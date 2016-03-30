@@ -6,34 +6,203 @@
 <link rel="import" href="../package-tile/package-tile.html">
 <link rel="import" href="../guide-card/guide-card.html">
 <link rel="import" href="../cart-icon/cart-icon.html">
+<link rel="import" href="../item-table-cards/item-table-cards.html">
 
 <dom-module id="page-packages">
-  <link rel="import" type="css" href="page-packages.css">
+  <!-- <link rel="import" type="css" href="page-packages.css"> -->
+  <style>
+    paper-header-panel {
+      background: #fafafa;
+    }
+
+    .content {
+      display: block;
+      margin-top: 32px;
+      padding-bottom: 50px;
+    }
+
+    .header {
+      @apply(--paper-font-display2);
+    }
+
+    .page-sectionFFF,
+    #grid-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      margin-bottom: 32px;
+    }
+
+    cart-icon {
+      margin-left: 8px;
+    }
+
+    @media (max-width: 1132px) {
+      .page-sectionFFF,
+      #grid-container {
+        max-width: 880px;
+      }
+    }
+
+    @media (max-width: 912px) {
+      .page-sectionFFF,
+      #grid-container {
+        /*max-width: 660px;*/
+        width: 586px;
+      }
+    }
+
+    @media (max-width: 692px) {
+      .page-sectionFFF,
+      #grid-container {
+        max-width: 440px;
+      }
+    }
+
+    a.grid-itemFFF {
+      width: 100%;
+      margin: 0;
+    }
+
+    @media (max-width: 489px) {
+      a.grid-itemFFF {
+        width: calc(100% - 16px);
+      }
+    }
+
+    .search.active {
+      left: 15px;
+    }
+
+    @media (max-width: 639px) {
+      paper-toolbar /deep/ #topBar {
+        margin-top: 4px;
+        padding: 0 16px;
+      }
+    }
+
+    guide-card,
+    #coming-soon {
+      width: 456px;
+      cursor: pointer;
+      margin: 8px;
+    }
+
+    @media (max-width: 489px) {
+      guide-card,
+      #coming-soon {
+        width: 100%;
+      }
+    }
+
+    #grid-container h3 {
+      margin: 36px 8px 8px;
+    }
+
+    #coming-soon {
+      cursor: normal;
+      line-height: 76px;
+      text-align: center;
+      font-size: 16px;
+      color: rgba(0, 0, 0, var(--dark-primary-opacity));
+      border: 8px dashed #e5e5e5;
+    }
+
+    .grid-container {
+      @apply(--layout-vertical);
+      @apply(--layout-center);
+    }
+
+    .grid-layout {
+      /*padding: 16px 0;*/
+      @apply(--layout-horizontal);
+      @apply(--layout-wrap);
+      width: 100%;
+    }
+
+    .grid-item {
+      width: calc(100%);
+    }
+
+    @media all and (min-width: 481px) {
+      .grid-container {
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+      }
+      .grid-layout {
+        width: 460px;
+      }
+      .grid-item {
+        width: calc(50% - 16px);
+        margin: 0 8px 16px 8px;
+      }
+    }
+
+    @media all and (min-width: 961px) and (orientation: landscape) {
+      .grid-container {
+        padding-left: 0;
+        padding-right: 0;
+      }
+      .grid-layout {
+        width: 690px;
+      }
+    }
+
+    @media all and (min-width: 1281px) and (max-width: 1600px) {
+      .grid-item {
+        width: calc(33% - 32px);
+      }
+      .grid-layout {
+        width: 920px;
+      }
+    }
+  </style>
   <template>
-    <catalog-data packages="{{packages}}" guides="{{guides}}"></catalog-data>
+    <catalog-data categories="{{categories}}" guides="{{guides}}"></catalog-data>
     <paper-header-panel mode="seamed" class="fit">
       <paper-toolbar class="paper-header">
         <app-logo full class="flex"></app-logo>
-        <search-bar class="horizontal layout center end-justified" query="{{q}}"></search-bar>
+        <app-bar class="horizontal layout center end-justified" query="{{q}}"></app-bar>
         <cart-icon></cart-icon>
       </paper-toolbar>
 
       <div class="content fit">
-        <div class="packages layout horizontal wrap">
-          <template is="dom-repeat" items="[[packages]]">
-            <a href$="[[_packageLink(item.name)]]" is="app-link" class="package flex-none"><package-tile name$="[[item.name]]"></package-tile></a>
+        <!-- <item-table-cards id="category-cards" items="{{categories}}" new-buttons="true" media-path="item.master_image.url" edit="[[user.isAdmin]]">
+          <package-tile grid-item category$="[[item]]"></package-tile>
+        </item-table-cards> -->
+        <!-- <div class="page-section layout horizontal wrap">
+          <template is="dom-repeat" items="[[categories]]">
+            <a href$="[[_categoryLink(item.name)]]" is="app-link" class="grid-item flex-none">
+              <package-tile category$="[[item]]"></package-tile>
+            </a>
           </template>
-        </div>
+        </div> -->
 
-        <div id="guides-container">
+        <template is="dom-repeat" items="[[categories]]" as="category">
+          <div class="page-section grid-container">
+            <h2 class="header flex">{{category.name}}</h2>
+            <div class="grid-layout">
+              <template is="dom-repeat" items="[[category.items]]">
+                <a href$="[[_categoryLink(item.url)]]" is="app-link" class="grid-item flex-none">
+                  <package-tile category$="[[item]]"></package-tile>
+                </a>
+              </template>
+            </div>
+          </div>
+        </template>
+        <!-- <div id="grid-container">
           <h3>Element Guides</h3>
           <div id="guide-list" class="horizontal layout wrap">
             <template is="dom-repeat" items="[[guides]]">
-              <a href$="[[_link('guides',item.name)]]" is="app-link"><guide-card guide="[[item.name]]"></guide-card></a>
+              <a href$="[[_link('guides',item.name)]]" is="app-link">
+                <guide-card guide="[[item.name]]"></guide-card>
+              </a>
             </template>
-            <div id="coming-soon">More guides coming soon, stay tuned!</div>  
+            <div id="coming-soon">More guides coming soon, stay tuned!</div>
           </div>
-        </div>
+        </div> -->
+
+
+
       </div>
     </paper-header-panel>
   </template>
@@ -44,11 +213,16 @@
     is: 'page-packages',
     enableCustomStyleProperties: true,
     properties: {
-      q: { type: String, notify: true }
+      q: {
+        type: String,
+        notify: true
+      }
     },
     attached: function() {
       // reset page title since this is the default page
-      this.fire('page-meta', {title: null});
+      this.fire('page-meta', {
+        title: null
+      });
     },
     observers: [
       'search(q)'
@@ -61,8 +235,8 @@
     _link: function() {
       return "/" + Array.prototype.slice.call(arguments).join("/");
     },
-    _packageLink: function(name) {
-      return "/browse?package=" + name;
+    _categoryLink: function(url) {
+      return url;
     },
     guideSelect: function(e) {
       this.router.go('/guides/' + e.currentTarget.guide);

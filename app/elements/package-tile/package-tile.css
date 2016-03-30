@@ -14,8 +14,7 @@
   display: block;
   position: relative;
   width: 100%;
-  /*background: #fafafa;*/
-  background: #fff;
+  background: #fafafa;
   border-radius: 2px;
   box-sizing: border-box;
   overflow: hidden;
@@ -31,14 +30,26 @@
   box-shadow: 0 5px 10px rgba(0,0,0,.15);
 }
 
-h2 {
+h2FFF {
+  height: 96px;
   font-weight: 400;
   font-size: 48px;
   margin: 20px 0;
   transform: translate(-50px, 0);
   opacity: 0;
+  word-break: break-word;
   transition: all 500ms 320ms;
   transition-timing-function: var(--material-curve-320);
+}
+
+h2{
+  height: 96px;
+  transform: translate(-50px, 0);
+  opacity: 0;
+  word-break: break-word;
+  transition: all 500ms 320ms;
+  transition-timing-function: var(--material-curve-320);
+  @apply(--paper-font-display1);
 }
 
 :host(.active) h2 {

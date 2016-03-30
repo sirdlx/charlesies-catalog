@@ -16,7 +16,7 @@
     <style>
       :host {
         display: -webkit-box;
-        /*margin: 10px 10px 10px 0;*/
+        margin: 0 0 10px 0;
         cursor: pointer;
         border-radius: 4px;
         /*border: 1px solid #d0d0d0;*/
@@ -30,9 +30,9 @@
         -webkit-transition-properties: all;
         -webkit-transition-duration: 0.4s;
         width: 266px;
-        padding-bottom: 20px;
         background-color: white;
         position: relative;
+        overflow: hidden;
       }
 
       :root {
@@ -114,20 +114,21 @@
       }
 
       #heroActions {
-        position: absolute;
+        /*position: absolute;*/
         bottom: 0;
         right: 0;
         left: 0;
-        background: rgba(51, 51, 51, 0.41);
-        color: white;
-        height: 52px;
+        /*background: rgba(51, 51, 51, 0.41);*/
+        /*color: white;*/
+        /*height: 52px;*/
       }
 
       #heroActions #title {
         @apply(--paper-font-title2);
-        color: white;
+        /*color: white;*/
         margin: 0;
         padding: 10px 16px;
+        height: 58px;
       }
 
       .item-price {
@@ -139,7 +140,7 @@
         /*border-top: 1px solid;*/
         /*border-bottom: 1px solid;*/
         /*border-color: var(--divider-color);*/
-        border-color: rgba(219, 219, 219, 0.2);
+        /*border-color: rgba(219, 219, 219, 0.2);*/
         padding: 10px 16px;
         min-height: 20px;
       }
@@ -272,7 +273,7 @@
       }
     </style>
 
-    <catalog-product id="catalogProduct" data="{{_item}}" key="{{itemKey}}"></catalog-product>
+    <!-- <catalog-product id="catalogProduct" data="{{_item}}" key="{{item.id}}"></catalog-product> -->
 
     <div class="vertical layout">
       <!-- <div id="el" view="docs"> -->
@@ -281,12 +282,14 @@
       </template>
 
       <a href$="[[_getItemLink(item)]]">
-        <div id="hero" style$="[[_computeStyle(color)]]" on-mouseenterFFFF="_mouseEnter" on-mouseleaveFFFF="_mouseLeave">
-          <template is="dom-if" if="[[_computeHeroBG(mediaSrc, mediaPlaceholder)]]" restamp="true">
-            <iron-icon class="hero-bg" icon="[[mediaIcon]]"></iron-icon>
-          </template>
-          <iron-image fade src="[[mediaSrc]]" sizing="{{sizing}}" preload placeholder="{{mediaPlaceholder}}"></iron-image>
-        </div>
+        <template is="dom-if" if="{{mediaSrc}}" restamp="true">
+          <div id="hero" style$="[[_computeStyle(color)]]" on-mouseenterFFFF="_mouseEnter" on-mouseleaveFFFF="_mouseLeave">
+            <template is="dom-if" if="[[_computeHeroBG(mediaSrc, mediaPlaceholder)]]" restamp="true">
+              <iron-icon class="hero-bg" icon="[[mediaIcon]]"></iron-icon>
+            </template>
+            <iron-image fade src="[[mediaSrc]]" sizing="{{sizing}}" preload placeholder="{{mediaPlaceholder}}"></iron-image>
+          </div>
+        </template>
         <!-- <h3 id="title">[[item.label]]</h3> -->
         <template is="dom-if" if="[[!body]]" restamp="true">
           <div id="heroActions" class="layout horizontal">
@@ -431,6 +434,11 @@
           notify: true
         },
         itemKey: String,
+        // #Hero
+        hero: {
+          type: Boolean,
+          value: true
+        },
         // #Label
         labelPath: {
           type: String,
@@ -460,7 +468,10 @@
           value: 'image:collections'
         },
         // View
-        view: String,
+        view: {
+          type: String,
+          value: ''
+        },
         body: {
           type: Boolean,
           value: true
@@ -481,10 +492,10 @@
         '_computeMediaSrc(item, mediaPath)',
         '_computeByKey(_item)',
         '_computeLabel(label)',
-        // 'check(itemLabel)'
+        // 'check(item)'
       ],
       check: function(item) {
-        console.log(item);
+        console.log(item.priceText);
       },
       _computeByKey: function(item) {
         this.set('item', item);
@@ -521,6 +532,7 @@
 
       _computeView: function(view) {
         // console.log(view);
+
         if (view === 'poster') {
           this.body = false;
           // this.sizing = 'contain';
@@ -564,12 +576,8 @@
       },
       _getItemLink: function(item) {
 
-        if (item.key) {
-          return '/products/' + item.key;
-        }
-
-        if (item.id) {
-          return '/products/' + item.id;
+        if (item.url) {
+          return item.url;
         }
 
       },

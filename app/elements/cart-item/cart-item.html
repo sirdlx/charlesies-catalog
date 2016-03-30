@@ -1,14 +1,21 @@
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-item/paper-icon-item.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item-body.html">
+<link rel="import" href="../../paper-styles/color.html">
+<link rel="import" href="../../bower_components/iron-image/iron-image.html">
+
 <link rel="import" href="../catalog-product/catalog-product.html">
 
 <dom-module id="cart-item">
   <style>
     :host {
       display: block;
-      font-size: 16px;
-      padding: 12px 16px;
-      @apply(--layout);
-      @apply(--layout-horizontal);
+      /*font-size: 16px;*/
+      /*padding: 12px 16px;*/
+      /*@apply(--layout);
+      @apply(--layout-horizontal);*/
       cursor: pointer;
     }
 
@@ -21,34 +28,60 @@
     }
 
     iron-icon {
-      width: 16px !important;
+      /*width: 16px !important;
       height: 16px !important;
       cursor: pointer;
-      margin: 0 6px;
+      margin: 0 6px;*/
       opacity: 0.0;
       transition: var(--material-curve-320);
     }
+
+    .thumb {
+      display: inline-block;
+      box-sizing: border-box;
+      width: 40px;
+      height: 40px;
+      /*border-radius: 50%;*/
+      background: white;
+    }
+
+    .blue {
+      background-color: var(--paper-light-blue-300);
+    }
   </style>
   <template>
-    <span class="flex">[[item.label]]</span>
-    <!-- <iron-icon icon="description" view="docs" on-tap="_nav"></iron-icon>
-    <iron-icon icon="visibility" view="demo" on-tap="_nav"></iron-icon> -->
-    <iron-icon icon="clear" on-tap="_remove"></iron-icon>
+    <paper-icon-item on-tap="_nav">
+      <!-- <div class="thumb"></div> -->
+      <div class="thumb" item-icon>
+        <iron-image fade src="[[mediaSrc]]" sizing="{{sizing}}" preload placeholder="{{mediaPlaceholder}}"></iron-image>
+      </div>
+      <paper-item-body two-line>
+        <div>Photos</div>
+        <div secondary>Jan 9, 2014</div>
+      </paper-item-body>
+      <paper-icon-button icon="star" alt="favourite this!">
+      </paper-icon-button>
+    </paper-icon-item>
+    <!-- <span class="flex">[[element.name]]</span>
+    <iron-icon icon="description" view="docs" on-tap="_nav"></iron-icon>
+    <iron-icon icon="visibility" view="demo" on-tap="_nav"></iron-icon>
+    <iron-icon icon="clear" on-tap="_remove"></iron-icon> -->
   </template>
 </dom-module>
 
 <script>
-Polymer({
-  is: 'cart-item',
-  properties: {
-    item: Object
-  },
-  _remove: function() {
-    this.fire('remove');
-  },
-  _nav: function(e) {
-    var view = e.currentTarget.getAttribute('view');
-    this.fire('nav', {url: '/products/' + this.item.short + '?view=' + view});
-  }
-});
+  Polymer({
+    is: 'cart-item',
+    properties: {
+      item: String
+    },
+    _remove: function() {
+      this.fire('remove');
+    },
+    _nav: function(e) {
+      this.fire('nav', {
+        url: this.item.url
+      });
+    }
+  });
 </script>

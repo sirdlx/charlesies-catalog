@@ -1,0 +1,39 @@
+<link rel="import" href="../catalog-data/catalog-data.html">
+
+<dom-module id="catalog-element">
+  <template>
+    <catalog-data productid="{{id}}" product="{{_product}}"></catalog-data>
+  </template>
+</dom-module>
+<script>
+  Polymer({
+    is: 'catalog-element',
+    properties: {
+      id: {
+        type: String,
+        notify: true
+      },
+      _product: {
+        type: Object,
+        notify: true,
+      },
+      data: {
+        type: Object,
+        notify: true,
+        computed: 'getData(_product)'
+      }
+    },
+
+    observers: [
+      'check(_product)'
+    ],
+    check: function(obj) {
+      console.dir(obj);
+    },
+    getData: function(_product) {
+      console.log(_product);
+      if (!_product) return;
+      return this.product;
+    }
+  });
+</script>

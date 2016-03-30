@@ -1,5 +1,5 @@
 {
-  "name": "charleies-catalog",
+  "name": "polymer-element-catalog",
   "root": "./dist",
   "clean_urls": false,
   "error_page": "error.html",
