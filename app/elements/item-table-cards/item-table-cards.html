@@ -9,7 +9,6 @@
 <link rel="import" href="../item-card/item-card.html">
 <link rel="import" href="../catalog-data/catalog-data.html">
 <link rel="import" href="../catalog-user/catalog-user.html">
-<link rel="import" href="../dlx-square/dlx-square.html">
 
 <dom-module id="item-table-cards">
   <style>
@@ -122,7 +121,7 @@
         </div> -->
         <template name="item-cards-repeat" is="dom-repeat" items="{{items}}" initial-count="10" chunk-count="20" restamp>
           <template is="dom-if" if="{{!countDestinationInsertionPoints}}">
-            <item-card select$="[[multi]]" label-path="[[labelPath]]" media-path="[[mediaPath]]" view="[[view]]" item-key$="[[item.key]]" on-tap="_tapCard" adminFFFF$="[[user.isAdmin]]" item="{{item}}">
+            <item-card select$="[[multi]]" label-path="[[labelPath]]" media-pathFFF="[[mediaPath]]" media-url="[[item.images.master_image.url]]" view="[[view]]" item-key$="[[item.key]]" on-tap="_tapCard" adminFFFF$="[[user.isAdmin]]" item="{{item}}">
             </item-card>
           </template>
         </template>
@@ -175,6 +174,11 @@
       },
 
       view: {
+        type: String,
+        notify: true
+      },
+
+      mediaUrl: {
         type: String,
         notify: true
       },
@@ -257,6 +261,7 @@
     //#byArray
 
     _computeByArray: function(arr) {
+      // console.log(arr);
       var templateNode = Polymer.dom(this.$.templates).getDistributedNodes()[0];
       this.set('countDestinationInsertionPoints', templateNode ? true : false);
       // console.log(this.countDestinationInsertionPoints);

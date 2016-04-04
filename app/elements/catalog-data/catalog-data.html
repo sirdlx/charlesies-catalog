@@ -69,8 +69,11 @@
       check: function(obj) {
         console.log('catalog-data check obj', obj);
       },
-      readyFFFF: function() {
-        this.load(_data);
+      ready: function() {
+        if (_els.length) {
+          this.load(_data);
+        }
+
       },
       attached: function() {
         // if (_els.length === 0 && !_data.products) {
@@ -80,40 +83,6 @@
       },
       detached: function() {
         _els.splice(_els.indexOf(this), 1);
-      },
-      properties: {
-        products: {
-          type: Array,
-          notify: true
-        },
-        productsMap: {
-          type: Object,
-          notify: true
-        },
-        categories: {
-          type: Array,
-          notify: true
-        },
-        categoriesMap: {
-          type: Object,
-          notify: true
-        },
-        guides: {
-          type: Array,
-          notify: true
-        },
-        guideMap: {
-          type: Object,
-          notify: true
-        },
-        tags: {
-          type: Object,
-          notify: true
-        },
-        behaviorMap: {
-          type: Object,
-          notify: true
-        }
       },
       load: function(data) {
         // console.dir(this);

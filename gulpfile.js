@@ -17,34 +17,43 @@ var plumber = require('gulp-plumber');
 var polybuild = require('./polybuild');
 var inlinesource = require('gulp-inline-source');
 
+var nodemon = require('gulp-nodemon');
+
 
 // Lint JavaScript
-gulp.task('jshint', function () {
+gulp.task('jshint', function() {
   return gulp.src([
       'app/scripts/**/*.js',
       'app/elements/**/*.js',
       'app/elements/**/*.html'
     ])
-    .pipe(reload({stream: true, once: true}))
+    .pipe(reload({
+      stream: true,
+      once: true
+    }))
     .pipe($.jshint.extract()) // Extract JS from .html files
-    .pipe($.jshint({esnext: true}))
+    .pipe($.jshint({
+      esnext: true
+    }))
     .pipe($.jshint.reporter('jshint-stylish'))
     .pipe($.if(!browserSync.active, $.jshint.reporter('fail')));
 });
 
 // Optimize Images
-gulp.task('images', function () {
+gulp.task('images', function() {
   return gulp.src('app/images/**/*')
     .pipe($.cache($.imagemin({
       progressive: true,
       interlaced: true
     })))
     .pipe(gulp.dest('dist/images'))
-    .pipe($.size({title: 'images'}));
+    .pipe($.size({
+      title: 'images'
+    }));
 });
 
 // Copy All Files At The Root Level (app)
-gulp.task('copy', function () {
+gulp.task('copy', function() {
   var app = gulp.src([
     'app/*',
     '!app/test',
@@ -64,43 +73,59 @@ gulp.task('copy', function () {
     gulp.src(['fixtures/**/*']).pipe(gulp.dest('dist'));
   }
 
-  return merge(app, bower, elements).pipe($.size({title: 'copy'}));
+  return merge(app, bower, elements).pipe($.size({
+    title: 'copy'
+  }));
 });
 
 // Copy Web Fonts To Dist
-gulp.task('fonts', function () {
+gulp.task('fonts', function() {
   return gulp.src(['app/fonts/**'])
     .pipe(gulp.dest('dist/fonts'))
-    .pipe($.size({title: 'fonts'}));
+    .pipe($.size({
+      title: 'fonts'
+    }));
 });
 
 // Compile and Automatically Prefix Stylesheets
-gulp.task('styles', function () {
+gulp.task('styles', function() {
   return gulp.src([
       'app/styles/**/*.css'
     ])
-    .pipe($.changed('styles', {extension: '.css'}))
+    .pipe($.changed('styles', {
+      extension: '.css'
+    }))
     .pipe(gulp.dest('.tmp/styles'))
     .pipe(gulp.dest('dist/styles'))
-    .pipe($.size({title: 'styles'}));
+    .pipe($.size({
+      title: 'styles'
+    }));
 });
 
-gulp.task('elements', function () {
+gulp.task('elements', function() {
   return gulp.src([
-    'app/elements/**/*.css'
+      'app/elements/**/*.css'
     ])
-    .pipe($.changed('styles', {extension: '.css'}))
+    .pipe($.changed('styles', {
+      extension: '.css'
+    }))
     .pipe(gulp.dest('.tmp/elements'))
     .pipe(gulp.dest('dist/elements'))
-    .pipe($.size({title: 'elements'}));
+    .pipe($.size({
+      title: 'elements'
+    }));
 });
 
 // Scan Your HTML For Assets & Optimize Them
-gulp.task('html', function () {
-  var assets = $.useref.assets({searchPath: ['.tmp', 'app', 'dist']});
+gulp.task('html', function() {
+  var assets = $.useref.assets({
+    searchPath: ['.tmp', 'app', 'dist']
+  });
 
   return gulp.src(['app/**/*.html', '!app/{elements,test}/**/*.html'])
-    .pipe(inlinesource({compress: false}))
+    .pipe(inlinesource({
+      compress: false
+    }))
     // Replace path for build assets
     .pipe($.if('*.html', $.replace('elements/elements.html', 'elements/elements.build.html')))
     .pipe(assets)
@@ -108,16 +133,20 @@ gulp.task('html', function () {
     .pipe($.useref())
     // Output Files
     .pipe(gulp.dest('dist'))
-    .pipe($.size({title: 'html'}));
+    .pipe($.size({
+      title: 'html'
+    }));
 });
 
 // Polybuild imports
-gulp.task('polybuild', function () {
+gulp.task('polybuild', function() {
   var DEST_DIR = 'dist/elements';
   return gulp.src('dist/elements/elements.html')
     .pipe(polybuild())
     .pipe(gulp.dest(DEST_DIR))
-    .pipe($.size({title: 'polybuild'}));
+    .pipe($.size({
+      title: 'polybuild'
+    }));
 });
 
 // Clean Output Directory
@@ -127,24 +156,43 @@ gulp.task('clean', del.bind(null, ['.tmp', 'dist']));
 gulp.task('distclean', ['clean'], del.bind(null, ['bower_components']));
 
 // Watch Files For Changes & Reload
-gulp.task('serve', ['styles', 'elements' ], function () {
-  var dirs = ['.tmp','app'];
+gulp.task('serve', ['styles', 'elements', 'serve:api'], function() {
+
+
+  var dirs = ['.tmp', 'app'];
   var mw = [
     function(req, res, next) {
       if (req.url.indexOf('/bower_components') !== 0) return next();
-      req.url = req.url.replace(/^\/bower_components/,'');
-      return superstatic({config: {root: 'bower_components'}})(req,res,next);
+      req.url = req.url.replace(/^\/bower_components/, '');
+      return superstatic({
+        config: {
+          root: 'bower_components'
+        }
+      })(req, res, next);
     },
-    superstatic({config: {root: '.tmp'}}),
-    superstatic({config: {root: 'app'}})
+    superstatic({
+      config: {
+        root: '.tmp'
+      }
+    }),
+    superstatic({
+      config: {
+        root: 'app'
+      }
+    })
   ];
-  if (process.env.FIXTURES) mw.unshift(superstatic({config: {root: 'fixtures'}}));
+  if (process.env.FIXTURES) mw.unshift(superstatic({
+    config: {
+      root: 'fixtures'
+    }
+  }));
 
   browserSync({
     notify: true,
     server: {
       baseDir: dirs,
-      middleware: mw
+      middleware: mw,
+      port:8000
     }
   });
 
@@ -155,8 +203,25 @@ gulp.task('serve', ['styles', 'elements' ], function () {
   gulp.watch(['app/images/**/*'], reload);
 });
 
+gulp.task('serve:api', function (cb) {
+
+	var started = false;
+
+	return nodemon({
+		script: './server/src/index.js'
+	}).on('start', function () {
+		// to avoid nodemon being started multiple times
+		// thanks @matthisk
+		if (!started) {
+			cb();
+			started = true;
+		}
+	});
+});
+
 // Build and serve the output from the dist build
-gulp.task('serve:dist', ['default'], function () {
+
+gulp.task('serve:dist', ['default'], function() {
   browserSync({
     notify: false,
     // Run as an https by uncommenting 'https: true'
@@ -165,14 +230,15 @@ gulp.task('serve:dist', ['default'], function () {
     // https: true,
     server: 'dist'
   });
+
+
 });
 
 // Build Production Files, the Default Task
-gulp.task('default', ['clean'], function (cb) {
+gulp.task('default', ['clean'], function(cb) {
   runSequence(
     ['copy', 'styles'],
-    'elements',
-    ['jshint', 'images', 'fonts', 'html'],
+    'elements', ['jshint', 'images', 'fonts', 'html'],
     'polybuild',
     cb);
 });
@@ -180,7 +246,11 @@ gulp.task('default', ['clean'], function (cb) {
 
 // Load tasks for web-component-tester
 // Adds tasks for `gulp test:local` and `gulp test:remote`
-try { require('web-component-tester').gulp.init(gulp); } catch (err) {}
+try {
+  require('web-component-tester').gulp.init(gulp);
+} catch (err) {}
 
 // Load custom tasks from the `tasks` directory
-try { require('require-dir')('tasks'); } catch (err) {}
+try {
+  require('require-dir')('tasks');
+} catch (err) {}

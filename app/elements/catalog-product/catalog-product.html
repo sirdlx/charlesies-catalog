@@ -4,7 +4,7 @@
   <template>
     <!-- <catalog-data item-map="{{_elements}}"></catalog-data> -->
     <!-- <firebase-document location$="{{_computeProductLocation(key)}}" data="{{edit}}" on-firebase-value="_computeData"></firebase-document> -->
-    <dlx-square access-token="75ZsGfOQ64_tO04xUjEwYQ" product="{{product}}" productid="{{key}}"></dlx-square>
+    <dlx-square access-token="75ZsGfOQ64_tO04xUjEwYQ" product="{{product}}" productid="{{productid}}"></dlx-square>
   </template>
 </dom-module>
 <script>
@@ -23,7 +23,7 @@
   Polymer({
     is: 'catalog-product',
     properties: {
-      key: {
+      productid: {
         type: String,
         notify: true,
       },
@@ -39,7 +39,7 @@
       data: {
         type: Object,
         notify: true,
-        // computed: '_computeData(product)'
+        // computed: '_computeData(productid)'
       },
       product: {
         type: Object,
@@ -53,6 +53,7 @@
       // 'getData(snap)'
     ],
     _check: function(obj) {
+      console.log(obj);
 
     },
 
@@ -277,18 +278,6 @@
       // return '$' + priceText;
       return '$' + Number(price).formatMoney(2);
     },
-
-    _computeItemPriceTextFFF: function(item) {
-      // console.log(item.price);
-      if (!item.price) {
-        return "$0.00";
-      }
-      // var priceText = Number(item.price).formatMoney(2);
-      // console.log('$' + priceText);
-      // return '$' + priceText;
-      return '$' + Number(item.price).formatMoney(2);
-    },
-
 
     _computeItemTags: function(item) {
       if (!item.tags) return [];

@@ -102,11 +102,10 @@
       <paper-tab name="products">Items (<span>[[items.length]]</span>)</paper-tab>
       <paper-tab name="download">Checkout</paper-tab>
     </paper-tabs>
+
     <iron-pages selected="[[_tab]]" class="flex">
 
-
-
-      <!-- Products Page -->
+      <!-- BEGIN Products Page -->
       <div id="products">
         <paper-listbox>
           <template is="dom-repeat" items="[[items]]">
@@ -114,13 +113,14 @@
           </template>
         </paper-listbox>
       </div>
+      <!-- END Products Page -->
 
 
 
-      <!-- Check Out Page -->
+      <!-- BEGIN Checkout Page -->
       <div id="download">
         <section>
-          <h4>Download Options</h4>
+          <h4>Checkout</h4>
 
           <paper-radio-group selected="{{downloadMethod}}" id="dl">
             <paper-radio-button name="products">
@@ -142,8 +142,7 @@
         </section>
       </div>
 
-
-
+      <!-- END Checkout Page -->
 
 
 
@@ -196,13 +195,11 @@
       return arr && (arr > 0);
     },
     _handleRemove: function(e) {
-      this.remove(e.currentTarget.element);
+      this.remove(e.currentTarget.item);
     },
     includes: function(el) {
       return this.$.data.includes(el);
     },
-
-
     _processPayment: function() {
       ga('send', 'event', 'checkout');
     }

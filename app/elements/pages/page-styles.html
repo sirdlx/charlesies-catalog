@@ -1,0 +1,146 @@
+<dom-module id="page-styles">
+  <template>
+    <style>
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      a {
+        margin: 0;
+      }
+
+      .indent {
+        margin-left: 16px;
+      }
+
+      .margin-right-16 {
+        margin-right: 16px;
+      }
+
+      .split {
+        @apply(--layout-vertical);
+      }
+
+      [wide] .split {
+        @apply(--layout-horizontal);
+      }
+
+      [wide] .split > section {
+        margin: 0 4px;
+      }
+
+      [wide] .divider {
+        width: 1px;
+        -webkit-box-shadow: -1px 0px 1px 0px rgba(0, 0, 0, 0.17);
+        -moz-box-shadow: -1px 0px 1px 0px rgba(0, 0, 0, 0.17);
+        box-shadow: -1px 0px 1px 0px rgba(0, 0, 0, 0.17);
+      }
+
+      section {
+        margin-bottom: 16px;
+      }
+
+      .header {
+        margin: 16px 0;
+      }
+
+      .body {
+        padding: 16px;
+      }
+
+      .body-item {
+        padding: 0 16px;
+      }
+
+      .body-item {
+        padding-bottom: 4px;
+      }
+
+      .body-item h4 {
+        margin: 0;
+        line-height: 40px;
+      }
+
+      .body-item [header-icon] {
+        margin-top: 10px;
+        margin-right: 4px;
+      }
+
+      .body-item [header-text] {}
+
+      /*section {
+        padding-top: 16px;
+        padding-bottom: 16px;
+      }*/
+
+      #item-header{
+        margin-top: 16px;
+      }
+
+      :root {
+        --iron-image-placeholder: {
+          -webkit-border-top-left-radius: 4px;
+          -webkit-border-top-right-radius: 4px;
+          -moz-border-radius-topleft: 4px;
+          -moz-border-radius-topright: 4px;
+          border-top-left-radius: 4px;
+          border-top-right-radius: 4px;
+        }
+      }
+
+      paper-scroll-header-panel {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        /* background for toolbar when it is at its full size */
+        /*background-image: url(media/bg4.jpg);*/
+        --paper-scroll-header-panel-full-header: {
+          /*background-color: var(--paper-light-blue-600);*/
+        }
+        ;
+        /* background for toolbar when it is condensed */
+        --paper-scroll-header-panel-condensed-header: {
+          background-color: white;
+        }
+        ;
+      }
+
+      #pageToolbar {
+        --paper-toolbar-background: transparent;
+        --paper-toolbar-title: {}
+        ;
+      }
+
+      #navBackButton {
+        margin-left: 0;
+        margin-right: 24px;
+      }
+
+      .content {
+        @apply(--layout-vertical);
+        @apply(--layout-center);
+        padding: 16px 0;
+      }
+
+      paper-material {
+        min-height: 1px;
+        background-color: white;
+        padding-bottom: 16px;
+        margin-bottom: 10vh;
+        -webkit-transition: all 0.3s;
+        transition: all 0.3s;
+        width: 288px;
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      [border-bottom] {
+        border-bottom: 1px solid rgba(107, 107, 107, 0.2);
+      }
+    </style>
+  </template>
+</dom-module>

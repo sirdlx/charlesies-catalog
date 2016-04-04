@@ -1,3 +1,4 @@
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
 <dom-module id="app-bar">
   <!--<link rel="import" type="css" href="app-bar.css">-->
   <style>
@@ -11,7 +12,7 @@
       z-index: 1001;
     }
 
-    :host ::content iron-icon {
+    :host::content iron-icon {
       margin-right: 15px;
       cursor: pointer;
     }
@@ -58,7 +59,8 @@
     <div id="search" class="horizontal layout center" show$="{{showingSearch}}" on-tap="toggleSearch">
       <iron-icon icon="search" hidden$="[[noSearch]]"></iron-icon>
       <form on-submit="performSearch" class="flex">
-        <input type="search" id="query" value="{{query::keyup}}" autocomplete="off" placeholder="Search Elements" on-blur="clearSearch">
+        <input type="search" id="query" value="{{query::keyup}}" autocomplete="off" placeholder="Search Products" on-blur="clearSearch">
+
       </form>
     </div>
   </template>
@@ -70,7 +72,9 @@
     properties: {
       query: {
         type: String,
-        notify: true
+        notify: true,
+        value: '',
+        observer: '_qChanged'
       },
       showingSearch: {
         type: Boolean,
@@ -86,6 +90,17 @@
     ],
     listeners: {
       keyup: 'hotkeys'
+    },
+
+    _qChanged: function(q) {
+      if (q.length) {
+        this.async(function() {
+          this.$.query.focus();
+          // make sure to force the cursor to the end of the
+          // input. Only an issue in Firefox.
+          this.$.query.setSelectionRange(q.length, q.length);
+        });
+      }
     },
     toggleSearch: function(e) {
       if (e) {
@@ -118,7 +133,15 @@
     },
     performSearch: function(e) {
       e.preventDefault();
-      this.fire('nav', {url: '/browse?q=' + this.query});
+      this.fire('nav', {
+        url: '/browse?q=' + this.query
+      });
+    },
+    focus: function() {
+      this.showingSearch = true;
+      // make sure to force the cursor to the end of the
+      // input. Only an issue in Firefox.
+      // this.$.query.setSelectionRange(this.q.length, this.q.length);
     }
   });
 </script>

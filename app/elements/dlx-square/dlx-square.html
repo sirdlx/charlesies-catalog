@@ -1,19 +1,25 @@
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../../bower_components/iron-localstorage/iron-localstorage.html">
+<link rel="import" href="../../bower_components/firebase-element/firebase-document.html">
 
 <dom-module id="dlx-square">
   <template>
-    <iron-localstorage name="{{accessToken}}-SQ-Categories" value="{{categories}}" on-iron-localstorage-load-empty="initializeDefaultCategories"></iron-localstorage>
+    <firebase-document location="{{_baseurl}}" data="{{app}}"></firebase-document>
+    <!-- <iron-ajax auto id="sqr-fb" url$="{{baseurl}}" handle-as="json" on-response="_computeApp" verbose></iron-ajax> -->
+    <!-- <iron-localstorage name="{{accessToken}}-SQ-Categories" value="{{categories}}" on-iron-localstorage-load-empty="initializeDefaultCategories"></iron-localstorage>
     <iron-localstorage name="{{accessToken}}-SQ-Products" value="{{products}}" on-iron-localstorage-load-empty="initializeDefaultProducts"></iron-localstorage>
-    <iron-localstorage name="{{accessToken}}-SQ-Locations" value="{{locations}}" on-iron-localstorage-load-empty="initializeDefaultLocations"></iron-localstorage>
-    <iron-ajax auto id="sqrLocations" headers="{{headers}}" url$="{{_computeLocationsURL(baseurl, headers, getLocations)}}" handle-as="json" on-response="_computeLocations"></iron-ajax auto>
+    <iron-localstorage name="{{accessToken}}-SQ-Locations" value="{{locations}}" on-iron-localstorage-load-empty="initializeDefaultLocations"></iron-localstorage> -->
+    <!-- <iron-ajax auto id="sqrLocations" headers="{{headers}}" url$="{{_computeLocationsURL(baseurl, headers, getLocations)}}" handle-as="json" on-response="_computeLocations"></iron-ajax auto>
     <iron-ajax auto id="sqrCategories" headers="{{headers}}" url$="{{_computeCategoriesURL(baseurl, selectedLocation, getCategories)}}" handle-as="json" on-response="_computeCategories" verbose></iron-ajax>
     <iron-ajax auto id="sqrProducts" headers="{{headers}}" url$="{{_computeProductsURL(baseurl, selectedLocation, categoriesMap, getProducts)}}" handle-as="json" on-response="_computeProducts" verbose></iron-ajax>
-    <iron-ajax auto id="sqrselectedItemVariations" headers="{{headers}}" url$="{{_computeselectedItemVariationsURL(baseurl, selectedLocation, selectedItem)}}" handle-as="json" on-response="_computeselectedItemVariations" verbose></iron-ajax>
+    <iron-ajax auto id="sqrselectedItemVariations" headers="{{headers}}" url$="{{_computeselectedItemVariationsURL(baseurl, selectedLocation, selectedItem)}}" handle-as="json" on-response="_computeselectedItemVariations" verbose></iron-ajax> -->
   </template>
 </dom-module>
 
 <script>
+  var _els = [];
+  var _data = {};
+
   var decimalOnly = /^\s*-?[1-9]\d*(\.\d{1,2})?\s*$/;
   Number.prototype.formatMoney = function(c1, d1, t1) {
     var n = this,
@@ -36,7 +42,8 @@
       baseurl: {
         type: String,
         notify: true,
-        value: 'https://connect.squareup.com/v1/'
+        // value: 'https://connect.squareup.com/v1/'
+        value: 'https://charlesiescom.firebaseio.com/square/'
       },
       headers: {
         type: Object,
@@ -62,16 +69,18 @@
       categoriesMap: {
         type: Object,
         notify: true,
-        computed: '_computeMap(categoriesArr)'
       },
+
       // Single Category
-      categoryId: {
+      categoryname: {
         type: String,
-        notify: true
+        notify: true,
+        value: ''
       },
       category: {
         type: Object,
         notify: true,
+        computed: '_computeCategory(categoriesMap, categoryname)'
       },
       // All Product
       products: {
@@ -100,30 +109,64 @@
       selectedItemVariations: {
         type: Array,
         notify: true,
-      }
+      },
+      loading: {
+        type: Boolean,
+        notify: true,
+        value: true,
+        computed: '_computeloading(_productsloading, _categoriesloading, _locationsloading)'
+      },
     },
 
     observers: [
-      //'check(categories)',
+      'loadApp(app)',
       // '_computeProduct(productsMap,productid)',
-      // '_computeCategory(categoriesMap,categoryname)'
     ],
 
-    check: function(obj) {
-      console.log('check dlx square:', obj);
+    loadApp: function(obj) {
+      // console.log('check dlx square:', obj);
+      this._computeLocations(null, null, obj.locations);
+      this._computeCategories(null, null, obj.categories);
+      this._computeProducts(null, null, obj.items);
+
+      _data.locations = this.locations;
+      _data.selectedLocation = this.selectedLocation;
+      _data.categoriesMap = this.categoriesMap;
+      _data.categories = this.categories;
+      _data.products = this.products;
+      _els.forEach(function(el) {
+        el.load(_data);
+      });
+    },
+
+    load: function(app) {
+      var main = _els[0];
+      if (_data) {
+        main = _data;
+      }
+      this.set('locations', main.locations);
+      this.set('selectedLocation', main.selectedLocation);
+      this.set('categoriesMap', main.categoriesMap);
+      this.set('categories', main.categories);
+      this.set('products', main.products);
+    },
+
+    ready: function() {
+      if (_els.length === 0) {
+        this._baseurl = this.baseurl;
+      } else {
+        this.load(_data);
+      }
+      _els.push(this);
+    },
+
+    _computeloading: function(_productsloading, _categoriesloading, _locationsloading) {
+      // console.log('_computeloading:', _productsloading, _categoriesloading, _locationsloading);
+      // console.log((!_productsloading && !_categoriesloading && !_locationsloading));
+      return !_productsloading && !_categoriesloading && !_locationsloading;
     },
 
     _computeMap: function(list) {
-      // console.log(list);
-      list = list || [];
-      var map = {};
-      for (var i = 0; i < list.length; i++) {
-        map[list[i].id] = list[i];
-      }
-      return map;
-    },
-
-    _computeMapId: function(list) {
       // console.log(list);
       list = list || [];
       var map = {};
@@ -137,11 +180,10 @@
       if (accessToken.length === 0) {
         this.fire('toast', {
           text: 'No accessToken provided'
-        })
+        });
       }
       // console.log('headers');
-      return {
-        'Authorization': 'Bearer ' + accessToken,
+      return { // 'Authorization': 'Bearer ' + accessToken,
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       };
@@ -149,17 +191,20 @@
 
     _computeLocationsURL: function(baseurl, headers) {
       // console.log(baseurl + 'me/locations');
-      return baseurl + 'me/locations';
+      // return baseurl + 'me/locations';
+      return baseurl + 'locations.json';
     },
 
     _computeCategoriesURL: function(baseurl, selectedLocation) {
-      // console.log(baseurl + selectedLocation.id + '/categories');
-      return baseurl + selectedLocation.id + '/categories';
+      // console.log(baseurl + 'categories');
+      // return baseurl + selectedLocation.id + '/categories';
+      return baseurl + 'categories.json';
     },
 
     _computeProductsURL: function(baseurl, selectedLocation) {
       // console.log(baseurl + selectedLocation.id + '/items');
-      return baseurl + selectedLocation.id + '/items';
+      // return baseurl + selectedLocation.id + '/items';
+      return baseurl + 'items.json';
     },
 
     _computeselectedItemVariationsURL: function(baseurl, selectedItem) {
@@ -167,25 +212,29 @@
       return baseurl + selectedLocation.id + '/items/' + selectedItem + '/variations';
     },
 
-    _computeLocations: function(_, req) {
-      // console.log(req.response);
-      this.set('locations', req.response);
-      this.set('selectedLocation', req.response[0]);
+    _computeLocations: function(_, req, data) {
+      var obj = data || req.response;
+      this.set('locations', obj);
+      this.set('selectedLocation', obj[0]);
+      this.set('_locationsloading', false);
     },
 
     initializeDefaultCategories: function() {
-      // console.log('init');
+      // console.log('_categoriesloading');
+      this.set('_categoriesloading', true);
       this.set('getLocations', true);
       this.set('getCategories', true);
     },
     initializeDefaultProducts: function() {
-      // console.log('init');
+      // console.log('_productsloading');
+      this.set('_productsloading', true);
       this.set('getLocations', true);
       this.set('getCategories', true);
       this.set('getProducts', true);
     },
     initializeDefaultLocations: function() {
-      // console.log('init');
+      // console.log('_locationsloading');
+      this.set('_locationsloading', true);
       this.set('getLocations', true);
     },
     // util #cleanText
@@ -193,25 +242,26 @@
       return textin.replace(/[^\w-]/g, '').toLowerCase();
     },
     // #cc
-    _computeCategories: function(_, req) {
+    _computeCategories: function(_, req, data) {
       // console.log(req.response);
-      var _items = req.response;
-      // IdMap
+      var _items = data || req.response;
+      // Maps
       var _idMap = {};
+      var _nameMap = {};
       // 2 dimin-array
       var _default = {
-        name: 'home',
+        id: 'home',
         items: []
       };
       var arr = [];
-      arr.push(_default);
+      arr.splice(0, 0, _default);
+
       var obj = {};
 
       for (var _item in _items) {
         if (_items.hasOwnProperty(_item)) {
           // console.log(_items[_item]);
           var item = _items[_item];
-          item.color = "#949CBF";
 
           // console.log(item.url);
 
@@ -231,6 +281,9 @@
             // console.log(newnameparts.length > 1);
             if (newnameparts.length === 2) {
               item.name = newnameparts[newnameparts.length - 1];
+              if (newnameparts[0] === "Mood") {
+                item.color = "#00bcd4";
+              }
               // console.log(item.name);
               // maps to set
               if (!obj[newnameparts[0]]) {
@@ -241,7 +294,7 @@
               obj[newnameparts[0]].items.push(item);
               // console.log('parts: ', newnameparts[0], newnameparts[1]);
             } else {
-              var itemname = item.name;
+              // var itemname = item.name;
               // console.log(arr);
               arr[0].items.push(item);
             }
@@ -250,24 +303,33 @@
 
           // add to IdMap
           _idMap[item.id] = item;
+          _nameMap[item.cleanText] = item;
         }
       }
-
+      // console.log(obj);
       for (var cat in obj) {
         if (obj.hasOwnProperty(cat)) {
-          // console.log(obj[cat]);
           obj[cat].name = cat;
           obj[cat].color = "red";
           arr.push(obj[cat]);
         }
       }
 
-      this.set('categoryIdMap', _idMap);
-      this.set('categoriesArr', _items);
+      _idMap['0'] = arr[0];
+      _nameMap.home = arr[0];
+      // _nameMap['home'] = arr[0];
+
+      this.set('categoriesMap', {
+        _id: _idMap,
+        _name: _nameMap
+      });
+
+      // this.set('categoriesArr', _items);
       this.set('categories', arr);
+      this.set('_categoriesloading', false);
       // console.log(arr);
     },
-    _computeCategoryFFF: function(map, match) {
+    computeCategoryFFF: function(categoryname, categoryid, categoryMap) {
       console.log('_computeCategory');
       for (var _item in map) {
         if (map.hasOwnProperty(_item)) {
@@ -290,35 +352,40 @@
 
       console.log(arr);
     },
-    ready: function() {
-      // get products (deps: location)
-      // this.set('getLocations', true);
-      // this.set('getProducts', true);
-      // get categories (deps: location)
-      // this.set('getLocations', true);
-      // this.set('getCategories', true);
-      // this.initializeDefaultProducts();
+
+    categoryByName: function(categoryMapName, categoryname) {
+      console.log('categoryByName: ', categoryMapName);
+      if (this.categoryMapName) {
+        this.set('category', this.categoryMapName[name]);
+        return this.categoryMapName[name];
+      }
     },
-    _computeProducts: function(_, req) {
+    attachedFFF: function() {
+      this.clear();
+    },
+    clear: function() {
+      this.set('products', null);
+      this.set('categories', null);
+      this.set('locations', null);
+    },
+    _computeProducts: function(_, req, data) {
       // console.log(req.response);
 
-      var _items = req.response;
+      var _items = data || req.response;
       for (var _item in _items) {
         if (_items.hasOwnProperty(_item)) {
           // console.log(_items[_item]);
           var item = _items[_item];
 
-          if (item.category) {
-            item.category = this._computeCategory(this.categoriesMap, item.category);
-            // console.log(item.category);
-          }
-
+          item.category = this._computeCategory(this.categoriesMap, item.category);
+          // console.log(item.category);
           item.url = '/products/' + item.id;
-          // console.log(item.variations[0].price_money.amount);
+
           // var priceText = this._computeItemPriceText(product.variations[0].price_money.amount);
-          if (!item.variations[0].price_money.amount) {
+          if (!item.variations[0].price_money) {
             item.priceText = "$0.00";
           } else {
+            // console.log(item.variations[0].price_money);
             item.priceText = '$' + Number(item.variations[0].price_money.amount / 100).formatMoney(2);
             // console.log(item.priceText);
           }
@@ -326,31 +393,45 @@
         }
       }
       this.set('products', _items);
+      this.set('_productsloading', false);
     },
 
     _computeProduct: function(productsMap, productid) {
       // console.log('_computeProduct: ', productid, productsMap);
-      if (this.products) {
-        var obj = {};
-        for (var i = 0; i < this.products.length; i++) {
-          if (this.products[i].id === productid) {
-            // console.log(this.products[i]);
-            // this.set('product', this.products[i]);
-            // return;
-            obj = this.products[i];
-          }
-        }
-        // console.log(obj.name);
-        return obj;
-      }
+      // console.log( productsMap[productid]);
+      // this.set('product', productsMap[productid]);
+      return productsMap[productid];
+      // if (this.products) {
+      //   var obj = {};
+      //   for (var i = 0; i < this.products.length; i++) {
+      //     if (this.products[i].id === productid) {
+      //       // console.log(this.products[i]);
+      //       // this.set('product', this.products[i]);
+      //       // return;
+      //       obj = this.products[i];
+      //     }
+      //   }
+      //   // console.log(obj.name);
+      //   return obj;
+      // }
     },
 
-    _computeCategory: function(categoriesMap,category) {
+    _computeCategory: function(categoriesMap, category) {
       // console.log('_computeCategory: ', category, this.categoriesMap);
       // console.log(categoriesMap[category.id]);
 
       // this.set('category', this.categoriesMap[categoryname]);
-      return categoriesMap[category.id];
+      if (category && category.id) {
+        // console.log(category.id === categoriesMap._id[category.id].id);
+        if (category.id === categoriesMap._id[category.id].id) {
+          return categoriesMap._id[category.id];
+        }
+        return categoriesMap._id[category.id];
+      } else {
+        return categoriesMap._id['0'];
+
+      }
+
     },
 
     _computeselectedItemVariations: function(_, req) {

@@ -67,9 +67,14 @@
     };
 
     var _remove = function(_item) {
+      if (!_item) {
+        this.fire('toast', {text: 'Error in removing item'});
+        return;
+      }
       var check = _instances[0];
       var removeAt = _item;
       for (var i = 0; i < check.items.length; i++) {
+        console.log(_item);
         if (check.items[i].id === _item.id) {
           removeAt = i;
         }
@@ -137,8 +142,33 @@
         // console.log(item);
         return _add(item);
       },
-      remove: function(item) {
-        return _remove(item);
+      remove: function(_item) {
+        // console.log(item);
+        // return _remove(item).bind(this);
+        if (!_item) {
+          this.fire('toast', {text: 'Error in removing item'});
+          return;
+        }
+        var check = _instances[0];
+        var removeAt = _item;
+        for (var i = 0; i < check.items.length; i++) {
+          if (check.items[i].id === _item.id) {
+            removeAt = i;
+          }
+        }
+
+        if (removeAt >= 0) {
+          _instances.forEach(function(instance) {
+            // console.log('item-removed');
+            instance.splice('items', removeAt, 1);
+            instance.fire('item-removed', _item.name, {
+              bubbles: false
+            });
+          });
+          _store();
+        } else {
+          return false;
+        }
       },
       _count: function(items) {
         return this.items.length;

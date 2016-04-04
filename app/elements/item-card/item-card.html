@@ -8,7 +8,6 @@
 <link rel="import" href="../catalog-category/catalog-category.html">
 <link rel="import" href="../hero-image/hero-image.html">
 <link rel="import" href="../package-symbol/package-symbol.html">
-<link rel="import" href="../item-action-menu/item-action-menu.html">
 <link rel="import" href="../cart-item-icon/cart-item-icon.html">
 
 <dom-module id="item-card">
@@ -275,7 +274,7 @@
 
     <!-- <catalog-product id="catalogProduct" data="{{_item}}" key="{{item.id}}"></catalog-product> -->
 
-    <div class="vertical layout">
+    <div class="vertical layout" style="width: 100%;">
       <!-- <div id="el" view="docs"> -->
       <template is="dom-if" if="[[select]]" restamp="true">
         <iron-icon icon="check" class="check-icon" checked$="[[addressFormOk]]"></iron-icon>
@@ -457,7 +456,10 @@
         mediaSrc: {
           type: String,
           // notify: true,
-          value: ''
+        },
+        mediaUrl: {
+          type: String,
+          notify: true,
         },
         mediaPlaceholder: {
           type: String,
@@ -517,9 +519,13 @@
       },
 
       _computeMediaSrc: function(item, mediaPath) {
-        // console.log(mediaPath);
-        var _mediaPath = mediaPath.split('item.')[1];
-        this.set('mediaSrc', goDeep(item, _mediaPath));
+        // console.log(item.master_image.url);
+        var _mediaPath = goDeep(item, mediaPath.split('item.')[1]);
+        if (_mediaPath) {
+          this.set('mediaSrc', _mediaPath);
+        }
+        this.set('mediaSrc', item.master_image.url);
+
       },
 
       _productDescriptionChange: function(e) {

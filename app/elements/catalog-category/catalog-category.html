@@ -1,0 +1,39 @@
+<link rel="import" href="../catalog-data/catalog-data.html">
+<link rel="import" href="../dlx-square/dlx-square.html">
+
+<dom-module id="catalog-category">
+  <template>
+    <dlx-square id="dlxsq" access-token="75ZsGfOQ64_tO04xUjEwYQ" category="{{category}}" categoryid="{{categoryid}}" categoryname="{{categoryname}}" ></dlx-square>
+    <!-- <catalog-data categories-map="{{categoriesMap}}"></catalog-data> -->
+  </template>
+</dom-module>
+<script>
+  Polymer({
+    is: 'catalog-category',
+    properties: {
+      categoryname: {
+        type: String,
+        notify: true
+      },
+
+      category: {
+        type: Object,
+        notify: true,
+        // computed: 'getByName(categoryname)'
+      }
+    },
+    observers: [
+      // 'check(category)'
+    ],
+    check: function(obj) {
+      console.log('catalog-data check obj', obj);
+    },
+
+    getByName: function(categoryname) {
+      console.log('catalog-category getData ', this.$.dlxsq.categoryByName(categoryname));
+      if (!categoryname) return;
+      this.set('category', this.$.dlxsq.categoryByName(categoryname));
+      return categoryMapName[categoryname];
+    }
+  });
+</script>

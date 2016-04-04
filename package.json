@@ -1,9 +1,13 @@
 {
-  "name": "polymer-element-catalog",
-  "version": "1.0.1",
-  "description": "A catalog of Google's Web Components",
+  "name": "",
+  "version": "",
+  "description": "",
   "main": "index.js",
+
+
+
   "scripts": {
+    "start": "npm install && node ./server/src",
     "serve": "gulp serve",
     "serve:dist": "gulp serve:dist",
     "build": "gulp",
@@ -14,20 +18,30 @@
     "stage-from-scratch": "gulp distclean && bower install && npm run build && npm run stage",
     "deploy-from-scratch": "gulp distclean && bower install && npm run build && npm run deploy"
   },
+
+
   "repository": {
     "type": "git",
     "url": "https://github.com/divshot/polymer-element-catalog.git"
   },
+
+
   "keywords": [
     "polymer",
     "web-components"
   ],
+
+
   "author": "Google",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/divshot/polymer-element-catalog/issues"
   },
+
+
   "homepage": "https://github.com/divshot/polymer-element-catalog",
+
+  
   "devDependencies": {
     "JSONStream": "^0.10.0",
     "apache-server-configs": "^2.7.1",
@@ -88,5 +102,14 @@
     "vinyl-fs": "^1.0.0",
     "web-component-tester": "^2.2.3",
     "writestreamp": "^0.1.0"
+  },
+  "dependencies": {
+    "body-parser": "^1.15.0",
+    "cookie-parser": "^1.4.1",
+    "express": "^4.13.4",
+    "firebase": "^2.4.2",
+    "gulp-nodemon": "^2.0.6",
+    "morgan": "^1.7.0",
+    "request": "^2.69.0"
   }
 }

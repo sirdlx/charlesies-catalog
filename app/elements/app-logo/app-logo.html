@@ -82,7 +82,7 @@
     }
 
     .color {
-      color: var(--app-logo-text-color);
+      color: var(--accent-color);
     }
 
     a {
@@ -109,7 +109,7 @@
       /*padding: 0 0 0 20px;*/
       font-weight: 500;
       margin: 0;
-          display: inline-flex;
+      display: inline-flex;
     }
 
     img {
@@ -122,18 +122,11 @@
   <template>
     <a href="/" is="pushstate-anchor" class="horizontal layout center">
       <!-- <img src="../../images/touch/chrome-touch-icon-192x192.png" width="36" alt="Logo"> -->
-      <!-- <h1 class="logo" hidden$="[[!full]]">
+      <!-- <h1 class="logo" >
         <span class="red">C</span>harlesie's.com Catalog</h1> -->
-      <template is="dom-if" if="{{full}}" restamp="false">
-        <h1>
-          <span class="color">C</span>
-          <span>harlesie's.com</span>
+      <h1>
+          <span class="color">C</span><span hidden$="[[!full]]">harlesie's.com</span>
         </h1>
-      </template>
-      <template is="dom-if" if="{{!full}}" restamp="false">
-        <h1 class="color">C</h1>
-      </template>
-
     </a>
   </template>
   <script>

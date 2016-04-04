@@ -1,13 +1,148 @@
-<link rel="import" href="../catalog-package/catalog-package.html">
+<link rel="import" href="../catalog-category/catalog-category.html">
 <link rel="import" href="../theme-color/theme-color.html">
 
 <dom-module id="package-tile">
-  <link rel="import" type="css" href="package-tile.css">
+  <!-- <link rel="import" type="css" href="package-tile.css"> -->
+  <style media="screen">
+    :host {
+      display: block;
+      transition: var(--material-curve-320);
+      transform: translate(0, 60px);
+      opacity: 0;
+    }
+
+    :host(.active) {
+      transform: translate(0, 0);
+      opacity: 1;
+    }
+
+    #content {
+      display: block;
+      position: relative;
+      width: 100%;
+      background: #fafafa;
+      border-radius: 2px;
+      box-sizing: border-box;
+      overflow: hidden;
+      cursor: pointer;
+      transition: box-shadow 200ms;
+      transition-timing-function: var(--material-curve);
+      color: #606060;
+      border: none;
+      padding: 16px;
+    }
+
+    :host(:hover) #content {
+      box-shadow: 0 5px 10px rgba(0, 0, 0, .15);
+    }
+
+    h2FFF {
+      height: 96px;
+      font-weight: 400;
+      font-size: 48px;
+      margin: 20px 0;
+      transform: translate(-50px, 0);
+      opacity: 0;
+      word-break: break-word;
+      transition: all 500ms 320ms;
+      transition-timing-function: var(--material-curve-320);
+    }
+
+    h2 {
+      height: 96px;
+      transform: translate(-50px, 0);
+      opacity: 0;
+      word-break: break-word;
+      transition: all 500ms 320ms;
+      transition-timing-function: var(--material-curve-320);
+      @apply(--paper-font-display1);
+    }
+
+    :host(.active) h2 {
+      transform: translate(0, 0);
+      opacity: 1;
+    }
+
+    h3 {
+      transform: translate(-50px, 0);
+      opacity: 0;
+      transition: all 600ms 320ms;
+      transition-timing-function: var(--material-curve-320);
+    }
+
+    :host(.active) h3 {
+      transform: translate(0, 0);
+      opacity: 1;
+    }
+
+    hr {
+      border: 0;
+      background: #fff;
+      width: 0;
+      height: 1px;
+      opacity: 0.2;
+      margin: 0;
+      transition: width 400ms 320ms;
+      transition-timing-function: var(--material-curve-320);
+    }
+
+    :host(.active) hr {
+      width: 100%;
+      background: #606060;
+      opacity: 1;
+    }
+
+    .version {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      font-size: 13px;
+      transition: all 400ms 320ms;
+      transition-timing-function: var(--material-curve-320);
+      transform: translate(50px, 0);
+      opacity: 0;
+    }
+
+    :host(.active) .version {
+      transform: translate(0, 0);
+      opacity: 0.8;
+    }
+
+    .title {
+      display: table-caption;
+      margin: 0 0 15px;
+      height: 64px;
+      font-size: 20px;
+      font-weight: 500;
+      line-height: 28px;
+    }
+
+    .title[extended] {
+      display: block;
+    }
+
+    .tagline {
+      transition: all 700ms 320ms;
+      transition-timing-function: var(--material-curve-320);
+      transform: translate(-50px, 0);
+      opacity: 0;
+      font-size: 13px;
+      margin: 10px 0 0 0;
+      line-height: 20px;
+      height: 40px;
+    }
+
+    :host(.active) .tagline {
+      transform: translate(0, 0);
+      opacity: 1;
+    }
+  </style>
   <template>
-    <catalog-package categoryname="[[name]]" category="{{category}}"></catalog-package>
-    <theme-color id="content" color="[[category.color]]" class="vertical layout" themed themed-border>
+    <catalog-category categoryname="[[name]]" category="{{category}}"></catalog-category>
+    <theme-color id="content" color="[[_computeColor(category.color)]]" class="vertical layout" themed themed-border>
       <!-- <span class="version">[[category.version]]</span> -->
-      <h2 class="symbol">[[_computeAbbr(category)]]</h2>
+      <!-- <h2 class="symbol">[[_computeAbbr(category)]]</h2> -->
+      <h2>[[category.name]]</h2>
       <!-- <h3 class="title" extended$="[[_extendedTitle(category)]]">[[category.name]]</h3> -->
       <!-- <hr themed-reverse> -->
       <!-- <p class="tagline">[[category.tagline]]</p> -->
@@ -37,7 +172,6 @@
       console.log(obj);
     },
 
-
     attached: function() {
       var tiles = this.parentNode.querySelectorAll('package-tile');
       var index = Array.prototype.indexOf.call(tiles, this);
@@ -47,6 +181,12 @@
     },
     _computeAbbr: function(c) {
       return c.name;
+    },
+
+    _computeColor: function(c) {
+      // return c || '#ff4081';
+      return c || '#d81b60';
+
     },
     _extendedTitle: function(p) {
       if (p.name.length > 20) return true;

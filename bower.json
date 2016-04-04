@@ -26,7 +26,7 @@
     "polymer": "Polymer/polymer#^1.0.0",
     "app-router": "blasten/app-router#master",
     "app-layout": "PolymerLabs/app-layout#master",
-    "pushstate-anchor": "~0.3.0",
+    "pushstate-anchor": "^0.3.2",
     "color": "~2.5.0",
     "hydrolysis": "PolymerLabs/hydrolysis#^1.11.0",
     "defiant": "https://github.com/hbi99/defiant.js.git#^1.3.8"

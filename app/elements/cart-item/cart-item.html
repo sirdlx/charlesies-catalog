@@ -3,7 +3,7 @@
 <link rel="import" href="../../bower_components/paper-item/paper-icon-item.html">
 <link rel="import" href="../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../bower_components/paper-item/paper-item-body.html">
-<link rel="import" href="../../paper-styles/color.html">
+<link rel="import" href="../../bower_components/paper-styles/color.html">
 <link rel="import" href="../../bower_components/iron-image/iron-image.html">
 
 <link rel="import" href="../catalog-product/catalog-product.html">
@@ -50,16 +50,16 @@
     }
   </style>
   <template>
-    <paper-icon-item on-tap="_nav">
+    <paper-icon-item>
       <!-- <div class="thumb"></div> -->
-      <div class="thumb" item-icon>
-        <iron-image fade src="[[mediaSrc]]" sizing="{{sizing}}" preload placeholder="{{mediaPlaceholder}}"></iron-image>
+      <div  item-icon>
+        <iron-image class="thumb" fade src="[[item.master_image.url]]" sizing="cover" preload placeholder="{{mediaPlaceholder}}"></iron-image>
       </div>
-      <paper-item-body two-line>
-        <div>Photos</div>
-        <div secondary>Jan 9, 2014</div>
+      <paper-item-body two-line on-tap="_nav">
+        <div>{{item.name}}</div>
+        <div secondary>{{item.category._name}}</div>
       </paper-item-body>
-      <paper-icon-button icon="star" alt="favourite this!">
+      <paper-icon-button icon="clear" alt="remove {{item.name}}" on-tap="_remove">
       </paper-icon-button>
     </paper-icon-item>
     <!-- <span class="flex">[[element.name]]</span>
@@ -73,7 +73,7 @@
   Polymer({
     is: 'cart-item',
     properties: {
-      item: String
+      item: Object
     },
     _remove: function() {
       this.fire('remove');
