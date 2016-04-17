@@ -184,6 +184,9 @@
       }
     </style>
 
+
+    <iron-media-query query="(min-width: 510px) " query-matches="{{narrow}}"></iron-media-query>
+    <iron-media-query query="(min-width: 901px) " query-matches="{{large}}"></iron-media-query>
     <catalog-product id="catalogProduct" productid="{{productid}}" product="{{item}}"></catalog-product>
     <catalog-category categoryname="{{item.category.cleanText}}" category="{{category}}"></catalog-category>
     <catalog-user id="catalogUser" user="{{user}}" loggedin="{{loggedin}}"></catalog-user>
@@ -226,43 +229,35 @@
         <cart-item-icon class="bottom fab" id="cartItemIcon" item="[[item]]" view="paper-fab"></cart-item-icon>
       </paper-toolbar> -->
 
-        <paper-toolbar id="pageToolbar">
-          <paper-icon-button icon="menu" paper-drawer-toggle></paper-icon-button>
-          <!-- <paper-icon-button icon="arrow-back" id="navBackButton" on-tap="_tapNavBackButton"></paper-icon-button> -->
-          <app-logo class="flex" tabindex="1" hidden$="{{!narrowMode}}"></app-logo>
+      <paper-toolbar id="pageToolbar" class$="{{_toolbarSize(large)}}">
+        <paper-icon-button icon="menu" paper-drawer-toggle></paper-icon-button>
+        <!-- <paper-icon-button icon="arrow-back" id="navBackButton" on-tap="_tapNavBackButton"></paper-icon-button> -->
+        <app-logo class="flex" tabindex="1" full="{{narrow}}" hidden$="{{large}}"></app-logo>
+        <h2 hidden$="{{!large}}">[[pageTitle]]</h2>
+        <div class="middle title" hidden$="{{large}}">[[pageTitle]]</div>
 
-          <h2>
-            <span>{{item.name}}</span>
-          </h2>
+        <span class="flex"></span>
+        <!-- #q -->
+        <app-bar id="search" class="horizontal layout center end-justified" query="{{q}}"></app-bar>
 
-          <template is="dom-if" if="{{item.category.name}}" restamp="true">
-            <paper-button raised>
-            <span>{{item.category.name}} - </span>
-            </paper-button>
+        <paper-menu-button vertical-align="top" horizontal-align="right">
+
+          <template is="dom-if" if="[[!user.loggedin]]" restamp="true">
+            <paper-icon-button icon="social:person" class="dropdown-trigger" alt="menu"></paper-icon-button>
+          </template>
+          <template is="dom-if" if="[[user.loggedin]]" restamp="true">
+            <paper-icon-button src="{{user.profileImageURL}}" class="dropdown-trigger" alt="menu"></paper-icon-button>
           </template>
 
-          <span class="flex"></span>
-          <app-bar class="horizontal layout center end-justified" query="{{q}}"></app-bar>
-          <!-- #q -->
-
-          <paper-menu-button vertical-align="top" horizontal-align="right">
-
-            <template is="dom-if" if="[[!user.loggedin]]" restamp="true">
-              <paper-icon-button icon="social:person" class="dropdown-trigger" alt="menu"></paper-icon-button>
-            </template>
-            <template is="dom-if" if="[[user.loggedin]]" restamp="true">
-              <paper-icon-button src="{{user.profileImageURL}}" class="dropdown-trigger" alt="menu"></paper-icon-button>
-            </template>
-
-            <paper-menu class="dropdown-content">
-              <paper-item hidden={{!user.loggedin}} link="/account" on-tap="_tapNav">[[user.displayName]]</paper-item>
-              <paper-item hidden={{!user.loggedin}} on-tap="_tapLogout">logout</paper-item>
-              <paper-item hidden={{user.loggedin}} link="/login" on-tap="_tapLogin">login</paper-item>
-            </paper-menu>
-          </paper-menu-button>
-          <!-- <paper-icon-button class="toggleViewButton" icon="[[viewIcon]]" on-tap="toggleView" hidden$="[[_forceCards]]"></paper-icon-button> -->
-          <cart-icon class="cartButton" id="cart-toggle" icon="stars" on-tap="cartOpen"></cart-icon>
-        </paper-toolbar>
+          <paper-menu class="dropdown-content">
+            <paper-item hidden={{!user.loggedin}} link="/account" on-tap="_tapNav">[[user.displayName]]</paper-item>
+            <paper-item hidden={{!user.loggedin}} on-tap="_tapLogout">logout</paper-item>
+            <paper-item hidden={{user.loggedin}} link="/login" on-tap="_tapLogin">login</paper-item>
+          </paper-menu>
+        </paper-menu-button>
+        <!-- <paper-icon-button class="toggleViewButton" icon="[[viewIcon]]" on-tap="toggleView" hidden$="[[_forceCards]]"></paper-icon-button> -->
+        <cart-icon class="cartButton" id="cart-toggle" icon="shopping"></cart-icon>
+      </paper-toolbar>
 
 
         <theme-color color="[[_computeColor(item.category.color)]]">
@@ -697,8 +692,11 @@
       return false;
     },
     _computeColor: function(c) {
-      console.log(c);
+      // console.log(c);
       return c || '#d81b60';
+    },
+    _toolbarSize: function(large) {
+      return !large ? 'medium-tall' : '';
     },
   });
 </script>

@@ -34,10 +34,6 @@
       margin-bottom: 32px;
     }
 
-    cart-icon {
-      margin-left: 8px;
-    }
-
     @media (max-width: 1132px) {
       .page-sectionFFF,
       #grid-container {
@@ -73,13 +69,6 @@
 
     .search.active {
       left: 15px;
-    }
-
-    @media (max-width: 639px) {
-      paper-toolbar /deep/ #topBar {
-        margin-top: 4px;
-        padding: 0 16px;
-      }
     }
 
     guide-card,
@@ -160,6 +149,7 @@
     }
   </style>
   <template>
+
     <catalog-data categories="{{categories}}" guides="{{guides}}"></catalog-data>
     <catalog-user id="catalogUser" user="{{user}}" loggedin="{{loggedin}}"></catalog-user>
     <paper-header-panel mode="seamed" class="fit">
@@ -169,9 +159,9 @@
         <cart-icon></cart-icon>
       </paper-toolbar> -->
       <paper-toolbar id="pageToolbar">
-        <paper-icon-button icon="menu" paper-drawer-toggle></paper-icon-button>
+        <!-- <paper-icon-button icon="menu" paper-drawer-toggle></paper-icon-button> -->
         <!-- <paper-icon-button icon="arrow-back" id="navBackButton" on-tap="_tapNavBackButton"></paper-icon-button> -->
-        <app-logo class="flex" tabindex="1" hidden$="{{!narrowMode}}"></app-logo>
+        <app-logo class="flex" tabindex="1" full$="{{!narrowMode}}"></app-logo>
 
         <span class="flex"></span>
         <app-bar id="search" class="horizontal layout center end-justified" query="{{q}}"></app-bar>
@@ -194,7 +184,7 @@
           </paper-menu>
         </paper-menu-button>
         <!-- <paper-icon-button class="toggleViewButton" icon="[[viewIcon]]" on-tap="toggleView" hidden$="[[_forceCards]]"></paper-icon-button> -->
-        <cart-icon class="cartButton" id="cart-toggle" icon="stars" on-tap="cartOpen"></cart-icon>
+        <cart-icon class="cartButton" id="cart-toggle"></cart-icon>
       </paper-toolbar>
 
       <div class="content fit">

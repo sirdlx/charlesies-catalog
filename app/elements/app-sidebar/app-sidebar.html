@@ -29,35 +29,7 @@
       padding: 0 16px;
     }
 
-    .section {
-      margin-bottom: 20px;
-      opacity: 0;
-      transform: translate(0, 100px);
-      transition: var(--material-curve-320);
-    }
-
-    .section:first-child {
-      transition-delay: 100ms;
-    }
-
-    .section:nth-child(2) {
-      transition-delay: 200ms;
-    }
-
-    .section:nth-child(3) {
-      transition-delay: 300ms;
-    }
-
-    .section:nth-child(4) {
-      transition-delay: 400ms;
-    }
-
-    .active .section {
-      transform: translate(0, 0);
-      opacity: 1;
-    }
-
-    .section h5 {
+    .menu-section h5 {
       @apply(--paper-font-body2);
       border-top: 1px solid;
       border-top-color: var(--divider-color);
@@ -65,7 +37,7 @@
       padding: 16px 24px 12px 24px;
     }
 
-    .section p {
+    .menu-section p {
       @apply(--paper-font-body1);
       color: var(--secondary-text-color);
       padding: 0 24px;
@@ -102,7 +74,7 @@
       transition: var(--material-curve-320);
     }
 
-    #package-list {
+    #menu-list {
       padding: 0 0 10px;
     }
 
@@ -113,7 +85,7 @@
       font-weight: 500;
     }
 
-    #package-list .menu-item {
+    #menu-list .menu-item {
       display: block;
       padding: 9px 16px;
       font-weight: 500;
@@ -123,16 +95,16 @@
       border-width: 1px 0;
     }
 
-    #package-list .menu-item[active] {
-      background: var(--paper-blue-grey-50);
+    #menu-list .menu-item[active] {
+      background: var(--accent-color);
     }
 
-    #package-list .menu-item .all-symbol {
+    #menu-list .menu-item .all-symbol {
       padding: 5px;
     }
 
-    #package-list .menu-item package-symbol,
-    #package-list .menu-item .all-symbol {
+    #menu-list .menu-item package-symbol,
+    #menu-list .menu-item .all-symbol {
       margin-right: 15px;
     }
 
@@ -210,6 +182,8 @@
   <template>
     <!-- <content></content> -->
     <dlx-square access-token="75ZsGfOQ64_tO04xUjEwYQ" categories="{{categories}}"></dlx-square>
+    <!-- <catalog-category categoryname="[[selected]]" category="{{data}}"></catalog-category> -->
+
     <paper-header-panel class="flex" mode="waterfall">
       <paper-toolbar>
         <app-logo class="flex" tabindex="1"></app-logo>
@@ -224,7 +198,7 @@
           <span>[[tag]]</span>
           <iron-icon icon="clear" on-tap="clearTag"></iron-icon>
         </div>
-        <div id="package-list">
+        <div id="menu-list">
           <nav>
             <a class="menu-item" is="app-link" href="/browse" active$="[[_isEqual(category,'')]]" tabindex="1">
               <div class="layout horizontal center">
@@ -244,7 +218,7 @@
                   <template is="dom-repeat" items="[[categoryTopItem.items]]">
                     <a class="menu-item" is="app-link" href$="[[item.url]]" active$="[[_isEqual(item.cleanText, selected)]]" tabindex="1">
                       <div class="layout horizontal center">
-                        <package-symbol aria-hidden="true" category="{{item}}"></package-symbol>
+                        <!-- <package-symbol aria-hidden="true" category="{{item}}"></package-symbol> -->
                         <span class="title flex">[[item.name]]</span>
                       </div>
                     </a>
@@ -281,17 +255,24 @@
       categories: {
         type: Array
       },
-      selected: String,
+      selected: {
+        type: String,
+        notify: true,
+      },
+      data: {
+        type: Array,
+        notify: true,
+      }
     },
     observers: [
-      // 'checz(categories)'
+      // 'checz(data)'
     ],
     checz: function(obj) {
       console.log('checz ', obj);
     },
 
     _isEqual: function(a, b) {
-      console.log('equates');
+      // console.log('equates');
       return a === b;
     },
 

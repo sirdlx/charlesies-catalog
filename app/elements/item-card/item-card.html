@@ -15,7 +15,7 @@
     <style>
       :host {
         display: -webkit-box;
-        margin: 0 0 10px 0;
+        /*margin: 0 0 10px 0;*/
         cursor: pointer;
         border-radius: 4px;
         /*border: 1px solid #d0d0d0;*/
@@ -28,7 +28,7 @@
         transition-duration: 0.4s;
         -webkit-transition-properties: all;
         -webkit-transition-duration: 0.4s;
-        width: 266px;
+        width: calc(320px - 24px);
         background-color: white;
         position: relative;
         overflow: hidden;
@@ -78,8 +78,10 @@
         /*width: 100%;*/
         /*height: var(--hero-height);
         width: var(--hero-width);*/
-        height: 266px;
-        width: 266px;
+        /*height: 266px;
+        width: 266px;*/
+        height:calc((320px - 24px));
+        width: calc(320px - 24px);
         /*background: #ccc;*/
         border-radius: 3px 3px 0 0;
         overflow: hidden;
@@ -280,110 +282,110 @@
         <iron-icon icon="check" class="check-icon" checked$="[[addressFormOk]]"></iron-icon>
       </template>
 
-      <a href$="[[_getItemLink(item)]]">
-        <template is="dom-if" if="{{mediaSrc}}" restamp="true">
-          <div id="hero" style$="[[_computeStyle(color)]]" on-mouseenterFFFF="_mouseEnter" on-mouseleaveFFFF="_mouseLeave">
-            <template is="dom-if" if="[[_computeHeroBG(mediaSrc, mediaPlaceholder)]]" restamp="true">
-              <iron-icon class="hero-bg" icon="[[mediaIcon]]"></iron-icon>
-            </template>
-            <iron-image fade src="[[mediaSrc]]" sizing="{{sizing}}" preload placeholder="{{mediaPlaceholder}}"></iron-image>
-          </div>
-        </template>
-        <!-- <h3 id="title">[[item.label]]</h3> -->
-        <template is="dom-if" if="[[!body]]" restamp="true">
-          <div id="heroActions" class="layout horizontal">
-            <template is="dom-if" if="[[itemLabel]]" restamp="true">
-              <h3 id="title">[[itemLabel]]</h3>
-            </template>
-            <!-- <paper-input id="data-label" class="title" placeholder="Label" value="{{item.label::change}}" disabled$="[[!admin]]" no-label-float="true"></paper-input> -->
-            <span class="flex"></span>
-            <template is="dom-if" if="[[actionButton]]" restamp="true">
-              <cart-item-icon id="cartItemIcon" item="[[item]]" view="paper-icon-button"></cart-item-icon>
-            </template>
-          </div>
-        </template>
-        <!-- <template is="dom-if" if="[[item.label]]" restamp="true">
+
+      <template is="dom-if" if="{{mediaSrc}}" restamp="true">
+        <div id="hero" style$="[[_computeStyle(color)]]" on-mouseenterFFFF="_mouseEnter" on-mouseleaveFFFF="_mouseLeave">
+          <template is="dom-if" if="[[_computeHeroBG(mediaSrc, mediaPlaceholder)]]" restamp="true">
+            <iron-icon class="hero-bg" icon="[[mediaIcon]]"></iron-icon>
+          </template>
+          <iron-image fade src="[[mediaSrc]]" sizing="{{sizing}}" preload placeholder="{{mediaPlaceholder}}"></iron-image>
+        </div>
+      </template>
+      <!-- <h3 id="title">[[item.label]]</h3> -->
+      <template is="dom-if" if="[[!body]]" restamp="true">
+        <div id="heroActions" class="layout horizontal">
+          <template is="dom-if" if="[[itemLabel]]" restamp="true">
+            <h3 id="title">[[itemLabel]]</h3>
+          </template>
+          <!-- <paper-input id="data-label" class="title" placeholder="Label" value="{{item.label::change}}" disabled$="[[!admin]]" no-label-float="true"></paper-input> -->
+          <span class="flex"></span>
+          <template is="dom-if" if="[[actionButton]]" restamp="true">
+            <cart-item-icon id="cartItemIcon" item="[[item]]" view="paper-icon-button"></cart-item-icon>
+          </template>
+        </div>
+      </template>
+      <!-- <template is="dom-if" if="[[item.label]]" restamp="true">
             <h3 id="title">[[item.label]]</h3>
           </template> -->
-        <!-- </div> -->
+      <!-- </div> -->
 
-        <template is="dom-if" if="[[body]]" restamp="true">
-          <template is="dom-if" if="[[item]]" restamp="true">
-            <div class="body-item card-actions layout horizontal ">
-              <cart-item-icon id="cartItemIcon" item="[[item]]" view="paper-icon-button"></cart-item-icon>
-              <span class="flex"></span>
-              <h4 class="item-price">
+      <template is="dom-if" if="[[body]]" restamp="true">
+        <template is="dom-if" if="[[item]]" restamp="true">
+          <div class="body-item card-actions layout horizontal ">
+            <cart-item-icon id="cartItemIcon" item="[[item]]" view="paper-icon-button"></cart-item-icon>
+            <span class="flex"></span>
+            <h4 class="item-price">
                 <span>[[item.priceText]]</span>
               </h4>
-            </div>
-          </template>
-
-          <!-- <item-action-menu key="[[item.__firebaseKey__]]" icons-onlyFFFF="true"></item-action-menu> -->
-
-          <div id="item-label">
-            <template is="dom-if" if="[[itemLabel]]" restamp="true">
-              <template is="dom-if" if="[[!admin]]" restamp="true">
-                <h3 id="label">[[itemLabel]]</h3>
-              </template>
-            </template>
-
-            <template is="dom-if" if="[[!itemLabel]]" restamp="true">
-              <template is="dom-if" if="[[!admin]]" restamp="true">
-                <h3 id="label">No label</h3>
-              </template>
-            </template>
-
-            <template is="dom-if" if="[[admin]]" restamp="true">
-              <paper-input id="data-label" placeholder="Label" value="{{item.label::change}}" disabled$="[[!admin]]" no-label-float></paper-input>
-            </template>
-          </div>
-
-          <div id="item-descripton">
-            <template is="dom-if" if="[[item.description]]" restamp="true">
-              <template is="dom-if" if="[[!admin]]" restamp="true">
-                <p id="description">[[item.description]]</p>
-              </template>
-            </template>
-
-            <template is="dom-if" if="[[!item.description]]" restamp="true">
-              <template is="dom-if" if="[[!admin]]" restamp="true">
-                <p id="description">No description</p>
-              </template>
-            </template>
-
-            <template is="dom-if" if="[[admin]]" restamp="true">
-              <paper-textarea id="data-description" placeholder="Description" value="{{item.description::change}}" disabled$="[[!admin]]" no-label-float="true" on-changeFFF="_productDescriptionChange" rows="2" max-rows="2" styleFFFF="width: 190px;"></paper-textarea>
-            </template>
           </div>
         </template>
 
-        <!-- <div class="horizontal layout center body-item package">
+        <!-- <item-action-menu key="[[item.__firebaseKey__]]" icons-onlyFFFF="true"></item-action-menu> -->
+
+        <div id="item-label">
+          <template is="dom-if" if="[[itemLabel]]" restamp="true">
+            <template is="dom-if" if="[[!admin]]" restamp="true">
+              <h3 id="label">[[itemLabel]]</h3>
+            </template>
+          </template>
+
+          <template is="dom-if" if="[[!itemLabel]]" restamp="true">
+            <template is="dom-if" if="[[!admin]]" restamp="true">
+              <h3 id="label">No label</h3>
+            </template>
+          </template>
+
+          <template is="dom-if" if="[[admin]]" restamp="true">
+            <paper-input id="data-label" placeholder="Label" value="{{item.label::change}}" disabled$="[[!admin]]" no-label-float></paper-input>
+          </template>
+        </div>
+
+        <div id="item-descripton">
+          <template is="dom-if" if="[[item.description]]" restamp="true">
+            <template is="dom-if" if="[[!admin]]" restamp="true">
+              <p id="description">[[item.description]]</p>
+            </template>
+          </template>
+
+          <template is="dom-if" if="[[!item.description]]" restamp="true">
+            <template is="dom-if" if="[[!admin]]" restamp="true">
+              <p id="description">No description</p>
+            </template>
+          </template>
+
+          <template is="dom-if" if="[[admin]]" restamp="true">
+            <paper-textarea id="data-description" placeholder="Description" value="{{item.description::change}}" disabled$="[[!admin]]" no-label-float="true" on-changeFFF="_productDescriptionChange" rows="2" max-rows="2" styleFFFF="width: 190px;"></paper-textarea>
+          </template>
+        </div>
+      </template>
+
+      <!-- <div class="horizontal layout center body-item package">
           <package-symbol item="[[item]]"></package-symbol>
 
           <a href="[[_getCategoryLink(item.category)]]">[[item.category]]</a>
         </div> -->
-        <!-- Ma He SoSo Sc Hi Lang -->
-        <template is="dom-if" if="[[item.tagsArray.length]]" restamp="true" as="tag">
-          <div id="item-tags" class="body-item">
+      <!-- Ma He SoSo Sc Hi Lang -->
+      <template is="dom-if" if="[[item.tagsArray.length]]" restamp="true" as="tag">
+        <div id="item-tags" class="body-item">
 
-            <!-- <iron-icon icon="maps:local-offer" class="flex-none"></iron-icon> -->
-            <template is="dom-repeat" items="[[item.tagsArray]]" as="tag">
-              <a is="app-link" class="item-tag" href="[[_computeTagLink(tag)]]">
-                <!-- active$="[[_tagActive(tag,view)]]" -->
-                <span>#[[tag.label]]</span>
-              </a>
-              <!-- <template is="dom-if" if="{{admin}}" restamp="true">
+          <!-- <iron-icon icon="maps:local-offer" class="flex-none"></iron-icon> -->
+          <template is="dom-repeat" items="[[item.tagsArray]]" as="tag">
+            <a is="app-link" class="item-tag" href="[[_computeTagLink(tag)]]">
+              <!-- active$="[[_tagActive(tag,view)]]" -->
+              <span>#[[tag.label]]</span>
+            </a>
+            <!-- <template is="dom-if" if="{{admin}}" restamp="true">
               <paper-button on-tap="_tap">[[tag.label]]</paper-button>
             </template> -->
-              <!-- <template is="dom-if" if="{{!admin}}" restamp="true">
+            <!-- <template is="dom-if" if="{{!admin}}" restamp="true">
               <paper-input value="{{tag.label}}">
                 <paper-icon-button icon="clear" suffix on-tap=""></paper-icon-button>
               </paper-input>
             </template> -->
-            </template>
-          </div>
-        </template>
-      </a>
+          </template>
+        </div>
+      </template>
+
     </div>
 
   </template>
@@ -580,13 +582,7 @@
       _computeStyle: function(color) {
         return 'background-color:' + color;
       },
-      _getItemLink: function(item) {
 
-        if (item.url) {
-          return item.url;
-        }
-
-      },
       _computeHeroBG: function(src, ph) {
         if (!src && !ph) {
           return true;

@@ -1,0 +1,922 @@
+<link rel="import" href="../../bower_components/gold-zip-input/gold-zip-input.html">
+<link rel="import" href="../../bower_components/gold-email-input/gold-email-input.html">
+<link rel="import" href="../../bower_components/iron-form/iron-form.html">
+
+
+<dom-module id="page-checkout">
+  <template>
+
+    <style is="custom-style" media="screen">
+      :host {
+        display: block;
+      }
+
+      .container {
+        /*width: 100%;*/
+      }
+
+      .checkout-layout {
+        /*display: block;*/
+        background-color: white;
+        margin: 16px;
+        padding: 16px;
+      }
+
+      .section {
+        margin-bottom: 16px;
+      }
+
+      .section:last-child {
+        margin: 0;
+      }
+
+      .header {
+        margin: 0;
+        font-size: 16px;
+      }
+
+      .price_summary {
+        margin: 24px 0;
+      }
+
+      .price_summary_header {
+        margin-bottom: 16px;
+        font-size: 24px;
+      }
+
+      .cart_total_text {
+        color: var(--paper-green-a700);
+        font-size: 20px;
+      }
+
+      .actions {
+        margin-top: 12px;
+      }
+
+      .actions paper-button {
+        width: 100%;
+        margin-bottom: 16px;
+      }
+
+      .actions .step_left {
+        background-color: white;
+        color: #848484;
+        --paper-button-ink-color: #f44336;
+      }
+
+      .actions .step_right {
+        background-color: var(--paper-green-a700);
+        color: white;
+        --paper-button-ink-color: white;
+      }
+
+      .address-input,
+      .field,
+      .shipping_menu {
+        width: 100%;
+      }
+
+      .cc_type {
+        --iron-icon-height: 24px;
+        --iron-icon-width: 38px;
+      }
+
+      .ordering {
+        min-height: 300px;
+      }
+
+      paper-spinner.logo {
+        --paper-spinner-layer-1-color: var(--paper-red-500);
+        --paper-spinner-layer-2-color: var(--paper-red-500);
+        --paper-spinner-layer-3-color: var(--paper-red-500);
+        --paper-spinner-layer-4-color: var(--paper-red-500);
+      }
+
+      .sq-input {
+        display: block;
+        background-color: rgba(0, 0, 0, 0);
+        padding: 10px 10px 10px 5px;
+        border-bottom: 1px solid var(--accent-color);
+        font-family: Roboto, Noto, sans-serif;
+        font-size: 16px;
+        outline: none;
+        margin-right: 20px;
+      }
+
+      .sq-input:focus {
+        outline: none;
+      }
+
+      .sq-input--focus {
+        /* how your inputs should appear when they have focus */
+        outline: 5px auto rgb(59, 153, 252);
+      }
+
+      .sq-input--error {
+        /* how your inputs should appear when invalid */
+        outline: 5px auto rgb(255, 97, 97);
+      }
+
+      .label {
+        color: rgb(115, 115, 115);
+      }
+
+      #sq-card-number {
+        width: 160px;
+      }
+
+      #sq-cvv {
+        width: 42px;
+      }
+
+      #sq-postal-code,
+      #sq-expiration-date {
+        width: 70px;
+      }
+
+      .add-state {
+        width: 70px;
+        margin-right: 20px;
+      }
+
+      .add-zip {
+        width: 70px;
+        margin-right: 20px;
+      }
+
+      .price {
+        color: var(--paper-green-a700);
+      }
+    </style>
+
+    <iron-media-query query="(min-width: 510px) " query-matches="{{narrow}}"></iron-media-query>
+    <iron-media-query query="(min-width: 901px) " query-matches="{{large}}"></iron-media-query>
+
+    <catalog-cart id="catalogCart" items="{{cart}}" count={{count}}></catalog-cart>
+    <catalog-user id="catalogUser" loggedin="{{loggedin}}" wait="{{wait}}" user="{{user}}" card="{{card}}" address="{{address}}"></catalog-user>
+    <catalog-data id="catalogData" on-checkout-response="_handleCheckoutResponse"></catalog-data>
+    <dlx-square id="dlxsq" access-token="75ZsGfOQ64_tO04xUjEwYQ"></dlx-square>
+    <!-- <h2>Checkout</h2>
+    <paper-slider disabledx id="checkoutSteps" pin snaps max="2" step="1" value="{{checkoutProgress}}"></paper-slider> -->
+    <paper-drawer-panel id="drawerPanel" responsive-width="900px" narrow="{{narrowMode}}" drawer-width="272px" disable-edge-swipe>
+
+      <app-sidebar drawer></app-sidebar>
+
+      <paper-header-panel mode="waterfall" main>
+
+        <paper-toolbar id="pageToolbar" class$="{{_toolbarSize(large)}}">
+          <paper-icon-button icon="menu" paper-drawer-toggle></paper-icon-button>
+          <!-- <paper-icon-button icon="arrow-back" id="navBackButton" on-tap="_tapNavBackButton"></paper-icon-button> -->
+          <app-logo class="flex" tabindex="1" full="{{narrow}}" hidden$="{{large}}"></app-logo>
+          <h2 hidden$="{{!large}}">[[pageTitle]]</h2>
+          <span class="flex"></span>
+          <h2 class="price end" hidden$="{{!large}}">[[cart.total]]</h2>
+
+          <h2 class="middle" hidden$="{{large}}">[[pageTitle]]</h2>
+          <span class="middle flex"></span>
+          <h2 class="middle price end" hidden$="{{large}}">[[cart.total]]</h2>
+
+          <span class="flex"></span>
+          <!-- #q -->
+          <app-bar id="search" class="horizontal layout center end-justified" query="{{q}}"></app-bar>
+
+          <paper-menu-button vertical-align="top" horizontal-align="right">
+
+            <template is="dom-if" if="[[!user.loggedin]]" restamp="true">
+              <paper-icon-button icon="social:person" class="dropdown-trigger" alt="menu"></paper-icon-button>
+            </template>
+            <template is="dom-if" if="[[user.loggedin]]" restamp="true">
+              <paper-icon-button src="{{user.profileImageURL}}" class="dropdown-trigger" alt="menu"></paper-icon-button>
+            </template>
+
+            <paper-menu class="dropdown-content">
+              <paper-item hidden={{!user.loggedin}} link="/account" on-tap="_tapNav">[[user.displayName]]</paper-item>
+              <paper-item hidden={{!user.loggedin}} on-tap="_tapLogout">logout</paper-item>
+              <paper-item hidden={{user.loggedin}} link="/login" on-tap="_tapLogin">login</paper-item>
+            </paper-menu>
+          </paper-menu-button>
+          <!-- <paper-icon-button class="toggleViewButton" icon="[[viewIcon]]" on-tap="toggleView" hidden$="[[_forceCards]]"></paper-icon-button> -->
+          <cart-icon class="cartButton" id="cart-toggle"></cart-icon>
+        </paper-toolbar>
+
+
+        <theme-color color="[[_computeColor(item.category.color)]]" class="layout vertical center-center">
+
+          <paper-material class="checkout-layout layout vertical">
+
+            <iron-pages selected="{{checkoutProgress}}">
+              <form class="checkout-form" is="iron-form" id="checkoutForm" method="post" action="/" on-iron-form-submit="_submitCheckoutForm">
+                <div class="section">
+                  <h3 class="header">Pay With</h3>
+                  <div class="layout horizontal">
+                    <div class="">
+                      <label class="label">Card Number</label>
+                      <div id="sq-card-number"></div>
+                    </div>
+
+                    <div class="">
+                      <label>CVV</label>
+                      <div id="sq-cvv"></div>
+                    </div>
+
+                  </div>
+                  <br>
+
+                  <div class="layout horizontal">
+                    <div class="">
+                      <label>Expiration Date</label>
+                      <div id="sq-expiration-date"></div>
+                    </div>
+
+                    <div class="">
+                      <label>Zipcode</label>
+                      <div id="sq-postal-code"></div>
+                    </div>
+
+                  </div>
+
+                </div>
+
+                <div class="section">
+                  <h3 class="header">Ship to</h3>
+
+                  <div class="">
+
+                    <div class="body-item">
+                      <gold-email-input value="{{address.email}}" label="Email Address" required></gold-email-input>
+                      <paper-input value="{{address.name}}" label="Full Name" class="add-name" id="add-name" required></paper-input>
+                    </div>
+
+                    <div class="body-item">
+                      <paper-input value="{{address.street}}" label="Street Address" class="add-street" id="street" required></paper-input>
+                      <paper-input value="{{address.line2}}" label="Apt/Suite" class="add-line2" id="line2"></paper-input>
+                      <paper-input value="{{address.city}}" label="City" class="add-city" id="city" required></paper-input>
+
+                      <div class="layout horizontal">
+                        <!-- <paper-input class="flex" value="{{address.state}}" label="State" class="field" id="state" required></paper-input> -->
+                        <paper-dropdown-menu class="add-state" label="State" required>
+                          <paper-menu class="dropdown-content" selected="{{selectedState}}">
+                            <template is="dom-repeat" items="{{states}}">
+                              <paper-item>
+                                <span>{{item.abbreviation}}</span>
+                              </paper-item>
+                            </template>
+                          </paper-menu>
+                        </paper-dropdown-menu>
+
+                        <gold-zip-input class="add-zip" value="{{zipcode}}" id="zipcode" required></gold-zip-input>
+                      </div>
+
+
+                    </div>
+
+
+                  </div>
+
+                </div>
+
+                <div class="price_summary layout vertical">
+
+                  <h3 class="price_summary_header">Price summary</h3>
+
+                  <div class="section layout horizontal">
+                    <div class="label">Subtotal</div>
+                    <span class="flex"></span>
+                    <div class="value">
+                      <span>[[cartSubtotal]]</span>
+                    </div>
+                  </div>
+
+                  <!-- <div class="section layout horizontal">
+                <div class="label">Tax</div>
+                <span class="flex"></span>
+                <div class="value">
+                  <span>[[cartSalesTax]]</span>
+                </div>
+              </div> -->
+
+                  <div class="section">
+                    <paper-dropdown-menu class="shipping_menu" label="Select Shipping Method" no-label-float>
+                      <paper-menu id="selectedShippingOptionMenu" class="dropdown-content" selected="{{selectedShippingOption}}">
+                        <template is="dom-repeat" items="{{shippingOptions}}">
+                          <paper-item>
+                            <span>{{item.label}}</span>
+                          </paper-item>
+                        </template>
+                      </paper-menu>
+                    </paper-dropdown-menu>
+                  </div>
+
+                  <div class="section layout horizontal">
+                    <div class="label">Total</div>
+                    <span class="flex"></span>
+                    <div class="cart_total_text">
+                      <span>[[cartTotal]]</span>
+                    </div>
+                  </div>
+
+                </div>
+              </form>
+
+
+              <!-- Page #2 (1) -->
+              <div class="ordering layout vertical center-center">
+
+                <h2>Ordering...</h2>
+
+                <paper-spinner class="logo" active></paper-spinner>
+
+              </div>
+
+              <!-- Page #3 (2) -->
+
+              <!-- <div class="confirm-dialog layout vertical center-center">
+                <p>
+                  <strong>
+                    <span>[[cart.length]]</span>
+                  </strong>
+                  <span> Items(s) totaling </span>
+                  <strong>
+                    <span>[[cartTotal]]</span>
+                  </strong>
+                  <br>
+                  <span> being shipped to </span>
+                  <br>
+                  <strong>
+                    <span>[[address.street]]</span>
+                  </strong>
+                  <br>
+                  <span> in </span>
+                  <strong>
+                    <span>[[_computeSelectedShippingOptionText(selectedShippingOption)]]</span>
+                  </strong>
+                  <br>
+                  <span>paid with this </span>
+                  <strong>
+                    <span>[[card.card_brand]]</span>
+                  </strong>
+                  <span> ending in </span>
+                  <strong>
+                    <span>[[card.last_4]]</span>
+                  </strong>
+                </p>
+              </div> -->
+
+              <div class="finished-dialog layout vertical center-center">
+                <h2>Order #500
+                  <span>[[checkoutResponse.order_id]]</span> is complete.
+                </h2>
+                <p hidden$="{{loggedin}}">
+                  A copy of the order has been e-mailed to you.
+                </p>
+
+                <p hidden$="{{!loggedin}}">
+                  A copy of the order has been e-mailed to you. You can also view all of your orders
+                  <paper-icon-button icon="inbox" on-tap="_navToInbox"></paper-icon-button>
+                </p>
+
+                <h3>Thank you!</h3>
+              </div>
+
+            </iron-pages>
+
+            <div class="actions section layout vertical center-center">
+              <paper-button class="step_left" raised on-tap="_clickBack" hidden$="{{hideBackButton}}">{{stepLeftText}}</paper-button>
+              <paper-button class="step_right" autofocus on-tap="_clickNext" hidden$="{{hideNextButton}}">{{stepRightText}}</paper-button>
+            </div>
+
+          </paper-material>
+
+        </theme-color>
+
+      </paper-header-panel>
+    </paper-drawer-panel>
+
+
+  </template>
+
+
+  <script type="text/javascript" src="https://js.squareup.com/v2/paymentform"></script>
+  <script>
+    (function() {
+
+      Polymer({
+        is: 'page-checkout',
+        enableCustomStyleProperties: true,
+        properties: {
+
+          states: {
+            type: Array,
+            value: [{
+              "name": "Alabama",
+              "abbreviation": "AL"
+            }, {
+              "name": "Alaska",
+              "abbreviation": "AK"
+            }, {
+              "name": "American Samoa",
+              "abbreviation": "AS"
+            }, {
+              "name": "Arizona",
+              "abbreviation": "AZ"
+            }, {
+              "name": "Arkansas",
+              "abbreviation": "AR"
+            }, {
+              "name": "California",
+              "abbreviation": "CA"
+            }, {
+              "name": "Colorado",
+              "abbreviation": "CO"
+            }, {
+              "name": "Connecticut",
+              "abbreviation": "CT"
+            }, {
+              "name": "Delaware",
+              "abbreviation": "DE"
+            }, {
+              "name": "District Of Columbia",
+              "abbreviation": "DC"
+            }, {
+              "name": "Federated States Of Micronesia",
+              "abbreviation": "FM"
+            }, {
+              "name": "Florida",
+              "abbreviation": "FL"
+            }, {
+              "name": "Georgia",
+              "abbreviation": "GA"
+            }, {
+              "name": "Guam",
+              "abbreviation": "GU"
+            }, {
+              "name": "Hawaii",
+              "abbreviation": "HI"
+            }, {
+              "name": "Idaho",
+              "abbreviation": "ID"
+            }, {
+              "name": "Illinois",
+              "abbreviation": "IL"
+            }, {
+              "name": "Indiana",
+              "abbreviation": "IN"
+            }, {
+              "name": "Iowa",
+              "abbreviation": "IA"
+            }, {
+              "name": "Kansas",
+              "abbreviation": "KS"
+            }, {
+              "name": "Kentucky",
+              "abbreviation": "KY"
+            }, {
+              "name": "Louisiana",
+              "abbreviation": "LA"
+            }, {
+              "name": "Maine",
+              "abbreviation": "ME"
+            }, {
+              "name": "Marshall Islands",
+              "abbreviation": "MH"
+            }, {
+              "name": "Maryland",
+              "abbreviation": "MD"
+            }, {
+              "name": "Massachusetts",
+              "abbreviation": "MA"
+            }, {
+              "name": "Michigan",
+              "abbreviation": "MI"
+            }, {
+              "name": "Minnesota",
+              "abbreviation": "MN"
+            }, {
+              "name": "Mississippi",
+              "abbreviation": "MS"
+            }, {
+              "name": "Missouri",
+              "abbreviation": "MO"
+            }, {
+              "name": "Montana",
+              "abbreviation": "MT"
+            }, {
+              "name": "Nebraska",
+              "abbreviation": "NE"
+            }, {
+              "name": "Nevada",
+              "abbreviation": "NV"
+            }, {
+              "name": "New Hampshire",
+              "abbreviation": "NH"
+            }, {
+              "name": "New Jersey",
+              "abbreviation": "NJ"
+            }, {
+              "name": "New Mexico",
+              "abbreviation": "NM"
+            }, {
+              "name": "New York",
+              "abbreviation": "NY"
+            }, {
+              "name": "North Carolina",
+              "abbreviation": "NC"
+            }, {
+              "name": "North Dakota",
+              "abbreviation": "ND"
+            }, {
+              "name": "Northern Mariana Islands",
+              "abbreviation": "MP"
+            }, {
+              "name": "Ohio",
+              "abbreviation": "OH"
+            }, {
+              "name": "Oklahoma",
+              "abbreviation": "OK"
+            }, {
+              "name": "Oregon",
+              "abbreviation": "OR"
+            }, {
+              "name": "Palau",
+              "abbreviation": "PW"
+            }, {
+              "name": "Pennsylvania",
+              "abbreviation": "PA"
+            }, {
+              "name": "Puerto Rico",
+              "abbreviation": "PR"
+            }, {
+              "name": "Rhode Island",
+              "abbreviation": "RI"
+            }, {
+              "name": "South Carolina",
+              "abbreviation": "SC"
+            }, {
+              "name": "South Dakota",
+              "abbreviation": "SD"
+            }, {
+              "name": "Tennessee",
+              "abbreviation": "TN"
+            }, {
+              "name": "Texas",
+              "abbreviation": "TX"
+            }, {
+              "name": "Utah",
+              "abbreviation": "UT"
+            }, {
+              "name": "Vermont",
+              "abbreviation": "VT"
+            }, {
+              "name": "Virgin Islands",
+              "abbreviation": "VI"
+            }, {
+              "name": "Virginia",
+              "abbreviation": "VA"
+            }, {
+              "name": "Washington",
+              "abbreviation": "WA"
+            }, {
+              "name": "West Virginia",
+              "abbreviation": "WV"
+            }, {
+              "name": "Wisconsin",
+              "abbreviation": "WI"
+            }, {
+              "name": "Wyoming",
+              "abbreviation": "WY"
+            }]
+          },
+          router: Object,
+          cart: Array,
+          cartTotalNumber: {
+            type: String,
+            notify: true,
+            computed: '_computeCartTotalNumber(cart)'
+          },
+
+          cartTotal: {
+            type: String,
+            notify: true,
+            computed: '_computeCartTotal(cartTotalNumber, selectedShippingOption)'
+          },
+
+          cartSubtotal: {
+            type: String,
+            notify: true,
+            computed: '_computeCartSubtotal(cartTotalNumber)'
+          },
+
+          checkoutProgress: {
+            type: Number,
+            notify: true,
+            value: 0
+          },
+
+          stepRightText: {
+            type: String,
+            notify: true,
+
+          },
+
+          stepLeftText: {
+            type: String,
+            notify: true,
+          },
+
+          _user: {
+            type: Object,
+            notify: true,
+          },
+
+          user: {
+            type: Object,
+            notify: true,
+          },
+
+          card: {
+            type: Object,
+            notify: true,
+          },
+
+          address: {
+            type: Object,
+            notify: true,
+            // value: {
+            //   email: 'cwhite1030@gmail.com',
+            //   name: 'Sir White',
+            //   street: '5353 Cleveland Ave',
+            //   line2: 'suite 1030',
+            //   city: 'columbus',
+            //   state: 4,
+            // }
+          },
+
+          zipcode: {
+            type: Number,
+            notify: true,
+          },
+
+          selectedShippingOption: {
+            type: Number,
+            notify: true,
+            value: 0
+          },
+
+          shippingOptions: {
+            type: Array,
+            notify: true,
+            value: [{
+              'label': 'Ground (3-5 business days) $0.00',
+              'price': 0
+            }, {
+              'label': 'Two Day (2 business days) $13.99',
+              'price': 13.99
+            }, {
+              'label': 'Next Day (1 business day) $20.99',
+              'price': 20.99
+            }]
+          },
+
+          hideBackButton: {
+            type: Boolean,
+            notify: true,
+          },
+
+          selectedState: {
+            type: String,
+            notify: true,
+            value: 0
+          },
+
+          order: {
+            type: Object,
+            notify: true
+          },
+
+          checkoutResponse: {
+            type: Object,
+            notify: true,
+          },
+
+        },
+
+        observers: [
+          '_computeOrder(address, card, selectedShippingOption)',
+          '_computeCheckoutProgress(checkoutProgress)'
+          // 'check(obj)'
+        ],
+
+        listeners: {
+          'order-saved': '_onOrderSaved',
+          'order-error': '_onOrderError'
+        },
+
+
+        _check: function(job) {
+          console.log(job);
+        },
+
+
+        ready: function() {
+
+          this.async(function() {
+            this.buildForm();
+          });
+
+        },
+
+        _computeSelectedShippingOptionText: function(selectedShippingOption) {
+          if (selectedShippingOption === 0) {
+            return "3-5 business days";
+          } else if (selectedShippingOption === 1) {
+            return "2 business days";
+          } else if (selectedShippingOption === 2) {
+            return "1 business day";
+          }
+        },
+
+
+        _computeCartTotalNumber: function(cart) {
+          this.pageTitle = 'Checkout: ' + cart.length + ' items';
+
+          if (cart.length) {
+            var total = 0;
+            for (var i = 0; i < cart.length; i++) {
+              total += Number(cart[i].price);
+              // * cart[i].quantity;
+            }
+            // console.log(total.toFixed(2));
+            return Number(total).toFixed(2);
+          }
+          return Number(0).toFixed(2);
+        },
+
+        _computeCartSubtotal: function(cartTotalNumber) {
+          return String('$' + cartTotalNumber);
+        },
+
+        _computeCartTotal: function(cartTotalNumber, selectedShippingOption) {
+          // console.log(cart);
+          // console.log(this.shippingOptions[selectedShippingOption]);
+
+          var absShipping = Number(this.shippingOptions[selectedShippingOption].price);
+
+          var absTotal = +cartTotalNumber + this.shippingOptions[selectedShippingOption].price;
+
+          // console.log(+cartTotalNumber+ + absShipping);
+
+          return String('$' + absTotal);
+
+        },
+
+        _computeOrder: function(address, card, selectedShippingOption) {
+          var ship = this.shippingOptions[selectedShippingOption];
+          var order = {
+            address: address,
+            card: card,
+            cart: this.cart,
+            ship: ship
+          };
+          this.$.dlxsq.checkout(order);
+        },
+
+        _onOrderSaved: function(_, order) {
+          console.log(order);
+          this.order = order;
+          this.$.catalogCart.clear();
+          this.checkoutProgress++;
+        },
+        _onOrderError: function(_, order) {
+          console.log(order);
+          this.checkoutProgress--;
+        },
+
+        _clickBack: function() {
+          if (this.checkoutProgress === 0) {
+            this.router.go('/');
+            return;
+          }
+          this.checkoutProgress--;
+        },
+
+        _clickNext: function() {
+
+          if (this.checkoutProgress === 0) {
+            if (!this.$.checkoutForm.validate()) {
+              this.fire('toast', {
+                text: "checkout isn't complete, please try again"
+              });
+              console.error("checkout isn't complete, please try again");
+              return;
+            }
+            this.getCardNonce();
+          }
+
+          this.checkoutProgress++;
+        },
+
+        _computeCheckoutProgress: function(checkoutProgress) {
+          // console.log(checkoutProgress);
+
+          if (checkoutProgress === 0) {
+            this.set('stepLeftText', 'cancel');
+            this.set('stepRightText', 'Order');
+            this.hideBackButton = false;
+            this.hideNextButton = false;
+          }
+
+
+          if (this.checkoutProgress === 1) {
+            this.hideBackButton = true;
+            this.hideNextButton = true;
+
+          }
+
+
+          if (checkoutProgress === 3) {
+            this.hideBackButton = true;
+            this.set('stepRightText', 'Finish');
+          }
+
+
+          if (this.checkoutProgress === 4) {
+
+            // this.router.go('/checkout/orders');
+          }
+
+        },
+
+
+        getCardNonce: function() {
+          this.paymentForm.requestCardNonce();
+        },
+
+        buildForm: function() {
+          this.paymentForm = new SqPaymentForm({
+            applicationId: 'dS6HKBCOmb9uhNv2pncUug', // <-- REQUIRED: Add Application ID
+            inputClass: 'sq-input',
+            inputStyles: [{
+              fontSize: '15px'
+            }],
+            cardNumber: {
+              elementId: 'sq-card-number',
+              placeholder: '•••• •••• •••• ••••'
+            },
+            cvv: {
+              elementId: 'sq-cvv',
+              placeholder: 'CVV'
+            },
+            expirationDate: {
+              elementId: 'sq-expiration-date',
+              placeholder: 'MM/YY'
+            },
+            postalCode: {
+              elementId: 'sq-postal-code',
+              placeholder: '12345'
+            },
+            callbacks: {
+              cardNonceResponseReceived: function(errors, nonce, cardData) {
+                if (errors) {
+                  // handle errors
+                  errors.forEach(function(error) {
+                    // console.log(error.message);
+                  });
+                  this.fire('toast', {
+                    text: "card information not valid, please try again"
+                  });
+                  this.checkoutProgress--;
+                } else {
+                  // handle nonce
+                  // console.log('Nonce received:');
+                  // console.log(nonce);
+                  cardData.nonce = nonce;
+                  this.set('card', cardData);
+                }
+              }.bind(this),
+              unsupportedBrowserDetected: function() {
+                // Alert the buyer that their browser is not supported
+              }
+            }
+          });
+          this.paymentForm.build();
+
+        },
+
+        _computeTypeIcon: function(type) {
+          return 'images/' + type + '.png';
+        },
+
+        _toolbarSize: function(large) {
+          return !large ? 'medium-tall' : '';
+        },
+
+
+
+
+        // END
+
+      });
+    })();
+  </script>
+
+</dom-module>

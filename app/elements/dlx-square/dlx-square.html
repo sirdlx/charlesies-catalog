@@ -4,7 +4,7 @@
 
 <dom-module id="dlx-square">
   <template>
-    <firebase-document location="{{_baseurl}}" data="{{app}}"></firebase-document>
+    <firebase-document id="fbapp" location="{{_baseurl}}" data="{{app}}"></firebase-document>
     <!-- <iron-ajax auto id="sqr-fb" url$="{{baseurl}}" handle-as="json" on-response="_computeApp" verbose></iron-ajax> -->
     <!-- <iron-localstorage name="{{accessToken}}-SQ-Categories" value="{{categories}}" on-iron-localstorage-load-empty="initializeDefaultCategories"></iron-localstorage>
     <iron-localstorage name="{{accessToken}}-SQ-Products" value="{{products}}" on-iron-localstorage-load-empty="initializeDefaultProducts"></iron-localstorage>
@@ -80,7 +80,7 @@
       category: {
         type: Object,
         notify: true,
-        computed: '_computeCategory(categoriesMap, categoryname)'
+        computed: '_computeCategoryByName(categoriesMap, categoryname)'
       },
       // All Product
       products: {
@@ -329,28 +329,14 @@
       this.set('_categoriesloading', false);
       // console.log(arr);
     },
-    computeCategoryFFF: function(categoryname, categoryid, categoryMap) {
-      console.log('_computeCategory');
-      for (var _item in map) {
-        if (map.hasOwnProperty(_item)) {
-          // console.log(_items[_item]);
-          var item = map[_item];
-          console.log(item.name === match.name);
-          if (item.name === match.name) {
-            return item;
-          }
-        }
+    _computeCategoryByName: function(categoryMap, categoryname) {
+
+      if (categoryname) {
+        // console.log('_computeCategory', categoryname);
+        var _item = categoryMap._name[categoryname];
+        return _item;
       }
 
-      for (var cat in obj) {
-        if (obj.hasOwnProperty(cat)) {
-          // console.log(obj[cat]);
-          obj[cat].name = cat;
-          arr.push(obj[cat]);
-        }
-      }
-
-      console.log(arr);
     },
 
     categoryByName: function(categoryMapName, categoryname) {
@@ -384,9 +370,11 @@
           // var priceText = this._computeItemPriceText(product.variations[0].price_money.amount);
           if (!item.variations[0].price_money) {
             item.priceText = "$0.00";
+            item.price = 0.00;
           } else {
             // console.log(item.variations[0].price_money);
             item.priceText = '$' + Number(item.variations[0].price_money.amount / 100).formatMoney(2);
+            item.price = Number(item.variations[0].price_money.amount / 100).formatMoney(2);
             // console.log(item.priceText);
           }
 
@@ -422,14 +410,12 @@
 
       // this.set('category', this.categoriesMap[categoryname]);
       if (category && category.id) {
-        // console.log(category.id === categoriesMap._id[category.id].id);
         if (category.id === categoriesMap._id[category.id].id) {
           return categoriesMap._id[category.id];
         }
         return categoriesMap._id[category.id];
       } else {
         return categoriesMap._id['0'];
-
       }
 
     },
@@ -437,6 +423,15 @@
     _computeselectedItemVariations: function(_, req) {
       // console.log(req.response);
       this.set('selectedItemVariations', req.response);
+    },
+
+
+
+    checkout: function(order) {
+      var fbref = new Firebase('https://charlesiescom.firebaseio.com/square/orders');
+      fbref.push(order).then(function() {
+        this.fire('order-saved', order);
+      }.bind(this));
     }
 
 

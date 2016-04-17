@@ -30,45 +30,6 @@
       margin-left: 15px;
     }
 
-    #download {
-      padding: 16px;
-    }
-
-    #dl code {
-      font-weight: bold;
-      color: #3f51b5;
-    }
-
-    #download h4 {
-      font-size: 14px;
-      font-weight: bold;
-      margin: 0;
-    }
-
-    #download > section {
-      margin-bottom: 24px;
-    }
-
-    #download textarea {
-      box-sizing: border-box;
-      display: block;
-      width: 100%;
-      height: 110px;
-      padding: 8px;
-      background: var(--paper-blue-grey-50);
-      border: 1px solid var(--paper-blue-grey-100);
-      border-radius: 2px;
-      font-size: 12px;
-      color: var(--paper-blue-grey-500);
-      resize: none;
-    }
-
-    #download paper-button {
-      background: #e91e63;
-      color: white;
-      margin-top: 10px;
-    }
-
     paper-tabs {
       --paper-tabs-selection-bar-color: #304ffe;
     }
@@ -77,79 +38,91 @@
       --paper-tab-ink: #304ffe;
     }
 
-    .avatar {
-      display: inline-block;
-      box-sizing: border-box;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: var(--paper-amber-500);
+    .price {
+      background-color: var(--paper-green-a700);
     }
 
-    .blue {
-      background-color: var(--paper-light-blue-300);
+    .sq-input {
+      border: 1px solid rgb(223, 223, 223);
+      outline-offset: -2px;
+      margin-bottom: 5px;
+    }
+
+    .sq-input--focus {
+      /* how your inputs should appear when they have focus */
+      outline: 5px auto rgb(59, 153, 252);
+    }
+
+    .sq-input--error {
+      /* how your inputs should appear when invalid */
+      outline: 5px auto rgb(255, 97, 97);
     }
   </style>
   <template>
     <catalog-cart id="data" items="{{items}}"></catalog-cart>
+    <paper-header-panel class="flex" mode="waterfall">
+      <paper-toolbar id="toolbar">
+        <iron-icon icon="chevron-left" on-tap="close"></iron-icon>
+        <iron-icon icon="shopping-cart"></iron-icon>
+        <span id="toolbar-title" class="flex">My Shopping Cart</span>
 
-    <paper-toolbar id="toolbar">
-      <iron-icon icon="stars"></iron-icon>
-      <span id="toolbar-title" class="flex">My Shopping Cart</span>
-      <iron-icon icon="chevron-right" on-tap="close"></iron-icon>
-    </paper-toolbar>
-    <paper-tabs id="tabs" selected="{{_tab}}">
-      <paper-tab name="products">Items (<span>[[items.length]]</span>)</paper-tab>
-      <paper-tab name="download">Checkout</paper-tab>
-    </paper-tabs>
+        <paper-button on-tap="_navCheckout" icon="" class="price">
+          Checkout
+          <iron-icon icon="chevron-right"></iron-icon>
+        </paper-button>
+      </paper-toolbar>
+      <!-- <paper-tabs id="tabs" selected="{{_tab}}">
+        <paper-tab name="products">Items (<span>[[items.length]]</span>)</paper-tab>
+        <paper-tab name="download">Checkout</paper-tab>
+      </paper-tabs> -->
 
-    <iron-pages selected="[[_tab]]" class="flex">
+      <iron-pages selected="[[_tab]]" class="flex">
 
-      <!-- BEGIN Products Page -->
-      <div id="products">
-        <paper-listbox>
-          <template is="dom-repeat" items="[[items]]">
-            <cart-item item="[[item]]" on-remove="_handleRemove"></cart-item>
-          </template>
-        </paper-listbox>
-      </div>
-      <!-- END Products Page -->
-
-
-
-      <!-- BEGIN Checkout Page -->
-      <div id="download">
-        <section>
-          <h4>Checkout</h4>
-
-          <paper-radio-group selected="{{downloadMethod}}" id="dl">
-            <paper-radio-button name="products">
-              <code>products folder</code> - the full source for the latest version of all your selected products
-            </paper-radio-button>
-            <paper-radio-button name="bower">
-              <code>bower.json</code> - just the bower.json file, from which you can run bower install to fetch your products
-            </paper-radio-button>
-          </paper-radio-group>
-
-          <paper-button raised on-tap="download">Download</paper-button>
-        </section>
-        <section>
-          <h4>Bower Command</h4>
-
-          <p>You can copy the command below and paste it into the terminal to install the products from your cart into a project that already uses Bower.
-          </p>
-
-        </section>
-      </div>
-
-      <!-- END Checkout Page -->
+        <!-- BEGIN Products Page -->
+        <div id="products">
+          <paper-listbox>
+            <template is="dom-repeat" items="[[items]]">
+              <cart-item item="[[item]]" on-remove="_handleRemove"></cart-item>
+            </template>
+          </paper-listbox>
+        </div>
+        <!-- END Products Page -->
 
 
 
-    </iron-pages>
+        <!-- BEGIN Checkout Page -->
+        <div id="download">
+          <section>
+            <h4>Checkout</h4>
+
+            <paper-radio-group selected="{{downloadMethod}}" id="dl">
+              <paper-radio-button name="products">
+                <code>products folder</code> - the full source for the latest version of all your selected products
+              </paper-radio-button>
+              <paper-radio-button name="bower">
+                <code>bower.json</code> - just the bower.json file, from which you can run bower install to fetch your products
+              </paper-radio-button>
+            </paper-radio-group>
+
+            <paper-button raised on-tap="download">Download</paper-button>
+          </section>
+          <section>
+            <h4>Bower Command</h4>
+
+            <p>You can copy the command below and paste it into the terminal to install the products from your cart into a project that already uses Bower.
+            </p>
+
+          </section>
+        </div>
+
+        <!-- END Checkout Page -->
+
+
+
+      </iron-pages>
+    </paper-header-panel>
   </template>
 </dom-module>
-
 <script>
   Polymer({
     is: 'app-cart',
@@ -202,6 +175,18 @@
     },
     _processPayment: function() {
       ga('send', 'event', 'checkout');
+    },
+    requestCardNonce: function() {
+      paymentForm.requestCardNonce();
+    },
+
+    _navCheckout: function() {
+      this.async(function functionName() {
+        this.fire('nav', {
+          url: '/checkout'
+        });
+      }, 230);
+
     }
   });
 </script>
