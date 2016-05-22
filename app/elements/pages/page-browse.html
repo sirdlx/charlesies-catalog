@@ -30,7 +30,7 @@
     <iron-media-query query="(min-width: 510px) " query-matches="{{narrow}}"></iron-media-query>
     <iron-media-query query="(min-width: 901px) " query-matches="{{large}}"></iron-media-query>
     <catalog-user id="catalogUser" user="{{user}}" loggedin="{{loggedin}}"></catalog-user>
-    <catalog-data products="{{products}}" categories="{{categories}}"></catalog-data>
+    <dlx-square app="{{app}}"></dlx-square>
     <catalog-category categoryname="{{category}}" category="{{categoryInfo}}"></catalog-category>
     <paper-drawer-panel id="drawerPanel" responsive-width="900px" narrow="{{narrowMode}}" drawer-width="272px" disable-edge-swipe>
       <app-sidebar drawer selected="{{category}}" data="{{categoryInfo}}"></app-sidebar>
@@ -58,7 +58,7 @@
             <paper-menu class="dropdown-content">
               <paper-item hidden={{!user.loggedin}} link="/account" on-tap="_tapNav">[[user.displayName]]</paper-item>
               <paper-item hidden={{!user.loggedin}} on-tap="_tapLogout">logout</paper-item>
-              <paper-item hidden={{user.loggedin}} link="/login" on-tap="_tapLogin">login</paper-item>
+              <paper-item hidden={{user.loggedin}} link="/account/login" on-tap="_tapLogin">login</paper-item>
             </paper-menu>
           </paper-menu-button>
           <!-- <paper-icon-button class="toggleViewButton" icon="[[viewIcon]]" on-tap="toggleView" hidden$="[[_forceCards]]"></paper-icon-button> -->
@@ -117,7 +117,6 @@
           type: Object,
           value: {}
         },
-        products: Array,
 
         _filteredProducts: Array,
         _productCount: Number,
@@ -136,9 +135,9 @@
       },
       observers: [
         // 'updateURL(q,category, tag, view, products)',
-        'updateURL(q, category, tag, view, products, categoryInfo)',
+        'updateURL(q, category, tag, view, app, categoryInfo)',
         'scrollToTop(category)',
-        // 'check(products)'
+        'check(app)'
       ],
       listeners: {
         'update-params': '_handleParamsUpdate'
@@ -287,7 +286,7 @@
           });
         }
       },
-      updateURL: function(q, categoryName, tag, view, products, categoryInfo) {
+      updateURL: function(q, categoryName, tag, view, app, categoryInfo) {
         var qs = this._buildQueryString();
         if (qs !== _lastNavigated && this.router) {
           _lastNavigated = qs;
@@ -324,8 +323,8 @@
         }
 
 
-        if (this.products) {
-          this._filteredProducts = this.products.filter(this.filter.bind(this));
+        if (this.app.products) {
+          this._filteredProducts =this.app.products.filter(this.filter.bind(this));
           this._productCount = this._filteredProducts.length;
         }
 
@@ -392,6 +391,15 @@
       },
       _toolbarSize: function(large) {
         return !large ? 'medium-tall' : '';
+      },
+
+      _tapLogin: function() {
+          this.fire('nav', {
+              url: "/account"
+          });
+      },
+      _tapLogout: function() {
+          this.$.catalogUser.logout();
       },
 
 

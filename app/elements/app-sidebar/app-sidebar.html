@@ -181,7 +181,7 @@
 
   <template>
     <!-- <content></content> -->
-    <dlx-square access-token="75ZsGfOQ64_tO04xUjEwYQ" categories="{{categories}}"></dlx-square>
+    <dlx-square app="{{app}}"></dlx-square>
     <!-- <catalog-category categoryname="[[selected]]" category="{{data}}"></catalog-category> -->
 
     <paper-header-panel class="flex" mode="waterfall">
@@ -209,7 +209,7 @@
               </div>
             </a>
 
-            <template is="dom-repeat" items="[[categories]]" as="categoryTopItem">
+            <template is="dom-repeat" items="[[app.categoriesArray]]" as="categoryTopItem">
               <div class="menu-section">
                 <template is="dom-if" if="[[_computeHeader(categoryTopItem)]]" restamp="true">
                   <h5 class="menu-header flex">{{categoryTopItem.name}}</h5>
@@ -252,9 +252,6 @@
           return [];
         }
       },
-      categories: {
-        type: Array
-      },
       selected: {
         type: String,
         notify: true,
@@ -265,7 +262,7 @@
       }
     },
     observers: [
-      // 'checz(data)'
+      // 'checz(app)'
     ],
     checz: function(obj) {
       console.log('checz ', obj);
@@ -291,6 +288,20 @@
     },
     clearTag: function() {
       this.tag = null;
+    },
+    _link: function(selected, view) {
+        return this.getURL(selected, view);
+    },
+    _subLink: function(selected, path) {
+        return this.getURL(selected, path, true);
+    },
+    getURL: function(selected, view, force) {
+        var url = "/products/" + this.item.key;
+        var qs = [];
+        if (force || (view && view.length && view !== 'docs')) qs.push('view=' + view);
+        if (force || (selected && selected.length && selected !== this.element)) qs.push('selected=' + selected);
+        if (qs.length) url += "?" + qs.join("&");
+        return url;
     },
   });
 </script>

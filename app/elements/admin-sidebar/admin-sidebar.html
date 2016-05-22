@@ -1,0 +1,339 @@
+<link rel="import" href="../app-logo/app-logo.html">
+
+<dom-module id="admin-sidebar">
+    <!-- <link rel="import" type="css" href="admin-sidebar.css"> -->
+    <style media="screen">
+        :root {
+            --admin-sidebar-width: 272px;
+            --admin-sidebar-background: var(--primary-background-color);
+        }
+
+        :host {
+            height: 100%;
+            box-sizing: border-box;
+            z-index: 2;
+            background: white;
+            border-right: 1px solid #e5e5e5;
+            @apply(--layout);
+            @apply(--layout-vertical);
+            overflow-x: hidden;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        paper-toolbar {
+            --paper-toolbar-background: white;
+        }
+
+        paper-toolbar /deep/ #topBar {
+            padding: 0 16px;
+        }
+
+        .menu-section h5 {
+            @apply(--paper-font-body2);
+            border-top: 1px solid;
+            border-top-color: var(--divider-color);
+            margin: 24px 0 0 0;
+            padding: 16px 24px 12px 24px;
+        }
+
+        .menu-section p {
+            @apply(--paper-font-body1);
+            color: var(--secondary-text-color);
+            padding: 0 24px;
+            margin: 0;
+        }
+
+        .content {
+            @apply(--layout-vertical);
+        }
+
+        #package-tag {
+            display: none;
+        }
+
+        #package-info {
+            position: relative;
+        }
+
+        #package-header {
+            position: relative;
+            padding: 16px 24px 0 24px;
+            overflow: hidden;
+        }
+
+        #package-header iron-icon {
+            cursor: pointer;
+        }
+
+        #package-header package-symbol {
+            display: inline-block;
+            margin: 0;
+            transform: translate(-50px, 0);
+            opacity: 0;
+            transition: var(--material-curve-320);
+        }
+
+        #menu-list {
+            padding: 0 0 10px;
+        }
+
+        h5 {
+            margin: 10px 0;
+            padding: 0 16px;
+            color: rgba(0, 0, 0, .54);
+            font-weight: 500;
+        }
+
+        #menu-list .menu-item {
+            display: block;
+            padding: 9px 16px;
+            font-weight: 500;
+            color: rgba(0, 0, 0, .87);
+            text-transform: none;
+            cursor: pointer;
+            border-width: 1px 0;
+        }
+
+        #menu-list .menu-item[active] {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        #menu-list .menu-item[active] iron-icon {
+            color: white;
+        }
+
+        #menu-list .menu-item .all-symbol {
+            padding: 5px;
+        }
+
+        #menu-list .menu-item package-symbol,
+        #menu-list .menu-item .all-symbol {
+            margin-right: 15px;
+        }
+
+        #search {
+            height: 48px;
+            line-height: 48px;
+            margin-bottom: 12px;
+            position: relative;
+        }
+
+        #search iron-icon {
+            margin-left: 16px;
+            margin-right: 8px;
+            position: absolute;
+            top: 12px;
+            left: 2px;
+        }
+
+        #search input {
+            height: 46px;
+            -webkit-appearance: none;
+            line-height: 46px;
+            border: 0;
+            margin: 0;
+            padding-left: 50px;
+            border-bottom: 1px solid #e5e5e5;
+            border-top: 1px solid #e5e5e5;
+            @apply(--paper-font-body1);
+        }
+
+        #search input:focus {
+            outline: 0;
+            background-color: #eceff1;
+            border-color: #cfd8dc;
+        }
+
+        #search input::-webkit-search-cancel-button {
+            position: relative;
+            right: 15px;
+        }
+
+        #current-tag {
+            background: #2196F3;
+            color: rgba(255, 255, 255, 0.87);
+            padding: 12px;
+            font-size: 16px;
+        }
+
+        #current-tag b {
+            margin-right: 6px;
+        }
+
+        #current-tag span {
+            text-transform: uppercase;
+        }
+
+        .tags tag-link:last-of-type + span {
+            display: none;
+        }
+
+        .active #package-header package-symbol,
+        .active #package-title,
+        .active #package-tagline {
+            transform: translate(0, 0);
+            opacity: 1;
+        }
+
+        .active #package-version {
+            transform: translate(0, 0);
+            opacity: 0.6;
+        }
+    </style>
+
+    <template>
+        <!-- <content></content> -->
+        <dlx-square menu="{{menu}}"></dlx-square>
+        <catalog-user user="{{user}}" loggedin="{{loggedin}}"></catalog-user>
+        <paper-header-panel class="flex" mode="waterfall">
+            <paper-toolbar>
+                <app-logo class="flex" tabindex="1"></app-logo>
+                <!-- <app-bar class="horizontal layout center end-justified" no-search></app-bar> -->
+                <!-- <div id="search" class="layout horizontal center">
+          <iron-icon icon="search"></iron-icon>
+          <input id="query" type="search" autocomplete="off" value="{{q::keyup}}" placeholder="Search Products" class="flex" on-search="onSearch">
+        </div> -->
+            </paper-toolbar>
+            <div class="content">
+                <div id="package-tag" hidden$="[[!tag]]">
+                    <span>[[tag]]</span>
+                    <iron-icon icon="clear" on-tap="clearTag"></iron-icon>
+                </div>
+                <div id="menu-list">
+                    <nav>
+
+                      <template is="dom-if" if="{{!loggedin}}" restamp="true">
+                          <a class="menu-item" is="app-link" href="/account" active tabindex="1">
+                              <div class="layout horizontal center">
+                                  <div class="all-symbol" aria-hidden="true">
+                                      <iron-icon icon="account-circle"></iron-icon>
+                                  </div>
+                                  <span class="title flex">Login</span>
+                              </div>
+                          </a>
+                      </template>
+
+                      <template is="dom-if" if="{{loggedin}}" restamp="true">
+                          <a class="menu-item" is="app-link" href="/account/logout" active$="[[_isEqual(selected,'login')]]" tabindex="1">
+                              <div class="layout horizontal center">
+                                  <div class="all-symbol" aria-hidden="true">
+                                      <iron-icon icon="account-circle"></iron-icon>
+                                  </div>
+                                  <span class="title flex">Logout</span>
+                              </div>
+                          </a>
+                      </template>
+
+                        <template is="dom-if" if="{{loggedin}}" restamp="true">
+                            <a class="menu-item" is="app-link" href="/account" active$="[[_isEqual(selected,'')]]" tabindex="1">
+                                <div class="layout horizontal center">
+                                    <div class="all-symbol" aria-hidden="true">
+                                        <iron-icon icon="dashboard"></iron-icon>
+                                    </div>
+                                    <span class="title flex">Dashboard</span>
+                                </div>
+                            </a>
+
+                            <a class="menu-item" is="app-link" href="/account/profile" active$="[[_isEqual(selected,'profile')]]" tabindex="1">
+                                <div class="layout horizontal center">
+                                    <div class="all-symbol" aria-hidden="true">
+                                        <iron-icon icon="account-circle"></iron-icon>
+                                    </div>
+                                    <span class="title flex">Profile</span>
+                                </div>
+                            </a>
+                        </template>
+
+
+                        <template is="dom-if" if="{{}}" restamp="true">
+                            <template is="dom-repeat" items="[[data]]" as="menuTopItem">
+                                <div class="menu-section">
+                                    <template is="dom-if" if="[[_computeHeader(menuTopItem)]]" restamp="true">
+                                        <h5 class="menu-header flex">{{menuTopItem.name}}</h5>
+                                    </template>
+                                    <div>
+                                        <template is="dom-repeat" items="[[menuTopItem.items]]">
+                                            <a class="menu-item" is="app-link" href$="[[item.url]]" active$="[[_isEqual(item.cleanText, selected)]]" tabindex="1">
+                                                <div class="layout horizontal center">
+                                                    <!-- <package-symbol aria-hidden="true" category="{{item}}"></package-symbol> -->
+                                                    <span class="title flex">[[item.name]]</span>
+                                                </div>
+                                            </a>
+                                        </template>
+                                    </div>
+                                </div>
+                            </template>
+                        </template>
+
+
+                    </nav>
+                </div>
+                <!-- <div hidden$="[[!tagList]]" id="current-tag" class="horizontal layout center">
+          <b>Tag:</b> <span class="flex">[[tag]]</span>
+          <iron-icon icon="clear" on-tap="clearTag"></iron-icon>
+        </div> -->
+            </div>
+
+        </paper-header-panel>
+
+    </template>
+</dom-module>
+
+<script>
+    Polymer({
+        is: 'admin-sidebar',
+        enableCustomStyleProperties: true,
+        properties: {
+            tagList: {
+                type: Array,
+                computed: 'arrayParam(tag)',
+                value: function() {
+                    return [];
+                }
+            },
+            categories: {
+                type: Array
+            },
+            selected: {
+                type: String,
+                notify: true,
+                view: ''
+            },
+            data: {
+                type: Array,
+                notify: true,
+            },
+
+        },
+        observers: [
+            'checz(data)'
+        ],
+        checz: function(obj) {
+            console.log('checz ', obj);
+        },
+
+        _isEqual: function(a, b) {
+            // console.log('equates');
+            return a === b;
+        },
+
+        _computeHeader: function(category) {
+            // console.log('_computeHeader', (category.id === 'home' ? false : true));
+            return category.id === 'home' ? false : true;
+        },
+
+        updateTag: function(e, detail) {
+            e.stopPropagation();
+            e.preventDefault();
+            var newTag = detail.name;
+            var t = this.tagList.slice(0);
+            if (t.indexOf(newTag) < 0) t.push(newTag);
+            this.tag = t.join(',');
+        },
+        clearTag: function() {
+            this.tag = null;
+        },
+    });
+</script>

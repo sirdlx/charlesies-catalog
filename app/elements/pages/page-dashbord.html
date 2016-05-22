@@ -1,0 +1,398 @@
+<link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../../bower_components/paper-header-panel/paper-header-panel.html">
+<link rel="import" href="../../bower_components/paper-drawer-panel/paper-drawer-panel.html">
+<link rel="import" href="../../bower_components/iron-component-page/iron-component-page.html">
+<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/paper-badge/paper-badge.html">
+<link rel="import" href="../../bower_components/paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../../bower_components/paper-styles/color.html">
+<link rel="import" href="../../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<link rel="import" href="../catalog-data/catalog-data.html">
+<link rel="import" href="../catalog-category/catalog-category.html">
+<link rel="import" href="../catalog-product/catalog-product.html">
+<link rel="import" href="../package-symbol/package-symbol.html">
+<link rel="import" href="../app-logo/app-logo.html">
+<link rel="import" href="../app-bar/app-bar.html">
+<link rel="import" href="../admin-sidebar/admin-sidebar.html">
+<link rel="import" href="../responsive-element/responsive-element.html">
+<link rel="import" href="../theme-color/theme-color.html">
+<link rel="import" href="../cart-icon/cart-icon.html">
+<link rel="import" href="../cart-item-icon/cart-item-icon.html">
+<!-- <link rel="import" href="../instagram-picker/instagram-picker.html"> -->
+<link rel="import" href="../pages/page-styles.html">
+
+<!-- might use -->
+<!-- <link rel="import" href="../../bower_components/paper-scroll-header-panel/paper-scroll-header-panel.html"> -->
+<!-- <link rel="import" href="../../bower_components/paper-button/paper-button.html"> -->
+
+<dom-module id="page-dashbord">
+    <template>
+        <style media="screen" is="custom-style">
+            paper-material {
+                /*width: 272px;*/
+                width: auto;
+                padding: 12px;
+                /*height: 160px;*/
+                margin: 0;
+            }
+            .body {
+                width: 272px;
+                padding: 0;
+                margin: 0;
+            }
+
+            .item {
+                width: 100%;
+                margin: 0 8px 16px 8px;
+            }
+
+            .body[large] {
+                width: 510px;
+            }
+
+            .item[large] {
+                width: 239px;
+            }
+        </style>
+
+
+
+        <catalog-user id="catalogUser" user="{{user}}" loggedin="{{loggedin}}"></catalog-user>
+        <dlx-square></dlx-square>
+        <paper-drawer-panel id="drawerPanel" responsive-width="900px" narrow="{{narrowMode}}" drawer-width="272px" disable-edge-swipe>
+
+            <admin-sidebar data="{{user.menu}}" loggedin="{{loggedin}}" drawer>
+
+            </admin-sidebar>
+
+            <paper-header-panel mode="waterfall" main>
+
+                <paper-toolbar id="pageToolbar" class$="{{_toolbarSize(large)}}">
+                    <paper-icon-button icon="menu" paper-drawer-toggle></paper-icon-button>
+                    <!-- <paper-icon-button icon="arrow-back" id="navBackButton" on-tap="_tapNavBackButton"></paper-icon-button> -->
+                    <app-logo class="flex" tabindex="1" full="{{narrow}}" hidden$="{{large}}"></app-logo>
+                    <h2 hidden$="{{!large}}">[[pageTitle]]</h2>
+                    <div class="middle title" hidden$="{{large}}">[[pageTitle]]</div>
+
+                    <span class="flex"></span>
+                    <!-- #q -->
+                    <app-bar id="search" class="horizontal layout center end-justified" query="{{q}}"></app-bar>
+
+                    <paper-menu-button vertical-align="top" horizontal-align="right">
+
+                        <template is="dom-if" if="[[!user.loggedin]]" restamp="true">
+                            <paper-icon-button icon="social:person" class="dropdown-trigger" alt="menu"></paper-icon-button>
+                        </template>
+                        <template is="dom-if" if="[[user.loggedin]]" restamp="true">
+                            <paper-icon-button src="{{user.profileImageURL}}" class="dropdown-trigger" alt="menu"></paper-icon-button>
+                        </template>
+
+                        <paper-menu class="dropdown-content">
+                            <paper-item hidden={{!user.loggedin}} link="/account" on-tap="_tapNav">[[user.displayName]]</paper-item>
+                            <paper-item hidden={{!user.loggedin}} on-tap="_tapLogout">logout</paper-item>
+                            <paper-item hidden={{user.loggedin}} link="/login" on-tap="_tapLogin">login</paper-item>
+                        </paper-menu>
+                    </paper-menu-button>
+                    <!-- <paper-icon-button class="toggleViewButton" icon="[[viewIcon]]" on-tap="toggleView" hidden$="[[_forceCards]]"></paper-icon-button> -->
+                    <cart-icon class="cartButton" id="cart-toggle" icon="shopping"></cart-icon>
+                </paper-toolbar>
+
+
+                <div class="layout vertical center-center">
+                    <div class="layout horizontal wrap body" large$="{{narrow}}">
+
+                        <theme-color color="#FFFFFF" class="item" large$="{{narrow}}">
+                            <paper-material elevation="1" themed class="layout vertical center">
+                                <h3>Active Items</h3>
+                                <h1>25</h1>
+                            </paper-material>
+                        </theme-color>
+
+                        <theme-color color="#FFFFFF" class="item" large$="{{narrow}}">
+                            <paper-material elevation="1" themed class="layout vertical center">
+                                <h3>Pending Orders</h3>
+                                <h1>20</h1>
+                            </paper-material>
+                        </theme-color>
+
+                        <theme-color color="#FFFFFF" class="item">
+                            <paper-material elevation="1" themed class="layout vertical center">
+                                <h3>Orders</h3>
+                                <h1>20</h1>
+                            </paper-material>
+                        </theme-color>
+
+                        <theme-color color="#FFFFFF" class="item" large$="{{narrow}}">
+                            <paper-material elevation="1" themed class="layout vertical center">
+                                <h3>Orders</h3>
+                                <h1>20</h1>
+                            </paper-material>
+                        </theme-color>
+
+                        <theme-color color="#FFFFFF" class="item">
+                            <paper-material elevation="1" themed class="layout vertical center">
+                                <h3>Orders</h3>
+                                <h1>20</h1>
+                            </paper-material>
+                        </theme-color>
+
+                    </div>
+
+                </div>
+
+
+
+
+
+            </paper-header-panel>
+        </paper-drawer-panel>
+
+    </template>
+</dom-module>
+
+<script>
+    // Utils
+    var decimalOnly = /^\s*-?[1-9]\d*(\.\d{1,2})?\s*$/;
+    Polymer({
+        is: 'page-dashbord',
+        enableCustomStyleProperties: true,
+        properties: {
+            // page
+            productid: {
+                type: String,
+                notify: true,
+            },
+            item: {
+                type: Object
+            },
+            view: {
+                type: String,
+                value: ''
+            },
+            selected: {
+                type: String,
+                value: ''
+            },
+            // Edit
+            pickerOpen: {
+                type: Boolean,
+                notify: true
+            },
+            edit: {
+                type: Boolean,
+                notify: true,
+                value: false
+            },
+            categoryByShort: String,
+            router: Object,
+            q: String,
+            narrow: Boolean,
+            addTagLabel: {
+                type: String,
+                notify: true
+            },
+            addOption: {
+                type: Object,
+                notify: true,
+                value: {}
+            },
+            selectedOptions: {
+                type: Array
+            },
+            pageTitle: {
+              type: String,
+              value: 'Dashboard'
+            }
+        },
+        observers: [
+            'updateMeta(page,selected)',
+            // 'viewUpdated(view)',
+            'search(q)',
+            // '_updateStyles(category)',
+            // '_check(item,user)',
+        ],
+        _check: function(arg) {
+            console.log('check(obj) ', arguments);
+        },
+        _instagramMediaSelected: function(_, _media) {
+            // console.log(_media);
+            var _mediaArray = [];
+            for (var i = 0; i < _media.length; i++) {
+                // console.log(_media[i].item);
+                _mediaArray.push(_media[i].item);
+            }
+            this.$.catalogProduct._addMedia(_mediaArray).then(function(arg) {
+                // console.log(arg);
+            });
+        },
+        _tapNavBackButton: function() {
+            var _url = '/';
+            if (this.category) {
+                _url = '';
+            }
+            this.fire('nav', {
+                url: _url
+            });
+        },
+        _tapLogin: function() {
+            this.fire('nav', {
+                url: "/account"
+            });
+        },
+        _tapLogout: function() {
+            this.$.catalogUser.logout();
+        },
+        _tapEditMedia: function() {
+            // console.log(this.pickerOpen);
+            this.pickerOpen = !this.pickerOpen;
+        },
+        _tapEditToggle: function() {
+            // console.log(this.pickerOpen);
+            this.edit = !this.edit;
+        },
+        _addTagChange: function() {
+            this.$.catalogProduct._addTag(this.addTagLabel)
+                .then(function(err) {
+                    // console.log(err);
+                    this.addTagLabel = '';
+                }.bind(this));
+        },
+        _tapRemoveTag: function(item) {
+            // console.log('tap remove option: ', item);
+            this.$.catalogProduct._removeTag(item.model.__data__.tag)
+                .then(function(err) {
+                    // console.log(err);
+                }.bind(this));
+        },
+        _tapAddOption: function(e) {
+            var _add = this.addOption;
+            this.addOption = {};
+            this.$.catalogProduct._addOption(_add)
+                .then(function(err) {
+                    console.log(err);
+                }.bind(this));
+        },
+        _tapRemoveOption: function(item) {
+            // console.log(item.model.__data__);
+            this.$.catalogProduct._removeOption(item.model.__data__.option)
+                .then(function(err) {
+                    // console.log(err);
+                });
+        },
+        attached: function() {
+            this.updateMeta();
+        },
+        _link: function(selected, view) {
+            return this.getURL(selected, view);
+        },
+        _subLink: function(selected, path) {
+            return this.getURL(selected, path, true);
+        },
+        getURL: function(selected, view, force) {
+            var url = "/products/" + this.item.key;
+            var qs = [];
+            if (force || (view && view.length && view !== 'docs')) qs.push('view=' + view);
+            if (force || (selected && selected.length && selected !== this.element)) qs.push('selected=' + selected);
+            if (qs.length) url += "?" + qs.join("&");
+            return url;
+        },
+        updateMeta: function(item, section) {
+            if (this.item) {
+                // console.log('update-meta: ', this.item.name);
+                // this.$.drawerPanel.closeDrawer();
+                this.fire('page-meta', {
+                    // title: (this.selected && this.selected.length) ? this.selected : this.item.label
+                    title: this.item.name
+                });
+            }
+            // console.log(item);
+        },
+        viewUpdated: function() {
+            // this.$.drawerPanel.closeDrawer();
+        },
+        search: function(q) {
+            if (q || this.q) {
+                this.router.go('/browse?q=' + (q || this.q));
+            }
+        },
+        _oneOrFewer: function(arr1, arr2) {
+            if (!arr1 || arr1.length === 0) {
+                return true;
+            }
+            if (!arr2) {
+                return arr1.length <= 1;
+            }
+            return arr1.length + arr2.length <= 1;
+        },
+        _isEqual: function(a, b) {
+            return a === b;
+        },
+        _handleError: function() {
+            this.router.go('/error');
+        },
+        _getMode: function(narrow) {
+            // console.log(narrow ? 'waterfall' : 'scroll');
+            return narrow ? 'waterfall' : 'scroll';
+        },
+        _updateStyles: function(category) {
+            // console.log(category);
+            // this.async(this.$.componentPage.updateStyles, 2);
+        },
+        _tapNav: function function_name(e) {
+            // console.log(e.target.getAttribute('link'));
+            var link = e.target.getAttribute('link');
+            this.fire('nav', {
+                url: link
+            });
+        },
+        _computeSectionTags: function(item, user) {
+            if (user.isAdmin) {
+                return false;
+            }
+            if (!user.isAdmin && item.tags) {
+                return false;
+            }
+            return true;
+        },
+        _computeTagLink: function(tag) {
+            // console.log(tag);
+            // + '&view=cards';
+            return '/?tag=' + tag.short;
+        },
+        _computeSectionOptions: function(item, user) {
+            // console.log(this._oneOrFewer(item.optionsArray));
+            if (user.isAdmin) {
+                return false;
+            }
+            if (!user.isAdmin && item.options) {
+                return false;
+            }
+            this.selectedOptions = 0;
+            return true;
+        },
+        _computeSectionDescription: function(item, user) {
+            // console.log(item.description === true);
+            if (user.isAdmin) {
+                return false;
+            }
+            if (!user.isAdmin && !item.description) {
+                return true;
+            }
+            return false;
+        },
+        _computeColor: function(c) {
+            // console.log(c);
+            return c || '#d81b60';
+        },
+        _toolbarSize: function(large) {
+            return !large ? 'medium-tall' : '';
+        },
+    });
+</script>

@@ -9,7 +9,7 @@
 <link rel="import" href="../item-table-cards/item-table-cards.html">
 
 <dom-module id="page-packages">
-  <!-- <link rel="import" type="css" href="page-packages.css"> -->
+
   <style>
     .content {
       display: block;
@@ -150,8 +150,9 @@
   </style>
   <template>
 
-    <catalog-data categories="{{categories}}" guides="{{guides}}"></catalog-data>
+    <!-- <catalog-data categories="{{categories}}" guides="{{guides}}"></catalog-data> -->
     <catalog-user id="catalogUser" user="{{user}}" loggedin="{{loggedin}}"></catalog-user>
+    <dlx-square app="{{app}}"></dlx-square>
     <paper-header-panel mode="seamed" class="fit">
       <!-- <paper-toolbar class="paper-header">
         <app-logo full class="flex"></app-logo>
@@ -199,7 +200,7 @@
           </template>
         </div> -->
 
-        <template is="dom-repeat" items="[[categories]]">
+        <template is="dom-repeat" items="[[app.categoriesArray]]">
 
           <div class="page-section grid-container">
             <div class="grid-layout">
@@ -271,6 +272,11 @@
     },
     guideSelect: function(e) {
       this.router.go('/guides/' + e.currentTarget.guide);
-    }
+    },
+    _tapLogin: function() {
+        this.fire('nav', {
+            url: "/account"
+        });
+    },
   });
 </script>

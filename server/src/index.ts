@@ -8,7 +8,7 @@ import logger = require('morgan');
 import cookieParser = require('cookie-parser');
 import bodyParser = require('body-parser');
 
-import base = require('./routes');
+import squareRoutes = require('./square');
 import request = require('request');
 var port: number = process.env.PORT || 8008;
 var app = express();
@@ -21,7 +21,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 // app.use(express.static(path.join(__dirname, '../dist')));
 
-app.use('/', base);
+app.use('/', squareRoutes);
 
 //catch 404 and forward to error handler
 app.use((req: any, res: any, next: any) => {
@@ -54,7 +54,7 @@ app.use((req: any, res: any, next: any) => {
 //   });
 // });
 
-// app.use('/app', express.static(path.resolve(__dirname, 'app')));
+// app.use('/app', expre ss.static(path.resolve(__dirname, 'app')));
 // app.use('/libs', express.static(path.resolve(__dirname, 'libs')));
 //
 // var renderIndex = (req: express.Request, res: express.Response) => {
@@ -68,6 +68,5 @@ var server = app.listen(port, function() {
   var port = server.address().port;
   console.log('This api is listening on port:' + port);
 });
-
 
 export = app;

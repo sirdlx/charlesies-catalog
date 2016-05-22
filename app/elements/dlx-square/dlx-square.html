@@ -1,439 +1,102 @@
-<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
-<link rel="import" href="../../bower_components/iron-localstorage/iron-localstorage.html">
-<link rel="import" href="../../bower_components/firebase-element/firebase-document.html">
+<!-- <link rel="import" href="../../bower_components/app-storage/app-indexeddb-mirror/app-indexeddb-mirror.html"> -->
+<link rel="import" href="../../bower_components/polymerfire/polymerfire.html">
+<script src="https://www.gstatic.com/firebasejs/3.0.0/firebase.js"></script>
 
 <dom-module id="dlx-square">
-  <template>
-    <firebase-document id="fbapp" location="{{_baseurl}}" data="{{app}}"></firebase-document>
-    <!-- <iron-ajax auto id="sqr-fb" url$="{{baseurl}}" handle-as="json" on-response="_computeApp" verbose></iron-ajax> -->
-    <!-- <iron-localstorage name="{{accessToken}}-SQ-Categories" value="{{categories}}" on-iron-localstorage-load-empty="initializeDefaultCategories"></iron-localstorage>
-    <iron-localstorage name="{{accessToken}}-SQ-Products" value="{{products}}" on-iron-localstorage-load-empty="initializeDefaultProducts"></iron-localstorage>
-    <iron-localstorage name="{{accessToken}}-SQ-Locations" value="{{locations}}" on-iron-localstorage-load-empty="initializeDefaultLocations"></iron-localstorage> -->
-    <!-- <iron-ajax auto id="sqrLocations" headers="{{headers}}" url$="{{_computeLocationsURL(baseurl, headers, getLocations)}}" handle-as="json" on-response="_computeLocations"></iron-ajax auto>
-    <iron-ajax auto id="sqrCategories" headers="{{headers}}" url$="{{_computeCategoriesURL(baseurl, selectedLocation, getCategories)}}" handle-as="json" on-response="_computeCategories" verbose></iron-ajax>
-    <iron-ajax auto id="sqrProducts" headers="{{headers}}" url$="{{_computeProductsURL(baseurl, selectedLocation, categoriesMap, getProducts)}}" handle-as="json" on-response="_computeProducts" verbose></iron-ajax>
-    <iron-ajax auto id="sqrselectedItemVariations" headers="{{headers}}" url$="{{_computeselectedItemVariationsURL(baseurl, selectedLocation, selectedItem)}}" handle-as="json" on-response="_computeselectedItemVariations" verbose></iron-ajax> -->
-  </template>
-</dom-module>
+    <template>
+        <firebase-app auth-domain="project-604055857022237684.firebaseapp.com" database-url="https://project-604055857022237684.firebaseio.com" api-key="AIzaSyAMDWKG7qyQ9msJaaKb7vmvK-rNu3X_7-Q">
+        </firebase-app>
 
-<script>
-  var _els = [];
-  var _data = {};
+        <!-- <firebase-document path="/square/merchant_id/{{merchant_id}}" data="{{app}}">
+        </firebase-document> -->
 
-  var decimalOnly = /^\s*-?[1-9]\d*(\.\d{1,2})?\s*$/;
-  Number.prototype.formatMoney = function(c1, d1, t1) {
-    var n = this,
-      c = isNaN(c = Math.abs(c)) ? 2 : c1,
-      d = d === undefined ? "." : d1,
-      t = t === undefined ? "," : t1,
-      s = n < 0 ? "-" : "",
-      i = parseInt(n = Math.abs(+n || 0).toFixed(c)) + "",
-      j = (j = i.length) > 3 ? j % 3 : 0;
-    return s + (j ? i.substr(0, j) + t : "") + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : "");
-  };
-  Polymer({
-    is: 'dlx-square',
-    properties: {
-      data: {
-        type: Object,
-        notify: true,
-        //computed: '_computeData(locations, categories, categoriesMap, products, productsMap)'
-      },
-      baseurl: {
-        type: String,
-        notify: true,
-        // value: 'https://connect.squareup.com/v1/'
-        value: 'https://charlesiescom.firebaseio.com/square/'
-      },
-      headers: {
-        type: Object,
-        // notify: true,
-        computed: '_computeHeaders(accessToken)'
-      },
-      accessToken: {
-        type: String,
-        notify: true,
-        value: ''
-      },
-      // All Locations
-      // Single Location
-      selectedLocation: {
-        type: Object,
-        notify: true,
-      },
-      // All Categories
-      categories: {
-        type: Array,
-        notify: true,
-      },
-      categoriesMap: {
-        type: Object,
-        notify: true,
-      },
+    </template>
+    <script>
+        var _els = [];
+        var _data = {};
 
-      // Single Category
-      categoryname: {
-        type: String,
-        notify: true,
-        value: ''
-      },
-      category: {
-        type: Object,
-        notify: true,
-        computed: '_computeCategoryByName(categoriesMap, categoryname)'
-      },
-      // All Product
-      products: {
-        type: Array,
-        notify: true,
-      },
-      productsMap: {
-        type: Object,
-        notify: true,
-        computed: '_computeMap(products)'
-      },
-      // Single Product
-      productid: {
-        type: String,
-        notify: true
-      },
-      product: {
-        type: Object,
-        notify: true,
-        computed: '_computeProduct(productsMap,productid)'
-      },
-      selectedItem: {
-        type: Object,
-        notify: true,
-      },
-      selectedItemVariations: {
-        type: Array,
-        notify: true,
-      },
-      loading: {
-        type: Boolean,
-        notify: true,
-        value: true,
-        computed: '_computeloading(_productsloading, _categoriesloading, _locationsloading)'
-      },
-    },
+        Polymer({
+            is: 'dlx-square',
+            properties: {
+                data: {
+                    type: Object,
+                    notify: true,
+                },
+                app: {
+                    type: Object,
+                    notify: true,
+                    value: {}
+                },
 
-    observers: [
-      'loadApp(app)',
-      // '_computeProduct(productsMap,productid)',
-    ],
+                baseRef: {
+                    type: String,
+                    value: 'square/merchant_id/'
+                },
+                merchant_id: {
+                    type: String,
+                    notify: true,
+                    value: 'E04A55A8WPWVR'
+                },
 
-    loadApp: function(obj) {
-      // console.log('check dlx square:', obj);
-      this._computeLocations(null, null, obj.locations);
-      this._computeCategories(null, null, obj.categories);
-      this._computeProducts(null, null, obj.items);
+                // Single Location
+                selectedLocation: {
+                    type: Object,
+                    notify: true,
+                }
+            },
 
-      _data.locations = this.locations;
-      _data.selectedLocation = this.selectedLocation;
-      _data.categoriesMap = this.categoriesMap;
-      _data.categories = this.categories;
-      _data.products = this.products;
-      _els.forEach(function(el) {
-        el.load(_data);
-      });
-    },
+            observers: [
+                'loadApp( merchant_id, _load)'
+            ],
 
-    load: function(app) {
-      var main = _els[0];
-      if (_data) {
-        main = _data;
-      }
-      this.set('locations', main.locations);
-      this.set('selectedLocation', main.selectedLocation);
-      this.set('categoriesMap', main.categoriesMap);
-      this.set('categories', main.categories);
-      this.set('products', main.products);
-    },
+            loadApp: function(merchant_id, _load) {
+                if (!_load) return;
+                // console.log('check dlx square:', arguments);
 
-    ready: function() {
-      if (_els.length === 0) {
-        this._baseurl = this.baseurl;
-      } else {
-        this.load(_data);
-      }
-      _els.push(this);
-    },
-
-    _computeloading: function(_productsloading, _categoriesloading, _locationsloading) {
-      // console.log('_computeloading:', _productsloading, _categoriesloading, _locationsloading);
-      // console.log((!_productsloading && !_categoriesloading && !_locationsloading));
-      return !_productsloading && !_categoriesloading && !_locationsloading;
-    },
-
-    _computeMap: function(list) {
-      // console.log(list);
-      list = list || [];
-      var map = {};
-      for (var i = 0; i < list.length; i++) {
-        map[list[i].id] = list[i];
-      }
-      return map;
-    },
-
-    _computeHeaders: function(accessToken) {
-      if (accessToken.length === 0) {
-        this.fire('toast', {
-          text: 'No accessToken provided'
-        });
-      }
-      // console.log('headers');
-      return { // 'Authorization': 'Bearer ' + accessToken,
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      };
-    },
-
-    _computeLocationsURL: function(baseurl, headers) {
-      // console.log(baseurl + 'me/locations');
-      // return baseurl + 'me/locations';
-      return baseurl + 'locations.json';
-    },
-
-    _computeCategoriesURL: function(baseurl, selectedLocation) {
-      // console.log(baseurl + 'categories');
-      // return baseurl + selectedLocation.id + '/categories';
-      return baseurl + 'categories.json';
-    },
-
-    _computeProductsURL: function(baseurl, selectedLocation) {
-      // console.log(baseurl + selectedLocation.id + '/items');
-      // return baseurl + selectedLocation.id + '/items';
-      return baseurl + 'items.json';
-    },
-
-    _computeselectedItemVariationsURL: function(baseurl, selectedItem) {
-      console.log(baseurl + selectedLocation.id + '/items/' + selectedItem + '/variations');
-      return baseurl + selectedLocation.id + '/items/' + selectedItem + '/variations';
-    },
-
-    _computeLocations: function(_, req, data) {
-      var obj = data || req.response;
-      this.set('locations', obj);
-      this.set('selectedLocation', obj[0]);
-      this.set('_locationsloading', false);
-    },
-
-    initializeDefaultCategories: function() {
-      // console.log('_categoriesloading');
-      this.set('_categoriesloading', true);
-      this.set('getLocations', true);
-      this.set('getCategories', true);
-    },
-    initializeDefaultProducts: function() {
-      // console.log('_productsloading');
-      this.set('_productsloading', true);
-      this.set('getLocations', true);
-      this.set('getCategories', true);
-      this.set('getProducts', true);
-    },
-    initializeDefaultLocations: function() {
-      // console.log('_locationsloading');
-      this.set('_locationsloading', true);
-      this.set('getLocations', true);
-    },
-    // util #cleanText
-    cleanText: function(textin) {
-      return textin.replace(/[^\w-]/g, '').toLowerCase();
-    },
-    // #cc
-    _computeCategories: function(_, req, data) {
-      // console.log(req.response);
-      var _items = data || req.response;
-      // Maps
-      var _idMap = {};
-      var _nameMap = {};
-      // 2 dimin-array
-      var _default = {
-        id: 'home',
-        items: []
-      };
-      var arr = [];
-      arr.splice(0, 0, _default);
-
-      var obj = {};
-
-      for (var _item in _items) {
-        if (_items.hasOwnProperty(_item)) {
-          // console.log(_items[_item]);
-          var item = _items[_item];
-
-          // console.log(item.url);
-
-          // compute display name and sets
-
-          if (item.name) {
-            // compute Url
-            // console.log(item.name);
-            var cleanText = this.cleanText(item.name);
-            item.cleanText = cleanText;
-
-            item.url = '/browse?category=' + cleanText;
-            // store old info
-            item._name = item.name;
-
-            var newnameparts = item.name.split(' - ');
-            // console.log(newnameparts.length > 1);
-            if (newnameparts.length === 2) {
-              item.name = newnameparts[newnameparts.length - 1];
-              if (newnameparts[0] === "Mood") {
-                item.color = "#00bcd4";
-              }
-              // console.log(item.name);
-              // maps to set
-              if (!obj[newnameparts[0]]) {
-                obj[newnameparts[0]] = {
-                  items: []
+                var config = {
+                    apiKey: "AIzaSyAMDWKG7qyQ9msJaaKb7vmvK-rNu3X_7-Q",
+                    authDomain: "project-604055857022237684.firebaseapp.com",
+                    databaseURL: "https://project-604055857022237684.firebaseio.com",
+                    storageBucket: "project-604055857022237684.appspot.com",
                 };
-              }
-              obj[newnameparts[0]].items.push(item);
-              // console.log('parts: ', newnameparts[0], newnameparts[1]);
-            } else {
-              // var itemname = item.name;
-              // console.log(arr);
-              arr[0].items.push(item);
+                firebase.initializeApp(config);
+                firebase.database().ref(this.baseRef + merchant_id).on('value', function(snapshot) {
+                    // console.log(snapshot.val());
+                    _data = snapshot.val();
+                    this.set('app', _data);
+                    // this.set('_load', false);
+                    _els.forEach(function(el) {
+                        el.load(_data);
+                    });
+                }.bind(this));
+
+
+            },
+
+            load: function(app) {
+                var main = _els[0].app;
+                if (_data) {
+                    main = _data;
+                }
+                this.set('app', main);
+            },
+
+            ready: function() {
+                if (_els.length === 0) {
+                    this._load = true;
+                }
+                if (_data.id) {
+                    this.set('app', _data);
+                }
+                _els.push(this);
+            },
+
+            checkout: function(order) {
+                firebase.database().ref(this.baseRef + '/orders').push(order).then(function() {
+                    this.fire('order-saved', order);
+                }.bind(this));
             }
 
-          }
-
-          // add to IdMap
-          _idMap[item.id] = item;
-          _nameMap[item.cleanText] = item;
-        }
-      }
-      // console.log(obj);
-      for (var cat in obj) {
-        if (obj.hasOwnProperty(cat)) {
-          obj[cat].name = cat;
-          obj[cat].color = "red";
-          arr.push(obj[cat]);
-        }
-      }
-
-      _idMap['0'] = arr[0];
-      _nameMap.home = arr[0];
-      // _nameMap['home'] = arr[0];
-
-      this.set('categoriesMap', {
-        _id: _idMap,
-        _name: _nameMap
-      });
-
-      // this.set('categoriesArr', _items);
-      this.set('categories', arr);
-      this.set('_categoriesloading', false);
-      // console.log(arr);
-    },
-    _computeCategoryByName: function(categoryMap, categoryname) {
-
-      if (categoryname) {
-        // console.log('_computeCategory', categoryname);
-        var _item = categoryMap._name[categoryname];
-        return _item;
-      }
-
-    },
-
-    categoryByName: function(categoryMapName, categoryname) {
-      console.log('categoryByName: ', categoryMapName);
-      if (this.categoryMapName) {
-        this.set('category', this.categoryMapName[name]);
-        return this.categoryMapName[name];
-      }
-    },
-    attachedFFF: function() {
-      this.clear();
-    },
-    clear: function() {
-      this.set('products', null);
-      this.set('categories', null);
-      this.set('locations', null);
-    },
-    _computeProducts: function(_, req, data) {
-      // console.log(req.response);
-
-      var _items = data || req.response;
-      for (var _item in _items) {
-        if (_items.hasOwnProperty(_item)) {
-          // console.log(_items[_item]);
-          var item = _items[_item];
-
-          item.category = this._computeCategory(this.categoriesMap, item.category);
-          // console.log(item.category);
-          item.url = '/products/' + item.id;
-
-          // var priceText = this._computeItemPriceText(product.variations[0].price_money.amount);
-          if (!item.variations[0].price_money) {
-            item.priceText = "$0.00";
-            item.price = 0.00;
-          } else {
-            // console.log(item.variations[0].price_money);
-            item.priceText = '$' + Number(item.variations[0].price_money.amount / 100).formatMoney(2);
-            item.price = Number(item.variations[0].price_money.amount / 100).formatMoney(2);
-            // console.log(item.priceText);
-          }
-
-        }
-      }
-      this.set('products', _items);
-      this.set('_productsloading', false);
-    },
-
-    _computeProduct: function(productsMap, productid) {
-      // console.log('_computeProduct: ', productid, productsMap);
-      // console.log( productsMap[productid]);
-      // this.set('product', productsMap[productid]);
-      return productsMap[productid];
-      // if (this.products) {
-      //   var obj = {};
-      //   for (var i = 0; i < this.products.length; i++) {
-      //     if (this.products[i].id === productid) {
-      //       // console.log(this.products[i]);
-      //       // this.set('product', this.products[i]);
-      //       // return;
-      //       obj = this.products[i];
-      //     }
-      //   }
-      //   // console.log(obj.name);
-      //   return obj;
-      // }
-    },
-
-    _computeCategory: function(categoriesMap, category) {
-      // console.log('_computeCategory: ', category, this.categoriesMap);
-      // console.log(categoriesMap[category.id]);
-
-      // this.set('category', this.categoriesMap[categoryname]);
-      if (category && category.id) {
-        if (category.id === categoriesMap._id[category.id].id) {
-          return categoriesMap._id[category.id];
-        }
-        return categoriesMap._id[category.id];
-      } else {
-        return categoriesMap._id['0'];
-      }
-
-    },
-
-    _computeselectedItemVariations: function(_, req) {
-      // console.log(req.response);
-      this.set('selectedItemVariations', req.response);
-    },
-
-
-
-    checkout: function(order) {
-      var fbref = new Firebase('https://charlesiescom.firebaseio.com/square/orders');
-      fbref.push(order).then(function() {
-        this.fire('order-saved', order);
-      }.bind(this));
-    }
-
-
-  });
-</script>
+        });
+    </script>
+</dom-module>

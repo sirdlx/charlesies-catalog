@@ -1,5 +1,4 @@
 {
-  "firebase": "charlesiescom",
   "public": "dist",
   "ignore": [
     "firebase.json",

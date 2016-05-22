@@ -16,7 +16,9 @@
 <!-- <link rel="import" href="../pages/page-element.html"> -->
 <link rel="import" href="../pages/page-item.html">
 <link rel="import" href="../pages/page-checkout.html">
+<link rel="import" href="../pages/page-admin.html">
 <!-- <link rel="import" href="../pages/page-guide.html"> -->
+<link rel="import" href="../pages/page-account.html">
 <link rel="import" href="../pages/page-not-found.html">
 
 <dom-module id="app-shell">
@@ -41,6 +43,8 @@
           <!-- <app-route path="/products/:productid" element="page-element" bindRouter onUrlChange="updateModel"></app-route> -->
           <app-route path="/products/:productid" element="page-item" bindRouter onUrlChange="updateModel"></app-route>
           <app-route path="/checkout" element="page-checkout" bindRouter onUrlChange="updateModel"></app-route>
+          <app-route path="/account/**" element="page-account" bindRouter onUrlChange="updateModel"></app-route>
+          <!-- <app-route path="/account/:page" element="page-account" bindRouter onUrlChange="updateModel"></app-route> -->
           <!-- <app-route path="/guides/:name" element="page-guide" bindRouter></app-route> -->
           <app-route path="*" element="page-not-found"></app-route>
         </app-router>
@@ -103,6 +107,16 @@
     },
 
     trackPageview: function(e, detail) {
+
+
+      if  (detail.path === '/account/auth/square'){
+
+
+
+
+
+      }
+
       this.debounce('pageview', function() {
         var loc = window.location.pathname + window.location.search;
         ga('send', 'pageview', {
